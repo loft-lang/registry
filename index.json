@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-05-24T15:30:00Z",
+  "updated": "2026-05-24T17:30:00Z",
   "packages": {
     "crypto": {
       "description": "SHA-256, HMAC, and base64 / base64url encoding — cryptographic primitives.",
@@ -16,6 +16,40 @@
           "subpath": "crypto",
           "deps": {},
           "published": "2026-05-24T15:13:34Z"
+        }
+      }
+    },
+    "arguments": {
+      "description": "CLI argument parsing — positional args + flags + auto-generated --help.",
+      "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/arguments",
+      "categories": ["cli"],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/arguments-v0.1.0/arguments-0.1.0.tar.gz",
+          "sha256": "06334720c0d3dda82e8f095076a1e850b49f33369810330cd30a6ebc192ff899",
+          "size": 4155,
+          "loft": ">=0.8",
+          "subpath": "arguments",
+          "deps": {},
+          "published": "2026-05-24T15:13:36Z"
+        }
+      }
+    },
+    "random": {
+      "description": "Pseudo-random number generation — PCG-64 thread-local PRNG with rand_seed reproducibility.",
+      "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/random",
+      "categories": ["math", "random"],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.1.0/random-0.1.0.tar.gz",
+          "sha256": "9c359bc6c035489d812e96077deef2044b9af5109f141ffdbc112ff7e1f775ca",
+          "size": 5694,
+          "loft": ">=0.8",
+          "subpath": "random",
+          "deps": {},
+          "published": "2026-05-24T15:13:38Z"
         }
       }
     }
