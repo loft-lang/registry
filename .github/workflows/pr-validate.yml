@@ -3,12 +3,13 @@
 #
 # PKG.REG R9 — `loft-lang/registry` PR validation workflow.
 #
-# Drop this file at `.github/workflows/pr-validate.yml` in the
-# `loft-lang/registry` repo.  Runs `validate.py` (in the same repo at
-# `tools/validate.py`) against every PR that touches `index.json`.
+# Runs `validate.py` (in this repo at `tools/validate.py`) against
+# every PR that touches `index.json`.  Gates: schema lint, tarball
+# sha256 + size, reproducible-build re-check.
 #
-# Gates: schema lint, tarball sha256 + size, reproducible-build
-# re-check.  See `tools/validate.py` for the gate details.
+# Install step shipped 2026-05-24 (plan-12 Phase 6.5): builds loft
+# from source on the runner.  Switches to a pinned binary release
+# once one exists.
 
 name: PR validate registry
 
@@ -20,7 +21,7 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout PR
         uses: actions/checkout@v4
@@ -32,16 +33,34 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install loft (for reproducible-build gate)
+      - name: Install mold (loft's pinned linker)
         run: |
-          # Pin to the latest tagged loft release.  Adjust the URL +
-          # tag once a stable release pipeline exists.  For the
-          # bootstrap phase, the loft binary can be built from
-          # source on the runner — replace this `wget` with the
-          # cargo install path then.
-          curl -L https://github.com/jjstwerff/loft/releases/latest/download/loft-linux-x86_64 -o /usr/local/bin/loft
-          chmod +x /usr/local/bin/loft
-          loft --version
+          sudo apt-get update
+          sudo apt-get install -y mold
+
+      - name: Resolve loft HEAD SHA
+        id: loft_sha
+        run: |
+          sha=$(git ls-remote https://github.com/jjstwerff/loft.git HEAD | awk '{print $1}')
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Cache loft binary
+        id: loft_cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/loft-bin
+          key: loft-bin-${{ runner.os }}-${{ steps.loft_sha.outputs.sha }}-v1
+
+      - name: Build loft from source (cache miss)
+        if: steps.loft_cache.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth=1 https://github.com/jjstwerff/loft.git /tmp/loft
+          (cd /tmp/loft && cargo build --release --bin loft)
+          mkdir -p /tmp/loft-bin
+          cp /tmp/loft/target/release/loft /tmp/loft-bin/loft
+
+      - name: Add loft to PATH
+        run: echo "/tmp/loft-bin" >> "$GITHUB_PATH"
 
       - name: Run validator
         run: python3 tools/validate.py
