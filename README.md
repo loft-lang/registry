@@ -24,8 +24,7 @@ registry works, read on.
 
 ## How packages get added
 
-**Full guide for library authors**:
-[REGISTRY_SUBMIT.md](https://github.com/jjstwerff/loft/blob/main/doc/claude/REGISTRY_SUBMIT.md)
+**Full guide for library authors**: [SUBMITTING.md](SUBMITTING.md)
 — prerequisites, the 5-step flow, troubleshooting, what NOT to
 include in your package, yanking, mirror policy.  Read that
 before opening a PR.
