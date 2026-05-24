@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-05-24T19:00:00Z",
+  "updated": "2026-05-24T19:30:00Z",
   "packages": {
     "crypto": {
       "description": "SHA-256, HMAC, and base64 / base64url encoding — cryptographic primitives.",
@@ -37,10 +37,10 @@
       }
     },
     "shapes": {
-      "description": "2D shape drawing + collision detection (Rect / Circle / overlap tests).",
+      "description": "2D geometry primitives — Rect, Circle, overlap tests, clamp.  Pure-loft, no other deps.",
       "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/shapes",
-      "categories": ["graphics", "geometry"],
-      "yanked": [],
+      "categories": ["geometry"],
+      "yanked": ["0.1.0"],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/shapes-v0.1.0/shapes-0.1.0.tar.gz",
@@ -48,8 +48,17 @@
           "size": 3049,
           "loft": ">=0.8",
           "subpath": "shapes",
-          "deps": {},
+          "deps": {"graphics": ">=0.1"},
           "published": "2026-05-24T19:00:00Z"
+        },
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/shapes-v0.2.0/shapes-0.2.0.tar.gz",
+          "sha256": "284e8a5c86036911d047d66218751d06ac026b9c07debe7be32c1e51da0bd051",
+          "size": 2510,
+          "loft": ">=0.8",
+          "subpath": "shapes",
+          "deps": {},
+          "published": "2026-05-24T19:30:00Z"
         }
       }
     },
