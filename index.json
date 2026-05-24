@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-05-24T17:30:00Z",
+  "updated": "2026-05-24T18:00:00Z",
   "packages": {
     "crypto": {
       "description": "SHA-256, HMAC, and base64 / base64url encoding — cryptographic primitives.",
@@ -10,8 +10,8 @@
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.1.0/crypto-0.1.0.tar.gz",
-          "sha256": "523c1763f32c8ae01d713f996905ba87abe7ab104f56361f9658dffbadee159a",
-          "size": 6825,
+          "sha256": "0ad0a7b2552f325166aa67e407698411d3757afa1a3421bb2b322eb0cdf8709d",
+          "size": 6944,
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
@@ -44,8 +44,8 @@
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.1.0/random-0.1.0.tar.gz",
-          "sha256": "9c359bc6c035489d812e96077deef2044b9af5109f141ffdbc112ff7e1f775ca",
-          "size": 5694,
+          "sha256": "7599297598bfec378135c90868766ad23046d47c001690a42d79a48d4bb1acaa",
+          "size": 5747,
           "loft": ">=0.8",
           "subpath": "random",
           "deps": {},
