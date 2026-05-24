@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-05-24T19:30:00Z",
+  "updated": "2026-05-24T20:00:00Z",
   "packages": {
     "crypto": {
       "description": "SHA-256, HMAC, and base64 / base64url encoding — cryptographic primitives.",
@@ -76,6 +76,57 @@
           "subpath": "gridmesh",
           "deps": {},
           "published": "2026-05-24T19:00:00Z"
+        }
+      }
+    },
+    "web": {
+      "description": "HTTP client + WebSocket client — ureq + tungstenite via cdylib.",
+      "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/web",
+      "categories": ["net"],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.1.0/web-0.1.0.tar.gz",
+          "sha256": "28ae4fd0ec4a36faa183b4e12245738375975604746437ac7d8e4985d77d8a58",
+          "size": 22377,
+          "loft": ">=0.8",
+          "subpath": "web",
+          "deps": {},
+          "published": "2026-05-24T20:00:00Z"
+        }
+      }
+    },
+    "server": {
+      "description": "HTTP + WebSocket server — TCP sockets + tungstenite via cdylib.",
+      "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/server",
+      "categories": ["net"],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.1.0/server-0.1.0.tar.gz",
+          "sha256": "b28a63d44a655b40f11bf960db8da47313efc6edd63944fb81f3218ada2dfdf5",
+          "size": 16807,
+          "loft": ">=0.8",
+          "subpath": "server",
+          "deps": {"web": ">=0.1"},
+          "published": "2026-05-24T20:00:00Z"
+        }
+      }
+    },
+    "game_protocol": {
+      "description": "Packet framing + ack/retransmit for loft game-networking demos.",
+      "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/game_protocol",
+      "categories": ["net", "game"],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/game_protocol-v0.1.0/game_protocol-0.1.0.tar.gz",
+          "sha256": "948c73e309beecb8bd6cd07ab030a67c22fe5a84b7510735b851a811ac3ad851",
+          "size": 27939,
+          "loft": ">=0.8",
+          "subpath": "game_protocol",
+          "deps": {"web": ">=0.1", "server": ">=0.1"},
+          "published": "2026-05-24T20:00:00Z"
         }
       }
     },
