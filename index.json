@@ -19,8 +19,8 @@
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.2.0/crypto-0.2.0.tar.gz",
-          "sha256": "8f64ef68d36e9301d15f4a923c2bac268c41b3d55af9215dfa1fa6d19ea19519",
-          "size": 9032,
+          "sha256": "15148ea03fb8fd383ef1a6ea5e6f308603c5bfaeb55a71f4641d11fd03f269bf",
+          "size": 9030,
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
@@ -45,8 +45,8 @@
         },
         "0.1.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/arguments-v0.1.1/arguments-0.1.1.tar.gz",
-          "sha256": "db9117bd3244c8ef052710278b3e44cb875d20e19326cb9a0b64972581a82488",
-          "size": 4898,
+          "sha256": "6724f98b6e0d9b53c9c29d1cb4bb84454d840303c5fd9c88fbcdf7486687d771",
+          "size": 4897,
           "loft": ">=0.8",
           "subpath": "arguments",
           "deps": {},
@@ -165,8 +165,8 @@
         },
         "0.1.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.1.1/random-0.1.1.tar.gz",
-          "sha256": "b4eb1da05fa44467b5ded4dbd92c5a6e476235af30114fa51bab42d4d19089bd",
-          "size": 6016,
+          "sha256": "5b7497c5f75b2271fedc2eb9317d6b9c3bcfa5c129ca6eaeb5b1af0f73484474",
+          "size": 6015,
           "loft": ">=0.8",
           "subpath": "random",
           "deps": {},
