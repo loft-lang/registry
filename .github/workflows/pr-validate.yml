@@ -7,9 +7,27 @@
 # every PR that touches `index.json`.  Gates: schema lint, tarball
 # sha256 + size, reproducible-build re-check.
 #
-# Install step shipped 2026-05-24 (plan-12 Phase 6.5): builds loft
-# from source on the runner.  Switches to a pinned binary release
-# once one exists.
+# Aligned with the canonical chunk-repo `library-ci.yml` template
+# from `jjstwerff/loft:doc/claude/lib_plans/12-library-extraction/
+# library-ci.yml.example` (plan-12 Phase 6.5).  Three behavioural
+# changes vs the 2026-05-24 draft:
+#
+#   1. Cache key based on loft's Cargo.lock SHA (was a static key
+#      `cargo-${{ runner.os }}-loft-v1` that never invalidated — a
+#      fresh loft release would still serve stale binaries until
+#      someone rotated the cache name).
+#   2. `actions/checkout@v4` for the loft source clone (was a
+#      hand-rolled `git clone --depth=1`).
+#   3. `workflow_dispatch` trigger so the workflow can be run
+#      manually — useful for sanity-checking a YAML change without
+#      having to open a no-op PR against `index.json` (the file-path
+#      filter below only triggers on real registry changes).
+#
+# `--lib --bin loft` (which the chunk repos need to make
+# `loft --native` find `mmap_storage` at link time) is NOT required
+# here — `tools/validate.py` only calls `loft package`, which is a
+# pure-build command that doesn't invoke rustc on generated code.
+# Using bare `--bin loft` keeps the build smaller and faster.
 
 name: PR validate registry
 
@@ -17,6 +35,7 @@ on:
   pull_request:
     paths:
       - "index.json"
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -34,25 +53,30 @@ jobs:
           python-version: "3.12"
 
       - name: Install mold (loft's pinned linker)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mold
+        run: sudo apt-get update -y && sudo apt-get install -y mold
 
-      - name: Cache cargo registry
+      - name: Clone loft source
+        uses: actions/checkout@v4
+        with:
+          repository: jjstwerff/loft
+          path: loft-src
+
+      - name: Cache cargo registry + loft build
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: cargo-${{ runner.os }}-loft-v1
+            loft-src/target
+          key: loft-${{ hashFiles('loft-src/Cargo.lock') }}
+          restore-keys: |
+            loft-
 
       - name: Build loft from source
+        working-directory: loft-src
         run: |
-          git clone --depth=1 https://github.com/jjstwerff/loft.git /tmp/loft
-          (cd /tmp/loft && cargo build --release --bin loft)
-
-      - name: Add loft to PATH
-        run: echo "/tmp/loft/target/release" >> "$GITHUB_PATH"
+          cargo build --release --bin loft
+          echo "$PWD/target/release" >> $GITHUB_PATH
 
       - name: Run validator
         run: python3 tools/validate.py
