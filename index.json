@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-05-24T20:00:00Z",
+  "updated": "2026-05-30T00:00:00Z",
   "packages": {
     "crypto": {
       "description": "SHA-256, HMAC, and base64 / base64url encoding — cryptographic primitives.",
@@ -16,6 +16,15 @@
           "subpath": "crypto",
           "deps": {},
           "published": "2026-05-24T15:13:34Z"
+        },
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.2.0/crypto-0.2.0.tar.gz",
+          "sha256": "3f890d6a6ae363cce503888a8d6f3e3fc9bd4d4d286658f22d61b8be5f6c7c72",
+          "size": 9002,
+          "loft": ">=0.8",
+          "subpath": "crypto",
+          "deps": {},
+          "published": "2026-05-30T00:00:00Z"
         }
       }
     },
@@ -33,6 +42,15 @@
           "subpath": "arguments",
           "deps": {},
           "published": "2026-05-24T15:13:36Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/arguments-v0.1.1/arguments-0.1.1.tar.gz",
+          "sha256": "68c59afef2bc05d0d9a17e2bb23ed0369e77073469ef31133112969444681e15",
+          "size": 4865,
+          "loft": ">=0.8",
+          "subpath": "arguments",
+          "deps": {},
+          "published": "2026-05-30T00:00:00Z"
         }
       }
     },
@@ -144,6 +162,15 @@
           "subpath": "random",
           "deps": {},
           "published": "2026-05-24T15:13:38Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.1.1/random-0.1.1.tar.gz",
+          "sha256": "5d61223a55193c60baae07dbdae6c0dbcbc792f6581404fcb68202a6604f47b3",
+          "size": 5992,
+          "loft": ">=0.8",
+          "subpath": "random",
+          "deps": {},
+          "published": "2026-05-30T00:00:00Z"
         }
       }
     }
