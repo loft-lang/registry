@@ -76,6 +76,15 @@
           "subpath": "gridmesh",
           "deps": {},
           "published": "2026-05-24T19:00:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gridmesh-v0.1.1/gridmesh-0.1.1.tar.gz",
+          "sha256": "baedd9c4537a2de34fe5a4b5a026a281aa6037411eb3261e2a97fabc15850e13",
+          "size": 11903,
+          "loft": ">=0.8",
+          "subpath": "gridmesh",
+          "deps": {},
+          "published": "2026-05-31T09:13:00Z"
         }
       }
     },
