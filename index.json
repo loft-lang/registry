@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-05-31T18:00:00Z",
+  "updated": "2026-05-31T20:55:00Z",
   "packages": {
     "crypto": {
       "description": "SHA-256, HMAC, and base64 / base64url encoding — cryptographic primitives.",
@@ -119,6 +119,40 @@
           "subpath": "imaging",
           "deps": {},
           "published": "2026-05-31T18:00:00Z"
+        }
+      }
+    },
+    "mesh3d": {
+      "description": "3D geometry primitives — Vec/Mat, Mesh, Scene, Camera, Light.  Standalone (pure-loft, no GPU).",
+      "homepage": "https://github.com/loft-lang/loft-libs-assets/tree/main/mesh3d",
+      "categories": ["graphics", "geometry"],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/mesh3d-v0.1.0/mesh3d-0.1.0.tar.gz",
+          "sha256": "397533e201a740d11b79698053d27ab972413e0c8a6d26919fc82c40b2fabe29",
+          "size": 7716,
+          "loft": ">=0.8",
+          "subpath": "mesh3d",
+          "deps": {},
+          "published": "2026-05-31T20:55:00Z"
+        }
+      }
+    },
+    "glb": {
+      "description": "glTF 2.0 binary (.glb) writer — exports Mesh / Scene as a glb file readable by Blender, three.js, gltf-validator.  Standalone (pure-loft, no GPU).",
+      "homepage": "https://github.com/loft-lang/loft-libs-assets/tree/main/glb",
+      "categories": ["graphics", "asset-format"],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/glb-v0.1.0/glb-0.1.0.tar.gz",
+          "sha256": "5d67363fdf570a781da39ac2609176b013b47d4609074e7a0c3ef5d674cbebe8",
+          "size": 8437,
+          "loft": ">=0.8",
+          "subpath": "glb",
+          "deps": {"mesh3d": ">=0.1"},
+          "published": "2026-05-31T20:55:00Z"
         }
       }
     },
