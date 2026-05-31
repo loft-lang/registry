@@ -93,6 +93,15 @@
           "subpath": "web",
           "deps": {},
           "published": "2026-05-24T20:00:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.1.1/web-0.1.1.tar.gz",
+          "sha256": "71ab397ee28430070ba7d9a5903b7f3b9c611237c2f4bc67f90bf8779d28f83b",
+          "size": 23415,
+          "loft": ">=0.8",
+          "subpath": "web",
+          "deps": {},
+          "published": "2026-05-31T08:48:00Z"
         }
       }
     },
@@ -110,6 +119,15 @@
           "subpath": "server",
           "deps": {"web": ">=0.1"},
           "published": "2026-05-24T20:00:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.1.1/server-0.1.1.tar.gz",
+          "sha256": "01729ea6efdf600da2e3e1a4937a77baa3a7d20fa50af316726dd294069fa63d",
+          "size": 16815,
+          "loft": ">=0.8",
+          "subpath": "server",
+          "deps": {"web": ">=0.1"},
+          "published": "2026-05-31T08:48:00Z"
         }
       }
     },
@@ -127,6 +145,15 @@
           "subpath": "game_protocol",
           "deps": {"web": ">=0.1", "server": ">=0.1"},
           "published": "2026-05-24T20:00:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/game_protocol-v0.1.1/game_protocol-0.1.1.tar.gz",
+          "sha256": "9c11bd55f55bcfdf356e7fc297224a7893be3729e5f5216976d564b526b5ca7a",
+          "size": 22110,
+          "loft": ">=0.8",
+          "subpath": "game_protocol",
+          "deps": {"web": ">=0.1", "server": ">=0.1"},
+          "published": "2026-05-31T08:48:00Z"
         }
       }
     },
