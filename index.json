@@ -268,6 +268,23 @@
           "published": "2026-05-31T22:38:53Z"
         }
       }
+    },
+    "hex_world": {
+      "description": "Sparse 32×32-chunk hex-grid world data model — 4-byte packed Cell, sparse Chunk/World, save/load.  The addressing primitive for hex-grid games on the lavition engine.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_world",
+      "categories": ["world", "game"],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_world-v0.1.0/hex_world-0.1.0.tar.gz",
+          "sha256": "e537960b7b9111494f4ec80104c77670f6acc68a50e090cae03bccb24d4bae19",
+          "size": 18009,
+          "loft": ">=0.8",
+          "subpath": "hex_world",
+          "deps": {},
+          "published": "2026-06-01T08:00:00Z"
+        }
+      }
     }
   }
 }
