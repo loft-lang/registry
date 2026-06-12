@@ -31,6 +31,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -126,7 +127,33 @@ def gate_reproducible_build(idx: dict, prev: dict) -> None:
     Skipped when the package has no `homepage` (private deps,
     third-party-hosted tarballs).  Schema lint always runs; this gate
     is the additional reproducibility check.
+
+    ## Single-package vs multi-package chunk-repo homepages
+
+    For a **single-package repo**, `homepage` is the repo root
+    (`https://github.com/<owner>/<repo>`), the tag is `v<version>`,
+    and `loft package` runs at the repo root.
+
+    For a **multi-package chunk repo** (e.g. `loft-libs-core` hosts
+    `arguments`, `crypto`, `random` in separate subdirectories), the
+    convention is:
+
+      - `homepage` = `https://github.com/<owner>/<repo>/tree/<branch>/<pkg>`
+      - tag = `<pkg>-v<version>` (so `arguments-v0.1.1` not `v0.1.1`)
+      - `subpath` field carries `<pkg>` (also extractable from the homepage)
+
+    Both shapes coexist in the registry today: `time`, `markdown`,
+    `html` (planned) are single-package; `arguments`, `crypto`,
+    `random`, `shapes`, `gridmesh`, `web`, `server`, `game_protocol`
+    are multi-package chunk-repo members.
     """
+    # Matches `https://github.com/<owner>/<repo>/tree/<branch>/<subpath>`.
+    # The subpath captures any subdirectory path (may contain slashes
+    # for nested packages, though current convention is single-segment).
+    chunk_homepage = re.compile(
+        r"^(https://github\.com/[^/]+/[^/]+)/tree/[^/]+/(.+?)/?$"
+    )
+
     new_entries = _new_entries(idx, prev)
     for name, ver, vobj in new_entries:
         pkg_meta = idx["packages"][name]
@@ -134,27 +161,52 @@ def gate_reproducible_build(idx: dict, prev: dict) -> None:
         if not homepage or "github.com" not in homepage:
             print(f"[repro] {name} v{ver} — no GitHub homepage, skipping")
             continue
-        with tempfile.TemporaryDirectory() as tmp:
+
+        m = chunk_homepage.match(homepage)
+        if m:
+            # Multi-package chunk repo: clone the parent + cd subpath.
+            clone_url = m.group(1)
+            url_subpath = m.group(2)
+            # Prefer the explicit `subpath` field on the version object
+            # when present; fall back to the homepage-derived value.  If
+            # both exist and disagree, the explicit subpath wins (it's
+            # the canonical declaration; the homepage URL is a hint).
+            subpath = vobj.get("subpath", url_subpath)
+            tag = f"{name}-v{ver}"
+        else:
+            # Single-package repo: clone the homepage directly, repo
+            # root is the package root.
+            clone_url = homepage
+            subpath = ""
             tag = f"v{ver}"
-            print(f"[repro] cloning {homepage} @ {tag}")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            print(f"[repro] cloning {clone_url} @ {tag}"
+                  + (f" (subpath: {subpath})" if subpath else ""))
             try:
                 subprocess.check_call(
-                    ["git", "clone", "--depth", "1", "--branch", tag, homepage, tmp],
+                    ["git", "clone", "--depth", "1", "--branch", tag, clone_url, tmp],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.PIPE,
                 )
             except subprocess.CalledProcessError as e:
                 fail(
-                    f"`{name}` v{ver}: git clone of {homepage}@{tag} failed: "
+                    f"`{name}` v{ver}: git clone of {clone_url}@{tag} failed: "
                     f"{e.stderr.decode(errors='replace') if e.stderr else e}"
+                )
+            pkg_dir = Path(tmp) / subpath if subpath else Path(tmp)
+            if not pkg_dir.is_dir():
+                fail(
+                    f"`{name}` v{ver}: subpath `{subpath}` does not exist "
+                    f"in the cloned tree at {clone_url}@{tag}"
                 )
             try:
                 subprocess.check_call(
-                    ["loft", "package"], cwd=tmp, stdout=subprocess.DEVNULL,
+                    ["loft", "package"], cwd=pkg_dir, stdout=subprocess.DEVNULL,
                 )
             except subprocess.CalledProcessError as e:
                 fail(f"`{name}` v{ver}: `loft package` failed: {e}")
-            artefact = Path(tmp) / f"{name}-{ver}.tar.gz"
+            artefact = pkg_dir / f"{name}-{ver}.tar.gz"
             if not artefact.exists():
                 fail(f"`{name}` v{ver}: `loft package` produced no artefact")
             actual = hashlib.sha256(artefact.read_bytes()).hexdigest()
@@ -163,7 +215,8 @@ def gate_reproducible_build(idx: dict, prev: dict) -> None:
                     f"`{name}` v{ver}: REPRODUCIBLE-BUILD MISMATCH\n"
                     f"  PR claims sha256: {vobj['sha256']}\n"
                     f"  rebuilt from src: {actual}\n"
-                    f"  homepage:         {homepage}@{tag}\n"
+                    f"  clone url:        {clone_url}@{tag}"
+                    + (f" (subpath: {subpath})" if subpath else "") + "\n"
                     f"  The source repo at {tag} produces a different "
                     f"tarball than the one uploaded to releases.  Either:\n"
                     f"    (a) the GitHub release tarball is stale — re-upload, OR\n"

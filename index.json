@@ -1,11 +1,13 @@
 {
   "schema_version": 1,
-  "updated": "2026-05-30T00:00:00Z",
+  "updated": "2026-06-12T20:00:00Z",
   "packages": {
     "crypto": {
-      "description": "SHA-256, HMAC, and base64 / base64url encoding — cryptographic primitives.",
+      "description": "SHA-256, HMAC, and base64 / base64url encoding \u2014 cryptographic primitives.",
       "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/crypto",
-      "categories": ["crypto"],
+      "categories": [
+        "crypto"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -29,9 +31,11 @@
       }
     },
     "arguments": {
-      "description": "CLI argument parsing — positional args + flags + auto-generated --help.",
+      "description": "CLI argument parsing \u2014 positional args + flags + auto-generated --help.",
       "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/arguments",
-      "categories": ["cli"],
+      "categories": [
+        "cli"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -55,10 +59,14 @@
       }
     },
     "shapes": {
-      "description": "2D geometry primitives — Rect, Circle, overlap tests, clamp.  Pure-loft, no other deps.",
+      "description": "2D geometry primitives \u2014 Rect, Circle, overlap tests, clamp.  Pure-loft, no other deps.",
       "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/shapes",
-      "categories": ["geometry"],
-      "yanked": ["0.1.0"],
+      "categories": [
+        "geometry"
+      ],
+      "yanked": [
+        "0.1.0"
+      ],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/shapes-v0.1.0/shapes-0.1.0.tar.gz",
@@ -66,7 +74,9 @@
           "size": 3049,
           "loft": ">=0.8",
           "subpath": "shapes",
-          "deps": {"graphics": ">=0.1"},
+          "deps": {
+            "graphics": ">=0.1"
+          },
           "published": "2026-05-24T19:00:00Z"
         },
         "0.2.0": {
@@ -83,7 +93,10 @@
     "gridmesh": {
       "description": "Chunk-local mesh-generation primitives for world-building algorithms.",
       "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/gridmesh",
-      "categories": ["graphics", "world"],
+      "categories": [
+        "graphics",
+        "world"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -94,13 +107,104 @@
           "subpath": "gridmesh",
           "deps": {},
           "published": "2026-05-24T19:00:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gridmesh-v0.1.1/gridmesh-0.1.1.tar.gz",
+          "sha256": "baedd9c4537a2de34fe5a4b5a026a281aa6037411eb3261e2a97fabc15850e13",
+          "size": 11903,
+          "loft": ">=0.8",
+          "subpath": "gridmesh",
+          "deps": {},
+          "published": "2026-05-31T09:13:00Z"
+        }
+      }
+    },
+    "graphics": {
+      "description": "2D canvas + 3D rendering for loft (Canvas pixel surface, Mesh / Scene / glTF, OpenGL bindings).",
+      "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/graphics",
+      "categories": [
+        "graphics"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.1.0/graphics-0.1.0.tar.gz",
+          "sha256": "762271f637cbedaff4c3cda73ef9c6da0bcc826b8c81d9bb08eae03a645510db",
+          "size": 88828,
+          "loft": ">=0.8",
+          "subpath": "graphics",
+          "deps": {},
+          "published": "2026-05-31T18:00:00Z"
+        }
+      }
+    },
+    "imaging": {
+      "description": "PNG load/save + pixel manipulation for loft (Stage A \u2014 interpreter + native; wasm bridge deferred pending loft-host-ffi crate).",
+      "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/imaging",
+      "categories": [
+        "graphics"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.1.0/imaging-0.1.0.tar.gz",
+          "sha256": "1eceb3771cfbefed9809b2efec39fd8180bba0336cc959e2e0ed6ddb369cf4ce",
+          "size": 12320,
+          "loft": ">=0.8",
+          "subpath": "imaging",
+          "deps": {},
+          "published": "2026-05-31T18:00:00Z"
+        }
+      }
+    },
+    "mesh3d": {
+      "description": "3D geometry primitives \u2014 Vec/Mat, Mesh, Scene, Camera, Light.  Standalone (pure-loft, no GPU).",
+      "homepage": "https://github.com/loft-lang/loft-libs-assets/tree/main/mesh3d",
+      "categories": [
+        "graphics",
+        "geometry"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/mesh3d-v0.1.0/mesh3d-0.1.0.tar.gz",
+          "sha256": "397533e201a740d11b79698053d27ab972413e0c8a6d26919fc82c40b2fabe29",
+          "size": 7716,
+          "loft": ">=0.8",
+          "subpath": "mesh3d",
+          "deps": {},
+          "published": "2026-05-31T20:55:00Z"
+        }
+      }
+    },
+    "glb": {
+      "description": "glTF 2.0 binary (.glb) writer \u2014 exports Mesh / Scene as a glb file readable by Blender, three.js, gltf-validator.  Standalone (pure-loft, no GPU).",
+      "homepage": "https://github.com/loft-lang/loft-libs-assets/tree/main/glb",
+      "categories": [
+        "graphics",
+        "asset-format"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/glb-v0.1.0/glb-0.1.0.tar.gz",
+          "sha256": "5d67363fdf570a781da39ac2609176b013b47d4609074e7a0c3ef5d674cbebe8",
+          "size": 8437,
+          "loft": ">=0.8",
+          "subpath": "glb",
+          "deps": {
+            "mesh3d": ">=0.1"
+          },
+          "published": "2026-05-31T20:55:00Z"
         }
       }
     },
     "web": {
-      "description": "HTTP client + WebSocket client — ureq + tungstenite via cdylib.",
+      "description": "HTTP client + WebSocket client \u2014 ureq + tungstenite via cdylib.",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/web",
-      "categories": ["net"],
+      "categories": [
+        "net"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -111,13 +215,24 @@
           "subpath": "web",
           "deps": {},
           "published": "2026-05-24T20:00:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.1.1/web-0.1.1.tar.gz",
+          "sha256": "71ab397ee28430070ba7d9a5903b7f3b9c611237c2f4bc67f90bf8779d28f83b",
+          "size": 23415,
+          "loft": ">=0.8",
+          "subpath": "web",
+          "deps": {},
+          "published": "2026-05-31T08:48:00Z"
         }
       }
     },
     "server": {
-      "description": "HTTP + WebSocket server — TCP sockets + tungstenite via cdylib.",
+      "description": "HTTP + WebSocket server \u2014 TCP sockets + tungstenite via cdylib.",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/server",
-      "categories": ["net"],
+      "categories": [
+        "net"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -126,15 +241,31 @@
           "size": 16807,
           "loft": ">=0.8",
           "subpath": "server",
-          "deps": {"web": ">=0.1"},
+          "deps": {
+            "web": ">=0.1"
+          },
           "published": "2026-05-24T20:00:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.1.1/server-0.1.1.tar.gz",
+          "sha256": "01729ea6efdf600da2e3e1a4937a77baa3a7d20fa50af316726dd294069fa63d",
+          "size": 16815,
+          "loft": ">=0.8",
+          "subpath": "server",
+          "deps": {
+            "web": ">=0.1"
+          },
+          "published": "2026-05-31T08:48:00Z"
         }
       }
     },
     "game_protocol": {
       "description": "Packet framing + ack/retransmit for loft game-networking demos.",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/game_protocol",
-      "categories": ["net", "game"],
+      "categories": [
+        "net",
+        "game"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -143,15 +274,33 @@
           "size": 27939,
           "loft": ">=0.8",
           "subpath": "game_protocol",
-          "deps": {"web": ">=0.1", "server": ">=0.1"},
+          "deps": {
+            "web": ">=0.1",
+            "server": ">=0.1"
+          },
           "published": "2026-05-24T20:00:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/game_protocol-v0.1.1/game_protocol-0.1.1.tar.gz",
+          "sha256": "9c11bd55f55bcfdf356e7fc297224a7893be3729e5f5216976d564b526b5ca7a",
+          "size": 22110,
+          "loft": ">=0.8",
+          "subpath": "game_protocol",
+          "deps": {
+            "web": ">=0.1",
+            "server": ">=0.1"
+          },
+          "published": "2026-05-31T08:48:00Z"
         }
       }
     },
     "random": {
-      "description": "Pseudo-random number generation — PCG-64 thread-local PRNG with rand_seed reproducibility.",
+      "description": "Pseudo-random number generation \u2014 PCG-64 thread-local PRNG with rand_seed reproducibility.",
       "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/random",
-      "categories": ["math", "random"],
+      "categories": [
+        "math",
+        "random"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -171,6 +320,30 @@
           "subpath": "random",
           "deps": {},
           "published": "2026-05-30T00:00:00Z"
+        }
+      }
+    },
+    "regex": {
+      "description": "Small-script regex: matches / find / split with a thread-local pattern cache.",
+      "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/regex",
+      "categories": [
+        "text"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.1.0/regex-0.1.0.tar.gz",
+          "sha256": "7ad5a348bec5b98b6f79a4ed3cc5fd72a0ac5fa8b60570e307a61222e01efe6b",
+          "size": 6900,
+          "loft": ">=0.8",
+          "subpath": "regex",
+          "deps": {},
+          "triggers": [
+            "matches:text",
+            "regex_find:text",
+            "regex_split:text"
+          ],
+          "published": "2026-05-31T22:38:53Z"
         }
       }
     }
