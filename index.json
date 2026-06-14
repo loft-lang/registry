@@ -111,6 +111,15 @@
           "subpath": "graphics",
           "deps": {},
           "published": "2026-06-14T08:47:45Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.2.1/graphics-0.2.1.tar.gz",
+          "sha256": "5fb0b21fc1cb2fb93f6003379c7c3ed791161cf89e31653a2d05ec4c16516202",
+          "size": 92765,
+          "loft": ">=0.8",
+          "subpath": "graphics",
+          "deps": {},
+          "published": "2026-06-14T12:53:26Z"
         }
       }
     },
