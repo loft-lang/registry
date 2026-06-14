@@ -274,6 +274,17 @@
             "web": ">=0.1"
           },
           "published": "2026-05-31T08:48:00Z"
+        },
+        "0.1.2": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.1.2/server-0.1.2.tar.gz",
+          "sha256": "14c282d0ef649c027505442ddf3534ff1cbafec467e19015ca2ca9d12cbdb173",
+          "size": 17261,
+          "loft": ">=0.8",
+          "subpath": "server",
+          "deps": {
+            "web": ">=0.1"
+          },
+          "published": "2026-06-14T15:59:36Z"
         }
       }
     },
