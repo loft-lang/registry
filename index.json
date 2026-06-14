@@ -398,7 +398,7 @@
       }
     },
     "hex_grid": {
-      "description": "loft library hex_grid",
+      "description": "Hex-grid geometry — axial/pixel conversion, neighbours, distance, and corner offsets.",
       "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_grid",
       "categories": [],
       "yanked": [],
@@ -432,7 +432,7 @@
       }
     },
     "hex_world": {
-      "description": "<!--",
+      "description": "Sparse 32x32-chunk hex-grid world data model — Cell / Chunk / World with binary save/load.",
       "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_world",
       "categories": [],
       "yanked": [],
@@ -449,7 +449,7 @@
       }
     },
     "html": {
-      "description": "A loft library (part of the loft-lang `loft-libs-docs` package set).",
+      "description": "HTML escaping helpers for loft.",
       "homepage": "https://github.com/loft-lang/loft-libs-docs/tree/main/html",
       "categories": [],
       "yanked": [],
@@ -466,7 +466,7 @@
       }
     },
     "input": {
-      "description": "A loft library (part of the loft-lang `loft-libs-game` package set).",
+      "description": "Game input for loft — action/axis bindings resolved to per-tick input state.",
       "homepage": "https://github.com/loft-lang/loft-libs-game/tree/main/input",
       "categories": [],
       "yanked": [],
@@ -485,7 +485,7 @@
       }
     },
     "markdown": {
-      "description": "A loft library (part of the loft-lang `loft-libs-docs` package set).",
+      "description": "Markdown-to-HTML rendering for loft — headings, inline spans, slugify, link rewriting.",
       "homepage": "https://github.com/loft-lang/loft-libs-docs/tree/main/markdown",
       "categories": [],
       "yanked": [],
