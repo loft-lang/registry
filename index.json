@@ -28,15 +28,6 @@
           "deps": {},
           "published": "2026-06-14T14:42:31Z"
         },
-        "0.3.0": {
-          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.0/crypto-0.3.0.tar.gz",
-          "sha256": "0877eb38c1747b5e34edb1a3808a00676e5e25615936c2585f9e0e94a66a936e",
-          "size": 20743,
-          "loft": ">=0.8",
-          "subpath": "crypto",
-          "deps": {},
-          "published": "2026-06-18T17:22:09Z"
-        },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.1/crypto-0.3.1.tar.gz",
           "sha256": "11312d910fb047e95d71e4e8c82a3173289945ec485a184c2bf2d43021ab1e8f",
@@ -493,7 +484,9 @@
     "hex_grid": {
       "description": "Hex-grid geometry \u2014 axial/pixel conversion, neighbours, distance, and corner offsets.",
       "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_grid",
-      "categories": [],
+      "categories": [
+        "geometry"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -510,7 +503,9 @@
     "hex_terrain": {
       "description": "The OVERLAND terrain layer of the `hex_*` family: a coarse overland hex lattice",
       "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_terrain",
-      "categories": [],
+      "categories": [
+        "world"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -527,7 +522,9 @@
     "hex_world": {
       "description": "Sparse 32x32-chunk hex-grid world data model \u2014 Cell / Chunk / World with binary save/load.",
       "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_world",
-      "categories": [],
+      "categories": [
+        "world"
+      ],
       "yanked": [],
       "versions": {
         "0.1.1": {
@@ -544,7 +541,9 @@
     "html": {
       "description": "HTML escaping helpers for loft.",
       "homepage": "https://github.com/loft-lang/loft-libs-docs/tree/main/html",
-      "categories": [],
+      "categories": [
+        "text"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -561,7 +560,9 @@
     "input": {
       "description": "Game input for loft \u2014 action/axis bindings resolved to per-tick input state.",
       "homepage": "https://github.com/loft-lang/loft-libs-game/tree/main/input",
-      "categories": [],
+      "categories": [
+        "game"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -580,7 +581,9 @@
     "markdown": {
       "description": "Markdown-to-HTML rendering for loft \u2014 headings, inline spans, slugify, link rewriting.",
       "homepage": "https://github.com/loft-lang/loft-libs-docs/tree/main/markdown",
-      "categories": [],
+      "categories": [
+        "text"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
