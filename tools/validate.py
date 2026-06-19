@@ -11,7 +11,10 @@ template directory).
 Three gates per PR:
 
 1. **Schema lint** — every package + version row has the required
-   fields, types match, schema_version is unchanged.
+   fields, types match, schema_version is unchanged; AND every package
+   carries correct docs (non-empty description, non-empty categories,
+   http(s) homepage) so the auto-generated library catalogue can never be
+   incomplete — a doc-less library is invisible and gets reimplemented.
 2. **Tarball verify** — download every newly-added `versions.<v>.url`,
    hash it, compare to the PR's declared sha256.  Reject on
    mismatch.  Caught: publisher pasted wrong hash, tarball was
@@ -81,6 +84,30 @@ def gate_schema(idx: dict) -> None:
     for name, pkg in idx["packages"].items():
         if "versions" not in pkg or not isinstance(pkg["versions"], dict):
             fail(f"package `{name}`: missing or non-object `versions`")
+        # Docs gate — a library whose docs are missing or wrong is invisible in
+        # the auto-generated catalogue (loft `doc/claude/LIBRARIES.md`), so agents
+        # never find it and reimplement it (duplicate code, new bugs).  Reject a
+        # package that does not carry correct per-package docs.
+        desc = pkg.get("description")
+        if not isinstance(desc, str) or len(desc.strip()) < 10:
+            fail(
+                f"package `{name}`: `description` missing or too short — it is the "
+                f"library's one-line docs in the catalogue; write a real summary"
+            )
+        cats = pkg.get("categories")
+        if not isinstance(cats, list) or not cats or not all(
+            isinstance(c, str) and c.strip() for c in cats
+        ):
+            fail(
+                f"package `{name}`: `categories` must be a non-empty list of "
+                f"non-empty strings (it groups the library in the catalogue)"
+            )
+        hp = pkg.get("homepage")
+        if not isinstance(hp, str) or not hp.strip().lower().startswith("http"):
+            fail(
+                f"package `{name}`: `homepage` must be an http(s) URL "
+                f"(the catalogue links to it for the full API docs)"
+            )
         for ver, vobj in pkg["versions"].items():
             for required in ("url", "sha256", "size", "loft", "published"):
                 if required not in vobj:

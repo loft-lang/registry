@@ -1,0 +1,4 @@
+# Python bytecode cache — left behind by tools/validate.py and any local
+# tooling; never belongs in the registry.
+__pycache__/
+*.pyc
