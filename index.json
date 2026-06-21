@@ -315,6 +315,15 @@
           "subpath": "web",
           "deps": {},
           "published": "2026-06-18T21:25:56Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.2.1/web-0.2.1.tar.gz",
+          "sha256": "e8a73ed6ca26ee0b865d232645ab80472a6f9bf962aed5ac61da0933fa7c0fb9",
+          "size": 29277,
+          "loft": ">=0.8",
+          "subpath": "web",
+          "deps": {},
+          "published": "2026-06-21T18:43:07Z"
         }
       }
     },
