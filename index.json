@@ -36,6 +36,15 @@
           "subpath": "crypto",
           "deps": {},
           "published": "2026-06-18T21:25:56Z"
+        },
+        "0.3.2": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.2/crypto-0.3.2.tar.gz",
+          "sha256": "39a72aa79a4112d766d5ce1e3293bac0104ebcde8e1c0ee9792143d68627f1b3",
+          "size": 37981,
+          "loft": ">=0.8",
+          "subpath": "crypto",
+          "deps": {},
+          "published": "2026-06-21T14:34:05Z"
         }
       }
     },
