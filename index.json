@@ -92,6 +92,15 @@
           "subpath": "arguments",
           "deps": {},
           "published": "2026-06-14T14:42:30Z"
+        },
+        "0.1.2": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/arguments-v0.1.2/arguments-0.1.2.tar.gz",
+          "sha256": "f676f22df63f0d61588b66a647185f0bdf585d112636d455050a712822dbc2ee",
+          "size": 4920,
+          "loft": ">=0.8",
+          "subpath": "arguments",
+          "deps": {},
+          "published": "2026-06-21T17:04:38Z"
         }
       }
     },
