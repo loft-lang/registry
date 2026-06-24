@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-06-22T05:53:34Z",
+  "updated": "2026-06-24T19:53:23Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -73,6 +73,15 @@
           "subpath": "crypto",
           "deps": {},
           "published": "2026-06-22T05:53:34Z"
+        },
+        "0.3.4": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.4/crypto-0.3.4.tar.gz",
+          "sha256": "4f19515a93e89f65b9841e07997a66894a0073a71a1bca0e3697c9da9bbf2c01",
+          "size": 46506,
+          "loft": ">=0.8",
+          "subpath": "crypto",
+          "deps": {},
+          "published": "2026-06-24T19:53:23Z"
         }
       }
     },
