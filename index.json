@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-06-24T22:03:05Z",
+  "updated": "2026-06-29T08:18:05Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
