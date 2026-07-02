@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-02T14:06:21Z",
+  "updated": "2026-07-02T18:52:16Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -878,6 +878,85 @@
           "subpath": "hex_world",
           "deps": {},
           "published": "2026-06-14T14:42:34Z"
+        },
+        "0.1.2": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_world-v0.1.2/hex_world-0.1.2.tar.gz",
+          "sha256": "894bae52ac73c404e5efdbc0501ace7fe16b4a793cceccf948b9223b448201a1",
+          "size": 18097,
+          "loft": ">=0.8",
+          "subpath": "hex_world",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Cell",
+              "doc": "4-byte cell.  c_color uses the u8 typedef (integer limit(0,255)\nsize(1)); c_age uses u16 (size(2)).  Storage packs to exactly 4\nbytes per cell — the projector ships them through the binary\nsurface in chunk-major order.\n\nc_color = 0 means \"empty\" (no crystal, no TTT mark).  Both clients\ntreat 0 as background; non-zero as live content."
+            },
+            {
+              "sig": "pub struct Chunk",
+              "doc": "32x32 grid at chunk coords (ck_cx, ck_cz).  Index into ck_cells:\nhx * 32 + hz where hx, hz ∈ [0, 31].  Same shape as moros_map's\nChunk minus the cy layer (this world is single-layer)."
+            },
+            {
+              "sig": "pub struct World",
+              "doc": "Top-level container.  Sparse: only chunks with at least one\nnon-empty cell live in `chunks`; empty chunks are removed by the\ntick loop's GC pass.  `tick` is monotonic per server lifetime."
+            },
+            {
+              "sig": "pub fn chunk_idx_32(v: integer) -> integer",
+              "doc": "floor(v / 32) — handles negative v correctly (C-style `/` rounds\ntoward zero, which silently maps cell (-1, 0) to chunk 0 instead\nof chunk -1)."
+            },
+            {
+              "sig": "pub fn hex_idx_32(v: integer) -> integer",
+              "doc": "v mod 32, always in [0, 31]."
+            },
+            {
+              "sig": "pub fn cell_empty() -> Cell",
+              "doc": "Default empty cell.  All fields zero; serialises to four 0x00\nbytes on the wire."
+            },
+            {
+              "sig": "pub fn build_chunk(cx: integer, cz: integer) -> Chunk",
+              "doc": "Build a 32x32 chunk filled with empty cells at chunk coords\n(cx, cz)."
+            },
+            {
+              "sig": "pub fn world_empty() -> World",
+              "doc": "New empty world, tick 0, no chunks."
+            },
+            {
+              "sig": "pub fn has_chunk(self: World, q: integer, r: integer) -> boolean",
+              "doc": "True iff a chunk exists at the global (q, r)."
+            },
+            {
+              "sig": "pub fn ensure_chunk(self: &World, q: integer, r: integer)",
+              "doc": "Ensure a chunk exists at the global (q, r); creates a 32x32 of\nempty cells if absent."
+            },
+            {
+              "sig": "pub fn get_cell(self: World, q: integer, r: integer) -> Cell",
+              "doc": "Read the cell at global (q, r).  Returns `cell_empty()` when the\nchunk does not exist (sparse-world convention — empty chunks are\nimplicitly all-empty)."
+            },
+            {
+              "sig": "pub fn set_cell(self: &World, q: integer, r: integer, value: Cell)",
+              "doc": "Write a cell at global (q, r).  Creates the containing chunk on\ndemand; does NOT GC empty chunks (the tick loop's end-of-tick\npass owns that)."
+            },
+            {
+              "sig": "pub fn cell_count(self: World) -> integer",
+              "doc": "Total number of non-empty cells across every chunk."
+            },
+            {
+              "sig": "pub fn neighbour_count(self: World, q: integer, r: integer) -> integer",
+              "doc": "Count filled axial-hex neighbours of the cell at global (q, r).\nReturns 0..=6.  Empty centre cell is fine — neighbours are read\nindependently of the centre's state."
+            },
+            {
+              "sig": "pub fn tick_and_decay(self: &World, base_lifetime: integer,",
+              "doc": "── Tick + decay ───────────────────────────────────────────────────\n\nOne world step: advances `tick`, ages every non-empty cell by 1,\nthen removes any cell whose `c_age` has crossed\n`effective_lifetime + decay_window` where\n`effective_lifetime = base_lifetime + neighbour_lease *\nfilled_neighbour_count`.  Neighbour counts are computed against\nthe PRE-TICK state — a single tick can remove a connected blob\nof cells, but the cascade (centre losing its neighbour support)\nonly fires on the NEXT tick.  This keeps the simulation\ndeterministic per-step and prevents one-tick complete collapse\nof large clusters."
+            },
+            {
+              "sig": "pub fn world_save(self: World, path: text)",
+              "doc": "Save the world to `path`, replacing whatever was there."
+            },
+            {
+              "sig": "pub fn world_load(self: &World, path: text) -> integer",
+              "doc": "Load the world from `path`.  Mutates `self` in place; pre-existing\ncells in `self` are left untouched unless the snapshot overwrites\nthe same (q, r).  Returns the number of cells loaded.  Returns 0 if\nthe file does not exist, has the wrong magic, or carries an\nunsupported version — never panics."
+            }
+          ],
+          "published": "2026-07-02T18:52:16Z"
         }
       }
     },
