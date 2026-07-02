@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-02T11:59:45Z",
+  "updated": "2026-07-02T14:06:21Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -444,7 +444,9 @@
       "categories": [
         "net"
       ],
-      "yanked": [],
+      "yanked": [
+        "0.2.2"
+      ],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.1.0/web-0.1.0.tar.gz",
