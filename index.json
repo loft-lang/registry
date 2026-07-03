@@ -484,15 +484,6 @@
           "deps": {},
           "published": "2026-06-21T18:43:07Z"
         },
-        "0.2.2": {
-          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.2.2/web-0.2.2.tar.gz",
-          "sha256": "59518a562b865dac388b017651701a36f9160d1c2de987b4d410a0675222085c",
-          "size": 29571,
-          "loft": ">=0.8",
-          "subpath": "web",
-          "deps": {},
-          "published": "2026-06-24T22:03:05Z"
-        },
         "0.2.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.2.3/web-0.2.3.tar.gz",
           "sha256": "328a8d43155c756430bd669a5df2dc3475f8a028466840190b6548ea41df860d",
