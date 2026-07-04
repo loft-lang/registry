@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-03T06:14:17Z",
+  "updated": "2026-07-04T21:53:32Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -18,6 +18,38 @@
           "subpath": "cbor",
           "deps": {},
           "published": "2026-06-21T16:45:48Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/cbor-v0.1.1/cbor-0.1.1.tar.gz",
+          "sha256": "74424936a0079985cb598e40f24b6cdcf876f51e4afc162086836965d748e76c",
+          "size": 4819,
+          "loft": ">=0.8",
+          "subpath": "cbor",
+          "deps": {},
+          "triggers": [],
+          "api": [
+            {
+              "sig": "pub enum CborValue",
+              "doc": "A dynamic CBOR value.  Mirrors the stdlib `JsonValue`, with CBOR's extra\n`CBytes` (native byte string) and the integer split that CBOR makes at the\nwire level folded into one signed `CInt`."
+            },
+            {
+              "sig": "pub struct CborEntry",
+              "doc": "One key/value pair of a `CMap`."
+            },
+            {
+              "sig": "pub fn encode(v: CborValue) -> vector<u8>",
+              "doc": "Encode a `CborValue` to canonical CBOR bytes."
+            },
+            {
+              "sig": "pub struct Decoded",
+              "doc": "The result of decoding one CBOR value: the `value`, the byte position just\npast it (`next`), and `ok` — false on any malformed / non-canonical /\ntruncated input.  Decoding never crashes (loft-safe): a bad byte stream\nyields ok=false rather than a trap."
+            },
+            {
+              "sig": "pub fn decode(bytes: vector<u8>) -> Decoded",
+              "doc": "Decode canonical CBOR bytes into a `CborValue`.  Returns `ok=false` on any\nmalformed, non-canonical, or truncated input — and rejects trailing bytes\nafter the top-level value.  Never crashes."
+            }
+          ],
+          "published": "2026-07-04T21:53:24Z"
         }
       }
     },
@@ -82,6 +114,113 @@
           "subpath": "crypto",
           "deps": {},
           "published": "2026-06-24T19:53:23Z"
+        },
+        "0.3.5": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.5/crypto-0.3.5.tar.gz",
+          "sha256": "60905f7b842376c9901f0ce70fe847548a835662da098d82c193034e60b85c38",
+          "size": 38766,
+          "loft": ">=0.8",
+          "subpath": "crypto",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn sha256(data: text) -> text",
+              "doc": "SHA-256 hash of a string. Returns 64-char hex string."
+            },
+            {
+              "sig": "pub fn sha256_b64(data_b64: text) -> text",
+              "doc": "SHA-256 of the RAW BYTES decoded from base64 `data_b64`. Returns base64 of the\n32-byte digest. Use this to hash arbitrary byte strings (ciphertext, canonical\nCBOR) that are not valid UTF-8 and so cannot be passed to `sha256` as text."
+            },
+            {
+              "sig": "pub fn hmac_sha256(key: text, data: text) -> text",
+              "doc": "HMAC-SHA256 of data with key. Returns 64-char hex string."
+            },
+            {
+              "sig": "pub fn base64_encode(data: text) -> text",
+              "doc": "Base64 encode a string."
+            },
+            {
+              "sig": "pub fn base64_decode(data: text) -> text",
+              "doc": "Base64 decode a string."
+            },
+            {
+              "sig": "pub fn base64url_encode(data: text) -> text",
+              "doc": "Base64url encode (JWT-safe, no padding)."
+            },
+            {
+              "sig": "pub fn ed25519_public_key(secret_key_b64: text) -> text",
+              "doc": "Derive the 32-byte public key (base64) from a 32-byte secret seed (base64)."
+            },
+            {
+              "sig": "pub fn ed25519_sign(secret_key_b64: text, message_b64: text) -> text",
+              "doc": "Sign the base64 `message` bytes with the 32-byte secret seed (base64).\nReturns the 64-byte signature, base64."
+            },
+            {
+              "sig": "pub fn ed25519_verify(public_key_b64: text, message_b64: text, signature_b64: text) -> boolean",
+              "doc": "Verify a signature over the base64 `message` bytes under a public key.\nReturns true iff the signature is valid."
+            },
+            {
+              "sig": "pub fn x25519_dh(secret_key_b64: text, public_key_b64: text) -> text",
+              "doc": "A secret key is a 32-byte X25519 scalar (base64); a public key is the\n32-byte u-coordinate (base64).  Returns the raw 32-byte shared secret\n(base64), or \"\" if either input is the wrong length.  Run the result\nthrough `hkdf_sha256` before using it as a key (RFC 7748 §6.1)."
+            },
+            {
+              "sig": "pub fn hkdf_sha256(salt_b64: text, ikm_b64: text, info_b64: text, length: integer) -> text",
+              "doc": "Derive `length` bytes of output keying material from `ikm`, `salt`, and\n`info` (each base64).  An empty base64 `salt` selects the all-zero salt.\nReturns the base64 OKM, or \"\" if `length` exceeds 255*32 or is <= 0."
+            },
+            {
+              "sig": "pub fn hkdf_extract(salt_b64: text, ikm_b64: text) -> text",
+              "doc": "HKDF-Extract (RFC 5869 §2.2): the 32-byte PRK (base64) HMAC-SHA256(salt, ikm).\nAn empty base64 `salt` selects the all-zero salt.  Use the Extract/Expand\nhalves directly (rather than `hkdf_sha256`) when a PRK is reused for several\nExpands or when an Extract output is itself the value you want (e.g. HPKE)."
+            },
+            {
+              "sig": "pub fn hkdf_expand(prk_b64: text, info_b64: text, length: integer) -> text",
+              "doc": "HKDF-Expand (RFC 5869 §2.3) from an existing 32-byte PRK.  Returns `length`\nbytes of OKM (base64), or \"\" on a short PRK, length > 255*32, or length <= 0."
+            },
+            {
+              "sig": "pub fn bytes_to_base64(bytes: vector<u8>) -> text",
+              "doc": "Standard base64 of a raw byte vector.  Empty vector -> \"\"."
+            },
+            {
+              "sig": "pub fn base64_to_bytes(b64: text) -> vector<u8>",
+              "doc": "Raw bytes from standard base64.  Malformed / empty input -> empty vector.\nSee the CAUTION above: read the result, never `+=` onto it."
+            },
+            {
+              "sig": "pub fn aes256gcm_seal(key_b64: text, nonce_b64: text, aad_b64: text, plaintext_b64: text) -> text",
+              "doc": "Encrypt + authenticate `plaintext` under `key`/`nonce`, binding `aad`.\nReturns base64 of ciphertext WITH the 16-byte tag appended, or \"\" on bad\nkey/nonce length."
+            },
+            {
+              "sig": "pub fn aes256gcm_open(key_b64: text, nonce_b64: text, aad_b64: text, ciphertext_b64: text) -> text",
+              "doc": "Verify + decrypt `ciphertext` (ciphertext||tag, base64) under `key`/`nonce`,\nbinding `aad`.  Returns the base64 plaintext, or \"\" on ANY authentication\nfailure — an empty result means the ciphertext/tag/aad did not verify."
+            },
+            {
+              "sig": "pub fn random_bytes(length: integer) -> text",
+              "doc": "Return `length` cryptographically secure random bytes (base64) from the OS\nRNG.  Returns \"\" for length <= 0.  Use for keys (32), nonces (12), salts."
+            },
+            {
+              "sig": "pub struct HpkeSealed",
+              "doc": "The result of `hpke_seal_base`: the KEM-encapsulated key `enc` and the AEAD\n`ciphertext` (ciphertext||16-byte-tag), both base64."
+            },
+            {
+              "sig": "pub fn hpke_seal_base(pk_r_b64: text, info_b64: text, aad_b64: text, pt_b64: text) -> HpkeSealed",
+              "doc": "HPKE SealBase (RFC 9180 §6.1): encrypt `pt` to recipient public key `pk_r`,\nbinding `info` (key-schedule context) and `aad` (per-message AAD).  Generates\na fresh ephemeral key, so each call's output differs.  All args/fields base64.\nReturns HpkeSealed { enc, ciphertext }; both \"\" on failure."
+            },
+            {
+              "sig": "pub fn hpke_seal_base_deterministic(pk_r_b64: text, sk_e_b64: text, info_b64: text, aad_b64: text, pt_b64: text) -> HpkeSealed",
+              "doc": "Deterministic SealBase — TEST ONLY.  Uses the caller-supplied ephemeral\nsecret `sk_e_b64` instead of a random one, so the output is reproducible\nagainst an RFC 9180 known-answer vector.  Never use in production."
+            },
+            {
+              "sig": "pub fn hpke_open_base(sk_r_b64: text, enc_b64: text, info_b64: text, aad_b64: text, ct_b64: text) -> text",
+              "doc": "HPKE OpenBase (RFC 9180 §6.1): decrypt `ct` for recipient secret key `sk_r`\nusing the sender's `enc`, binding `info` and `aad`.  All args base64.  Returns\nthe base64 plaintext, or \"\" on ANY failure (bad enc/key or AEAD auth failure)."
+            },
+            {
+              "sig": "pub fn hpke_key_schedule_base_for_test(shared_secret_b64: text, info_b64: text) -> (text, text)",
+              "doc": "Expose the key-schedule outputs for KAT assertions — TEST ONLY.  Given a\nshared secret and base64 `info`, returns (key_b64, base_nonce_b64)."
+            },
+            {
+              "sig": "pub fn hpke_encap_deterministic_for_test(pk_r_b64: text, sk_e_b64: text) -> (text, text)",
+              "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
+            }
+          ],
+          "published": "2026-07-04T21:53:27Z"
         }
       }
     },
@@ -119,6 +258,57 @@
           "subpath": "arguments",
           "deps": {},
           "published": "2026-06-21T17:04:38Z"
+        },
+        "0.1.3": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/arguments-v0.1.3/arguments-0.1.3.tar.gz",
+          "sha256": "eb045f2fb4ed3eb284b66832d3aa3fde99a6243f351aefeb4338c595530e9f0f",
+          "size": 4813,
+          "loft": ">=0.8",
+          "subpath": "arguments",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn create(name: text, version: text, description: text) -> Args",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn flag(self: Args, opt_short: text, opt_long: text, desc: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn option(self: Args, opt_short: text, opt_long: text, arg_name: text, desc: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn required(self: Args, opt_short: text, opt_long: text, arg_name: text, desc: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn parse(self: Args, argv: vector<text>) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn has(self: Args, name: text) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn get(self: Args, name: text) -> text?",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn ok(self: Args) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn error_msg(self: Args) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn help(self: Args) -> text",
+              "doc": ""
+            }
+          ],
+          "published": "2026-07-04T21:53:22Z"
         }
       }
     },
@@ -1015,6 +1205,45 @@
           "subpath": "random",
           "deps": {},
           "published": "2026-06-18T21:25:56Z"
+        },
+        "0.3.0": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.0/random-0.3.0.tar.gz",
+          "sha256": "beb7c5ec9ba5df00725ca776c3fa837e8757cff865589bcfb5ea85cd0fc53386",
+          "size": 9116,
+          "loft": ">=0.8",
+          "subpath": "random",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn rand(lo: integer, hi: integer) -> integer?",
+              "doc": "Returns a random integer in [lo, hi] (inclusive).\nReturns null when lo > hi or when either argument is null."
+            },
+            {
+              "sig": "pub fn rand_seed(seed: integer)",
+              "doc": "Seeds the thread-local random number generator with the given value.\nCall this before rand() or rand_indices() to get reproducible sequences."
+            },
+            {
+              "sig": "pub fn rand_indices(n: integer) -> vector<integer>",
+              "doc": "Returns a vector of n integers [0, 1, ..., n-1] in a random order.\nUseful for random iteration, shuffling, or sampling without replacement.\nReturns an empty vector when n is 0 or null."
+            },
+            {
+              "sig": "pub struct RandStream",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn seed_stream(seed: integer) -> RandStream",
+              "doc": "Seed an independent stream. Any integer seed is valid (negative and zero included);\nequal seeds give equal streams, different seeds give decorrelated streams."
+            },
+            {
+              "sig": "pub fn get(self: RandStream, lo: integer, hi: integer) -> integer?",
+              "doc": "A random integer in [lo, hi] (inclusive) from THIS stream, advancing it.\nReturns null when lo > hi (the same contract as the global rand())."
+            },
+            {
+              "sig": "pub fn indices(self: RandStream, n: integer) -> vector<integer>",
+              "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit. Empty when n is 0, negative or null (the same contract as rand_indices())."
+            }
+          ],
+          "published": "2026-07-04T21:53:29Z"
         }
       }
     },
@@ -1056,6 +1285,42 @@
             "regex_replace_all:text"
           ],
           "published": "2026-06-18T21:25:56Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.2.1/regex-0.2.1.tar.gz",
+          "sha256": "2072064c1b2e38a243d709bc06813527ba1ab870eccd21fe02cfbb3c2aeda263",
+          "size": 7286,
+          "loft": ">=0.8",
+          "subpath": "regex",
+          "deps": {},
+          "triggers": [
+            "matches:text",
+            "regex_find:text",
+            "regex_split:text"
+          ],
+          "api": [
+            {
+              "sig": "pub fn find(pattern: text, input: text) -> integer",
+              "doc": "Byte offset of the first match of `pattern` in `input`, or null when\nthere is no match (or the pattern is invalid)."
+            },
+            {
+              "sig": "pub fn split(pattern: text, input: text) -> iterator<text>",
+              "doc": "Split `input` on matches of `pattern`, yielding each piece lazily through\nan `iterator<text>` (reuses loft's coroutine channel — nothing is\nmaterialised)."
+            },
+            {
+              "sig": "pub fn matches(both: text, pattern: text) -> boolean",
+              "doc": "True if `pattern` matches anywhere in the text.  `both` registers this as\nBOTH a method (`line.matches(p)`) and a free function (`matches(line, p)`).\n`matches` keeps the bare name — it is collision-free on `text` (the stdlib\nhas `contains`, not `matches`) and reads as regex on its own."
+            },
+            {
+              "sig": "pub fn regex_find(self: text, pattern: text) -> integer",
+              "doc": "Byte offset of the first match of `pattern` in the text, or null.\nPrefixed because bare `find` collides with stdlib `text.find` (literal\nsubstring search).  Call as  line.regex_find(\"[0-9]+\")."
+            },
+            {
+              "sig": "pub fn regex_split(self: text, pattern: text) -> iterator<text>",
+              "doc": "Split the text on matches of `pattern`, yielding pieces lazily.  Prefixed\nbecause bare `split` collides with stdlib `text.split` (character\nseparator).  Call as  for piece in line.regex_split(\"[,;]\") { }."
+            }
+          ],
+          "published": "2026-07-04T21:53:32Z"
         }
       }
     },
