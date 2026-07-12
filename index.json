@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-08T20:03:22Z",
+  "updated": "2026-07-12T20:22:13Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -1416,6 +1416,155 @@
             }
           ],
           "published": "2026-07-07T12:14:17Z"
+        },
+        "0.3.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.3.1/server-0.3.1.tar.gz",
+          "sha256": "bed2e9b00b8034bde442bc4c7f71acb72761bbf6abdf4ed8c641bd39a2543d99",
+          "size": 25464,
+          "loft": ">=0.8",
+          "subpath": "server",
+          "deps": {
+            "web": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct Server",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct WebSocket",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Request",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn listen(port: integer) -> Server",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn next_nonblocking(self: Server) -> Request",
+              "doc": "Non-blocking variant of `next()`.  Returns null immediately if no\nconnection is pending.  Use this when the server interleaves HTTP\naccept with multi-client WS polling on a single port (single_port\naudience demo / future TTT-style multi-tab apps)."
+            },
+            {
+              "sig": "pub fn next(self: Server) -> Request",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond(self: Request, status: integer, body: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_typed(self: Request, status: integer, body: text, content_type: text)",
+              "doc": "Send an HTTP response with a caller-specified Content-Type and\nclose the connection.  Use for HTML / CSS / JSON / WASM payloads;\n`respond` defaults to `text/plain`."
+            },
+            {
+              "sig": "pub fn header(self: Request, name: text) -> text",
+              "doc": "Look up a request header case-insensitively (e.g. \"Range\", \"Origin\",\n\"If-None-Match\"); returns \"\" if absent. Values containing ':' (an Origin URL,\na date) are rejoined intact."
+            },
+            {
+              "sig": "pub fn respond_with_headers(self: Request, status: integer, body: text, headers: vector<text>)",
+              "doc": "Send a response with caller-controlled headers (Content-Range, ETag, the CORS\nheaders, …). `headers` is a vector of \"Key: Value\" lines; Content-Length is\nauto-added from the body unless a header supplies one; the body is written\nverbatim (binary-safe)."
+            },
+            {
+              "sig": "pub fn cors_headers(origin: text) -> vector<text>",
+              "doc": "Standard CORS headers so a browser client can read Content-Range /\nContent-Length / ETag on a cross-origin byte-range fetch. `origin` is the\nallowed origin (\"*\" for any)."
+            },
+            {
+              "sig": "pub fn serve_range(self: Request, body: text, extra: vector<text>) -> boolean",
+              "doc": "Serve a byte range of `body` when the request carries a Range header, adding\n`extra` headers (CORS / ETag) to the 206 or 416. Returns true if a range\nresponse was sent; false when there is no Range header (the caller serves the\nfull body). Single-range \"bytes=off-last\" / open-ended \"bytes=off-\" only."
+            },
+            {
+              "sig": "pub fn serve_data(self: Request, body: text, etag: text, origin: text) -> boolean",
+              "doc": "One-call helper to serve a (possibly binary) resource with full byte-range +\nCORS + HEAD + conditional support — the server counterpart to the web client's\nhttp_get_range / http_size. `etag` \"\" skips conditional; `origin` \"\" skips CORS."
+            },
+            {
+              "sig": "pub fn respond_html(self: Request, body: text)",
+              "doc": "Convenience wrappers for the common cases TTT v3 needs."
+            },
+            {
+              "sig": "pub fn respond_css(self: Request, body: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_js(self: Request, body: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_loft(self: Request, body: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_404(self: Request)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn close(self: Server)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn ws_upgrade() -> WebSocket",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn next(self: WebSocket) -> text?",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn send(self: WebSocket, msg: text) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn send_binary(self: WebSocket, msg: text) -> boolean",
+              "doc": "Send `msg` as a binary WebSocket frame (opcode 2).  Loft\n`text` is a byte buffer — pack u8/u16/i32/etc. into it via\n`to_bytes` style code, then ship it."
+            },
+            {
+              "sig": "pub fn last_opcode(self: WebSocket) -> integer",
+              "doc": "Opcode of the last frame returned by `next` on this socket.\nUse after `next` to decide whether to interpret the payload\nas utf-8 text or as a binary blob."
+            },
+            {
+              "sig": "pub fn close(self: WebSocket)",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct WsEvent",
+              "doc": "Event delivered to the on_event handler.  `connected` and\n`message` are mutually-exclusive booleans for fast dispatch\nwithout an integer enum.  Wire format `<msg_id>:<payload>`\nis parsed by `run` so msg_id and payload come pre-split."
+            },
+            {
+              "sig": "pub fn run(self: Server, on_event: fn(WsEvent))",
+              "doc": "Block forever, draining events and calling the handler.\nMalformed message frames are logged at warn level and silently\ndropped — the handler never sees them."
+            },
+            {
+              "sig": "pub fn poll_event(self: Server) -> WsEvent",
+              "doc": "Non-blocking single-event drain — returns the next WsEvent, or null\nwhen nothing is pending.  Lets a server that also needs a periodic\ntick (timers, decay, snapshots) run its OWN loop while still using the\nefficient Rust-side event pump: drain `poll_event` in a batch, do the\nperiodic work, idle-sleep when a pass produced nothing.  `run` above is\nthe convenience wrapper for servers that only react to events.\n\nDisconnect (kind 2) and malformed message frames are skipped internally\n(the caller never sees them), so a null return always means \"idle\"."
+            },
+            {
+              "sig": "pub fn respond_html(self: Server, body: text)",
+              "doc": "Reply to the HTTP request currently parked by a `http` WsEvent and\nclose it.  Call exactly once from the handler for an `ev.http` event."
+            },
+            {
+              "sig": "pub fn respond_typed(self: Server, status: integer, body: text, content_type: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_404(self: Server)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn send_to(self: Server, client_id: integer, msg: text) -> boolean",
+              "doc": "Send a frame to a specific client.  Returns true on success."
+            },
+            {
+              "sig": "pub fn broadcast(self: Server, msg: text) -> integer",
+              "doc": "Send a frame to every active client.  Returns the count of\nsuccessful sends.  Iteration happens entirely in Rust."
+            },
+            {
+              "sig": "pub fn disconnect(self: Server, client_id: integer)",
+              "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
+            }
+          ],
+          "published": "2026-07-12T20:22:13Z"
         }
       }
     },
