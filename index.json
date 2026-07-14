@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-14T13:34:30Z",
+  "updated": "2026-07-14T16:41:22Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -564,6 +564,15 @@
           "subpath": "graphics",
           "deps": {},
           "published": "2026-07-14T13:34:30Z"
+        },
+        "0.4.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.1/graphics-0.4.1.tar.gz",
+          "sha256": "1d4c38d3ba2d2800031634e516fb2f44712c61f6b3ea7e343147bbc442e67386",
+          "size": 99021,
+          "loft": ">=0.8",
+          "subpath": "graphics",
+          "deps": {},
+          "published": "2026-07-14T16:41:22Z"
         }
       }
     },
