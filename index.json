@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-14T16:41:22Z",
+  "updated": "2026-07-15T10:46:13Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -341,6 +341,57 @@
           "subpath": "shapes",
           "deps": {},
           "published": "2026-05-24T19:30:00Z"
+        },
+        "0.3.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/shapes-v0.3.0/shapes-0.3.0.tar.gz",
+          "sha256": "7ad0ec172316fc8a75df9a8ea8d4994b3d75080e59cc2947e35d21759914539b",
+          "size": 2458,
+          "loft": ">=0.8",
+          "subpath": "shapes",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Rect",
+              "doc": "Axis-aligned bounding box for 2D collision."
+            },
+            {
+              "sig": "pub struct Circle",
+              "doc": "Circle shape for 2D collision."
+            },
+            {
+              "sig": "pub fn rects_overlap(a: const Rect, b: const Rect) -> boolean",
+              "doc": "Test whether two axis-aligned rectangles overlap."
+            },
+            {
+              "sig": "pub fn circles_overlap(a: const Circle, b: const Circle) -> boolean",
+              "doc": "Test whether two circles overlap."
+            },
+            {
+              "sig": "pub fn rect_circle_overlap(r: const Rect, c: const Circle) -> boolean",
+              "doc": "Test whether a rectangle and a circle overlap."
+            },
+            {
+              "sig": "pub struct Overlap",
+              "doc": "Overlap depth between two rectangles on each axis."
+            },
+            {
+              "sig": "pub fn rect_overlap_depth(a: const Rect, b: const Rect) -> Overlap",
+              "doc": "Compute the overlap depth between two rectangles on each axis.\nReturns (0.0, 0.0) when they don't overlap.\nUseful for bounce direction: if ox < oy → horizontal bounce."
+            },
+            {
+              "sig": "pub fn aabb_overlap(ax: float, ay: float, aw: float, ah: float,",
+              "doc": "Test AABB overlap using raw coordinates (no struct allocation — safe in loops)."
+            },
+            {
+              "sig": "pub fn aabb_depth_x(ax: float, ay: float, aw: float, ah: float,",
+              "doc": "Compute AABB overlap depth on each axis using raw coordinates.\nReturns ox via the first return, oy via the second.\nBoth are 0.0 when no overlap. Safe in loops (no struct allocation)."
+            },
+            {
+              "sig": "pub fn aabb_depth_y(ax: float, ay: float, aw: float, ah: float,",
+              "doc": ""
+            }
+          ],
+          "published": "2026-07-15T10:46:10Z"
         }
       }
     },
@@ -2131,6 +2182,333 @@
             }
           ],
           "published": "2026-07-08T20:03:22Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-game/releases/download/time-v0.2.1/time-0.2.1.tar.gz",
+          "sha256": "ac20e8d561ebebe6ad5834172836d5fd5e3b5f721eab1fb70a058915810bed3a",
+          "size": 10600,
+          "loft": ">=0.8",
+          "subpath": "time",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn from_ymd(fy: integer, fmo: integer, fd: integer) -> integer",
+              "doc": "Epoch-ms at UTC midnight of the given calendar date."
+            },
+            {
+              "sig": "pub fn from_millis(ms: integer) -> integer",
+              "doc": "Identity wrapper — for readability where a raw ms count becomes a time."
+            },
+            {
+              "sig": "pub fn from_unix_seconds(secs: integer) -> integer",
+              "doc": "Epoch-SECONDS boundary.  Garmin / Strava REST APIs speak Unix seconds\n(`.timestamp()`), while loft times are milliseconds — convert at the edge."
+            },
+            {
+              "sig": "pub fn to_unix_seconds(uts: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn parse(ps: text) -> integer?",
+              "doc": "Parse an ISO date \"YYYY-MM-DD\", optionally followed by \" HH:MM[:SS]\"\nor \"THH:MM[:SS]\" with an optional trailing \"Z\".  Returns null on any\nmalformed input (test with `!result`)."
+            },
+            {
+              "sig": "pub fn year(yt: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn month(mt: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn day(dt: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn hour(ht: integer)   -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn minute(mit: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn second(st: integer)  -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn weekday(wt: integer) -> integer",
+              "doc": "0 = Monday .. 6 = Sunday.  1970-01-01 was a Thursday (weekday 3)."
+            },
+            {
+              "sig": "pub fn add_days(adt: integer, days: integer)     -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn add_weeks(awt: integer, weeks: integer)   -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn add_seconds(ast: integer, secs: integer)  -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn days_between(da: integer, db: integer) -> integer",
+              "doc": "Whole calendar days from `a` to `b` (b later → positive)."
+            },
+            {
+              "sig": "pub fn seconds_between(sa: integer, sb: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn start_of_day(sdt: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn start_of_week(swt: integer) -> integer",
+              "doc": "Monday 00:00 UTC of the week containing `t`."
+            },
+            {
+              "sig": "pub fn at_time(atd: integer, hh: integer, mm: integer, ss: integer) -> integer",
+              "doc": "Combine a date with a time-of-day given as components (datetime.combine)."
+            },
+            {
+              "sig": "pub fn combine(cmd: integer, time_text: text) -> integer?",
+              "doc": "Combine a date with an \"HH:MM\" or \"HH:MM:SS\" time string.  Mirrors\n`datetime.combine(date, time.fromisoformat(s))`.  Null on a malformed time."
+            },
+            {
+              "sig": "pub fn iso_year(iyt: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn iso_week(iwt: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn to_local(lt: integer, offset_min: integer) -> integer",
+              "doc": "Shift so that the field accessors / formatters yield local values."
+            },
+            {
+              "sig": "pub fn local_day(ldt: integer, offset_min: integer) -> integer",
+              "doc": "UTC-midnight key of the local calendar day containing `t`."
+            },
+            {
+              "sig": "pub fn today(offset_min: integer) -> integer",
+              "doc": "The local calendar day for \"now\" at the given offset."
+            },
+            {
+              "sig": "pub fn format_date(fdt: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn format_time(ftt: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn format_seconds(fst: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn format_datetime(fdtt: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn format_iso(fit: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn weekday_name(wnt: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn month_name(mnt: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn date(dcy: integer, dcmo: integer, dcd: integer) -> DateTime",
+              "doc": "── DateTime construction ──"
+            },
+            {
+              "sig": "pub fn datetime(tcy: integer, tcmo: integer, tcd: integer,",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn milliseconds(nms: integer) -> Duration",
+              "doc": "── Duration construction ──"
+            },
+            {
+              "sig": "pub fn seconds(nsec: integer)     -> Duration",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn minutes(nmin: integer)     -> Duration",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn hours(nhr: integer)        -> Duration",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn days(nday: integer)        -> Duration",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn weeks(nwk: integer)        -> Duration",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn year(self: DateTime)         -> integer",
+              "doc": "── DateTime field accessors (methods; delegate to the integer API above) ──"
+            },
+            {
+              "sig": "pub fn month(self: DateTime)        -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn day(self: DateTime)          -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn hour(self: DateTime)         -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn minute(self: DateTime)       -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn second(self: DateTime)       -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn weekday(self: DateTime)      -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn iso_year(self: DateTime)     -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn iso_week(self: DateTime)     -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn weekday_name(self: DateTime) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn month_name(self: DateTime)   -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn to_millis(self: DateTime)    -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn total_millis(self: Duration)  -> integer",
+              "doc": "── Duration accessors ──"
+            },
+            {
+              "sig": "pub fn total_seconds(self: Duration) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn total_minutes(self: Duration) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn total_hours(self: Duration)   -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn total_days(self: Duration)    -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpLt(self: DateTime, other: DateTime) -> boolean",
+              "doc": "── DateTime operators (comparison + typed arithmetic) ──"
+            },
+            {
+              "sig": "pub fn OpLe(self: DateTime, other: DateTime) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpGt(self: DateTime, other: DateTime) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpGe(self: DateTime, other: DateTime) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpEq(self: DateTime, other: DateTime) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpNe(self: DateTime, other: DateTime) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpMin(self: DateTime, other: DateTime) -> Duration",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpAdd(self: DateTime, span: Duration)  -> DateTime",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn minus(self: DateTime, span: Duration) -> DateTime",
+              "doc": "`-` on a DateTime is the difference `dt - dt` (above); operators key on the\nreceiver type, so subtracting a Duration is the `minus` method (or `dt + (-span)`)."
+            },
+            {
+              "sig": "pub fn negate(self: Duration) -> Duration",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpAdd(self: Duration, other: Duration) -> Duration",
+              "doc": "── Duration operators ──"
+            },
+            {
+              "sig": "pub fn OpMin(self: Duration, other: Duration) -> Duration",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpMul(self: Duration, factor: integer) -> Duration",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpLt(self: Duration, other: Duration) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpLe(self: Duration, other: Duration) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpGt(self: Duration, other: Duration) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpGe(self: Duration, other: Duration) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpEq(self: Duration, other: Duration) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn OpNe(self: Duration, other: Duration) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn to_text(self: DateTime, spec: text) -> text",
+              "doc": "── custom formatting (the per-type to_text hook) ──\n\"\" / \"datetime\" -> YYYY-MM-DD HH:MM · \"date\" -> YYYY-MM-DD · \"time\" -> HH:MM\n\"seconds\" -> HH:MM:SS · \"iso\" -> …THH:MM:SSZ · \"wday\" -> Mon · \"month\" -> May"
+            },
+            {
+              "sig": "pub fn to_text(self: Duration, spec: text) -> text",
+              "doc": "A Duration renders as [-]H:MM:SS (hours may exceed 24)."
+            }
+          ],
+          "published": "2026-07-15T10:46:13Z"
         }
       }
     },
