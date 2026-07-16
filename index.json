@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-15T18:27:02Z",
+  "updated": "2026-07-16T07:11:02Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -2556,6 +2556,121 @@
           "subpath": "hex_terrain",
           "deps": {},
           "published": "2026-06-14T14:42:33Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_terrain-v0.1.1/hex_terrain-0.1.1.tar.gz",
+          "sha256": "0ac6d756c694584954ff9b9d6215ec9738008bd16713b77a01b91ada95f39f49",
+          "size": 14113,
+          "loft": ">=0.8",
+          "subpath": "hex_terrain",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct TerrainType",
+              "doc": "One terrain type = content (a bundle row in the consuming game).\ntt_rise and tt_steep are INDEPENDENT; tt_wet marks water bodies (sea/lake):\nthey take no relief and no boundary contest."
+            },
+            {
+              "sig": "pub struct TerrainParams",
+              "doc": "Algorithm parameters (engine side).  terrain_params() gives the blueprint's\nuser-tuned defaults; every field is meters unless noted."
+            },
+            {
+              "sig": "pub fn terrain_params(seed: integer, tile: float) -> TerrainParams",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Terrain",
+              "doc": "Parallel per-cell vectors, index = r * tr_nx + c (odd-r offset coords)."
+            },
+            {
+              "sig": "pub fn terrain_new(nx: integer, ny: integer) -> Terrain",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn terrain_idx(t: Terrain, c: integer, r: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn terrain_center(p: TerrainParams, c: integer, r: integer) -> (float, float)",
+              "doc": "Cell center in world meters — hex_grid's odd-r lattice scaled so the\nhorizontal pitch equals tp_tile (hex_grid's unit pitch is SQRT3)."
+            },
+            {
+              "sig": "pub fn terrain_flow_to(t: Terrain, c: integer, r: integer) -> (integer, integer)",
+              "doc": "The downstream cell of (c, r) — itself when it has no flow direction."
+            },
+            {
+              "sig": "pub fn terrain_hash01(seed: integer, ix: integer, iy: integer, ch: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn terrain_vnoise(seed: integer, x: float, y: float, wl: float, ch: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn terrain_fbm(seed: integer, x: float, y: float, wl0: float, octaves: integer, ch: integer) -> float",
+              "doc": "Fractal sum, roughly in [-1, 1]."
+            },
+            {
+              "sig": "pub fn terrain_detail_at(p: TerrainParams, x: float, y: float) -> float",
+              "doc": "Detail noise with DOMAIN WARP (the sampling space is swirled by a second\nnoise so the value-noise lattice never reads as a repeating pattern)."
+            },
+            {
+              "sig": "pub fn terrain_ridge_at(p: TerrainParams, x: float, y: float) -> float",
+              "doc": "LOW-frequency ridged field, crest-sharpened: roughly ONE combined crest per\nsteep zone — peaks consolidate into ridgelines instead of speckling."
+            },
+            {
+              "sig": "pub fn terrain_hydrology(t: Terrain, p: TerrainParams, lake_mat: integer)",
+              "doc": "PRIORITY-FLOOD pit fill + steepest-descent flow + accumulation.  After this\nevery land cell drains to the sea; cells the flood raised by more than\ntp_lake_fill become lakes (material set to lake_mat).  Selection-based\nflood (O(n^2)) — overland grids are small and this runs once at gen time."
+            },
+            {
+              "sig": "pub fn terrain_relief_pass(t: Terrain, types: vector<TerrainType>, p: TerrainParams)",
+              "doc": "Wet flags + the compounded neighbor relief.  Call AFTER the caller has\nclassified land materials (relief reads the final wet set)."
+            },
+            {
+              "sig": "pub struct TerrainSurf",
+              "doc": "One blended surface record at a fine point."
+            },
+            {
+              "sig": "pub fn terrain_surface_at(t: Terrain, types: vector<TerrainType>, p: TerrainParams, x: float, y: float) -> TerrainSurf",
+              "doc": "Smooth kernel blend of the overland cells around (x, y) + the boundary-line\ncontest + the fine height.  Pure function — THE seam invariant lives here."
+            },
+            {
+              "sig": "pub fn terrain_blend_h(t: Terrain, p: TerrainParams, x: float, y: float) -> float",
+              "doc": "Lightweight coarse-blend height only (for slopes along river courses)."
+            },
+            {
+              "sig": "pub fn terrain_lake_field(p: TerrainParams, x: float, y: float, lakey: float) -> float",
+              "doc": "The fractally jittered lake contour field (>= 0.5 = lake water)."
+            },
+            {
+              "sig": "pub fn terrain_water_at(t: Terrain, types: vector<TerrainType>, p: TerrainParams, x: float, y: float) -> boolean",
+              "doc": "Is (x, y) open water (sea by the fine height contour, or lake)?  PRE-carve —\nthis is the shoreline rivers attach to."
+            },
+            {
+              "sig": "pub struct TerrainRiver",
+              "doc": "One river course PIECE: fine polyline (ends ON the shorelines) with\nper-vertex water width, carve depth and valley falloff width."
+            },
+            {
+              "sig": "pub fn terrain_edge_cross(p: TerrainParams, ca: integer, ra: integer, cb: integer, rb: integer) -> (float, float)",
+              "doc": "THE EDGE BIT (user rule): a river never exits mid-side; each shared edge\ncarries one canonical left/right bit.  Both tiles hash the SORTED cell pair,\nso they derive the same crossing point — seamless."
+            },
+            {
+              "sig": "pub fn terrain_control_pt(p: TerrainParams, c: integer, r: integer) -> (float, float)",
+              "doc": "The interior routing point of a tile (hash-jittered off-center; the natural\nconfluence spot — tributaries entering the tile share it)."
+            },
+            {
+              "sig": "pub fn terrain_rivers(t: Terrain, types: vector<TerrainType>, p: TerrainParams) -> vector<TerrainRiver>",
+              "doc": "All river course pieces, fully shaped: anchors (edge bits + control points)\n-> fractal displacement -> corner-cut smoothing -> shoreline trim -> width/\ndepth/valley-width per vertex (slope-shaped + the estuary depth bonus)."
+            },
+            {
+              "sig": "pub struct TerrainSample",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn terrain_sample(t: Terrain, types: vector<TerrainType>, p: TerrainParams, rivers: vector<TerrainRiver>, x: float, y: float) -> TerrainSample",
+              "doc": "The full sample: surface + ADDITIVE valley carving from every course near\nthe point + the water classification (sea floods the carved mouth).  Pure\nfunction of (t, types, p, rivers, x, y) — THE window-independence invariant."
+            }
+          ],
+          "published": "2026-07-16T07:11:02Z"
         }
       }
     },
