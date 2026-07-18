@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-16T07:11:02Z",
+  "updated": "2026-07-18T10:19:34Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -633,6 +633,18 @@
           "subpath": "graphics",
           "deps": {},
           "published": "2026-07-15T18:27:02Z"
+        },
+        "0.4.3": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.3/graphics-0.4.3.tar.gz",
+          "sha256": "0f7ad44ac386e3fbfce3c3f87f77e8c41962e2884f7e2460a06234901aeb1bab",
+          "size": 89495,
+          "loft": ">=0.8",
+          "subpath": "graphics",
+          "deps": {
+            "mesh3d": ">=0.1.1",
+            "glb": ">=0.1.1"
+          },
+          "published": "2026-07-18T10:19:34Z"
         }
       }
     },
@@ -681,6 +693,15 @@
           "subpath": "mesh3d",
           "deps": {},
           "published": "2026-05-31T20:55:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/mesh3d-v0.1.1/mesh3d-0.1.1.tar.gz",
+          "sha256": "de8fdb1fedea6521d90634bc40b4acab2c1bb965010d766a177e40b1e8e66cfd",
+          "size": 7699,
+          "loft": ">=0.8",
+          "subpath": "mesh3d",
+          "deps": {},
+          "published": "2026-07-18T10:19:34Z"
         }
       }
     },
@@ -703,6 +724,17 @@
             "mesh3d": ">=0.1"
           },
           "published": "2026-05-31T20:55:00Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/glb-v0.1.1/glb-0.1.1.tar.gz",
+          "sha256": "9ad605d4a5c7f5a455188d54a6042dae3ec403e6ce566f9fcd40660faaed8301",
+          "size": 8445,
+          "loft": ">=0.8",
+          "subpath": "glb",
+          "deps": {
+            "mesh3d": ">=0.1.1"
+          },
+          "published": "2026-07-18T10:19:34Z"
         }
       }
     },
