@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-18T10:19:34Z",
+  "updated": "2026-07-19T00:16:34Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -735,6 +735,17 @@
             "mesh3d": ">=0.1.1"
           },
           "published": "2026-07-18T10:19:34Z"
+        },
+        "0.1.2": {
+          "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/glb-v0.1.2/glb-0.1.2.tar.gz",
+          "sha256": "8a1021c6b4eadd6152d1c9806501514cd8d26ef901ebdc7501f406e3c82de01c",
+          "size": 8712,
+          "loft": ">=0.8",
+          "subpath": "glb",
+          "deps": {
+            "mesh3d": ">=0.1.1"
+          },
+          "published": "2026-07-19T00:16:34Z"
         }
       }
     },
