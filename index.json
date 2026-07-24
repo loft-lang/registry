@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-24T19:52:30Z",
+  "updated": "2026-07-24T19:55:32Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -4452,6 +4452,83 @@
             }
           ],
           "published": "2026-07-24T19:52:30Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-plugins/releases/download/pluginabi-v0.1.1/pluginabi-0.1.1.tar.gz",
+          "sha256": "9e74bdefe102d9763e81ede323407e29761a5fe3c9933117832de80a1e93be21",
+          "size": 5533,
+          "loft": ">=0.8",
+          "subpath": "pluginabi",
+          "deps": {
+            "cbor": ">=0.1.2",
+            "crypto": ">=0.3.6"
+          },
+          "api": [
+            {
+              "sig": "pub const OP_INITIAL_STATE: text = \"initial_state\";"
+            },
+            {
+              "sig": "pub const OP_APPLY_OP:      text = \"apply_op\";"
+            },
+            {
+              "sig": "pub const OP_MAKE_OP:       text = \"make_op\";"
+            },
+            {
+              "sig": "pub const OP_RENDER:        text = \"render\";"
+            },
+            {
+              "sig": "pub const OP_SNAPSHOT:      text = \"snapshot\";"
+            },
+            {
+              "sig": "pub const OP_LOAD_SNAPSHOT: text = \"load_snapshot\";"
+            },
+            {
+              "sig": "pub fn valid_op(op: text) -> boolean"
+            },
+            {
+              "sig": "pub fn takes_arg(op: text) -> boolean"
+            },
+            {
+              "sig": "pub fn request(op: text, state_b64: text, arg_b64: text) -> vector<u8>"
+            },
+            {
+              "sig": "pub fn req_op(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub fn req_state_b64(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub fn req_arg_b64(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub fn reply_ok(out_b64: text) -> vector<u8>"
+            },
+            {
+              "sig": "pub fn reply_err(code: text) -> vector<u8>"
+            },
+            {
+              "sig": "pub fn reply_is_ok(frame: vector<u8>) -> boolean"
+            },
+            {
+              "sig": "pub fn reply_out_b64(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub fn reply_err_code(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub const ERR_UNKNOWN_OP: text = \"unknown-op\";"
+            },
+            {
+              "sig": "pub const ERR_MALFORMED:  text = \"malformed-frame\";"
+            },
+            {
+              "sig": "pub const ERR_PLUGIN:     text = \"plugin-error\";"
+            },
+            {
+              "sig": "pub fn check_request(frame: vector<u8>) -> text"
+            }
+          ],
+          "published": "2026-07-24T19:55:32Z"
         }
       }
     }
