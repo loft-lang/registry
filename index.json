@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-24T19:55:32Z",
+  "updated": "2026-07-24T20:56:38Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -4529,6 +4529,230 @@
             }
           ],
           "published": "2026-07-24T19:55:32Z"
+        }
+      }
+    },
+    "hex_field": {
+      "description": "Exact-integer hex cell sets and their outlines — the base of the hex_* family.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_field",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_field-v0.1.0/hex_field-0.1.0.tar.gz",
+          "sha256": "b15e31ac9791bf4188911951bd04e5cda3dece15a22af613750a7a8ca66fe7b1",
+          "size": 29079,
+          "loft": ">=0.8",
+          "subpath": "hex_field",
+          "deps": {},
+          "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_edge": {
+      "description": "Collision as an edge set, and the analytic surfaces behind it.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_edge",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_edge-v0.1.0/hex_edge-0.1.0.tar.gz",
+          "sha256": "cc88accb3324d90fc37bf0a49d9c0d28ef2f7520a19a90c24d82911f4adb8a4c",
+          "size": 12752,
+          "loft": ">=0.8",
+          "subpath": "hex_edge",
+          "deps": {
+            "hex_field": ">=0.1"
+          },
+          "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_form": {
+      "description": "The exact turtle form on the hex lattice, and its canonical text.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_form",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_form-v0.1.0/hex_form-0.1.0.tar.gz",
+          "sha256": "438967037869c9425840dc6b3127d85039d1f4941bb0178694bcd05b2beb535c",
+          "size": 16824,
+          "loft": ">=0.8",
+          "subpath": "hex_form",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_grid": ">=0.1"
+          },
+          "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_way": {
+      "description": "A way is an exact centreline plus offsets, never a rasterised band.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_way",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_way-v0.1.0/hex_way-0.1.0.tar.gz",
+          "sha256": "03cc160ba0d34076403a4e862f78ea59a39a4dbb2fad0767acdfdb4268de060f",
+          "size": 6660,
+          "loft": ">=0.8",
+          "subpath": "hex_way",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_edge": ">=0.1"
+          },
+          "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_shape": {
+      "description": "The line primitive, the box and the arc — the shape vocabulary of the hex_* family.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_shape",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_shape-v0.1.0/hex_shape-0.1.0.tar.gz",
+          "sha256": "1688fc53b1d195f93b3ef0309754b461562a70cb2bf50bd061441477da1513aa",
+          "size": 23083,
+          "loft": ">=0.8",
+          "subpath": "hex_shape",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_grid": ">=0.1",
+            "hex_form": ">=0.1"
+          },
+          "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_recover": {
+      "description": "Rebuild a model from the field — exactly, or with a reported residual.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_recover",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_recover-v0.1.0/hex_recover-0.1.0.tar.gz",
+          "sha256": "e60c77bd8d15de12cc7e3ef1a0b549f5449fb80e925257246325f874a0836b7e",
+          "size": 13448,
+          "loft": ">=0.8",
+          "subpath": "hex_recover",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_form": ">=0.1"
+          },
+          "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_place": {
+      "description": "Place, seat and combine — the operations a model survives.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_place",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_place-v0.1.0/hex_place-0.1.0.tar.gz",
+          "sha256": "f56ebeed07e81c6f7702ab867c72494c19ee5ddfeaf639343f12f4cf68a5fd67",
+          "size": 9061,
+          "loft": ">=0.8",
+          "subpath": "hex_place",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_form": ">=0.1"
+          },
+          "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_roof": {
+      "description": "Roof profiles as a height field, and the fit that recovers them.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_roof",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_roof-v0.1.0/hex_roof-0.1.0.tar.gz",
+          "sha256": "88119b2e3922993c1c8f21282024c695c5ecfef2e16d076042b2f89df830fde3",
+          "size": 7981,
+          "loft": ">=0.8",
+          "subpath": "hex_roof",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_way": ">=0.1"
+          },
+          "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_draw": {
+      "description": "Draw a model into the field, and read its wall surface back.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_draw",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_draw-v0.1.0/hex_draw-0.1.0.tar.gz",
+          "sha256": "81496e503b17973e865f959da3bb4e4c63374c622c31377d4995ebbb23034f30",
+          "size": 12405,
+          "loft": ">=0.8",
+          "subpath": "hex_draw",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_grid": ">=0.1",
+            "hex_form": ">=0.1",
+            "hex_way": ">=0.1",
+            "hex_roof": ">=0.1"
+          },
+          "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_fit": {
+      "description": "The doorstep — refuse at authoring time what would not round-trip.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_fit",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_fit-v0.1.0/hex_fit-0.1.0.tar.gz",
+          "sha256": "080315ef3e149bb2008af1ec438b31d1e9cb4433c1e374b40ffd7ad559462ae0",
+          "size": 10737,
+          "loft": ">=0.8",
+          "subpath": "hex_fit",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_grid": ">=0.1",
+            "hex_form": ">=0.1",
+            "hex_shape": ">=0.1",
+            "hex_draw": ">=0.1",
+            "hex_recover": ">=0.1"
+          },
+          "published": "2026-07-24T20:56:38Z"
         }
       }
     }
