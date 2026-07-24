@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-24T21:21:15Z",
+  "updated": "2026-07-24T21:47:55Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -2942,6 +2942,165 @@
             }
           ],
           "published": "2026-07-22T05:47:26Z"
+        },
+        "0.5.0": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.5.0/server-0.5.0.tar.gz",
+          "sha256": "a52792c3225e3d877ffc3e5c6dd9f545c82d98a20d15f7b823f21604a7f62ce6",
+          "size": 35824,
+          "loft": ">=0.8",
+          "subpath": "server",
+          "deps": {
+            "web": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct Server"
+            },
+            {
+              "sig": "pub struct WebSocket"
+            },
+            {
+              "sig": "pub struct Request"
+            },
+            {
+              "sig": "pub fn listen(port: integer) -> Server",
+              "doc": "Bind a TCP listener on `port` and return the server.  Failing to take the port is FATAL here, deliberately.  The native listener answers -1 when the bind fails, and a `Server` built on -1 is indistinguishable from a healthy one at every call site: `run` spins forever on an empty event pump, so the process reports itself up and serves nobody.  Worse, that state is invisible from OUTSIDE the process too — a readiness probe that connects to the port reaches whoever DID win the bind and reports success — so the failure surfaces somewhere else entirely, as a client that hangs or talks to a stranger's server.  Use `try_listen` when losing the port is an outcome you mean to handle: retrying on another port, or scanning a range."
+            },
+            {
+              "sig": "pub fn try_listen(port: integer) -> Server",
+              "doc": "Like `listen`, but hands back an UNBOUND server instead of halting when the port cannot be taken.  Check `bound()` before using it: every other method on an unbound server does nothing, quietly."
+            },
+            {
+              "sig": "pub fn listen_on(addr: text, port: integer) -> Server",
+              "doc": "Bind on a chosen address rather than the wildcard `0.0.0.0` that plain `listen` uses. `\"127.0.0.1\"` restricts the server to loopback — unreachable from the network — which is the safe default a machine sitting behind a reverse proxy or an SSH tunnel wants, and the one `listen` deliberately does NOT give (it binds every interface). An empty `addr` means `0.0.0.0`. Halts if the bind fails; `try_listen_on` hands back an unbound server instead."
+            },
+            {
+              "sig": "pub fn try_listen_on(addr: text, port: integer) -> Server"
+            },
+            {
+              "sig": "pub fn listen_tls(port: integer, cert: text, key: text) -> Server",
+              "doc": "Serve TLS (https:// / wss://). `cert` is a PEM certificate CHAIN (leaf first, then any intermediates — what an ACME client writes as fullchain.pem); `key` is the PEM private key. Both are the file CONTENTS, not paths, so the caller reads them however it likes (`file(path).content()`), keeping this layer free of any filesystem policy. The op surface is identical to a plaintext server — accept, respond, WebSocket upgrade all work the same, just over TLS. Halts if the certificate/key is unusable or the bind fails (never a silent fallback to cleartext — a TLS server that quietly served http would be the worst surprise)."
+            },
+            {
+              "sig": "pub fn try_listen_tls(port: integer, cert: text, key: text) -> Server"
+            },
+            {
+              "sig": "pub fn try_listen_tls_on(addr: text, port: integer, cert: text, key: text) -> Server",
+              "doc": "TLS on a chosen bind address — `listen_tls` + `listen_on` combined. An empty `addr` means `0.0.0.0`."
+            },
+            {
+              "sig": "pub fn bound(self: Server) -> boolean",
+              "doc": "True when this server actually owns its port.  Always true for a `listen()` result (that halts otherwise) — it is the check that makes a `try_listen()` result usable."
+            },
+            {
+              "sig": "pub fn next_nonblocking(self: Server) -> Request",
+              "doc": "Non-blocking variant of `next()`.  Returns null immediately if no connection is pending.  Use this when the server interleaves HTTP accept with multi-client WS polling on a single port (single_port audience demo / future TTT-style multi-tab apps)."
+            },
+            {
+              "sig": "pub fn next(self: Server) -> Request"
+            },
+            {
+              "sig": "pub fn respond(self: Request, status: integer, body: text)"
+            },
+            {
+              "sig": "pub fn respond_typed(self: Request, status: integer, body: text, content_type: text)",
+              "doc": "Send an HTTP response with a caller-specified Content-Type and close the connection.  Use for HTML / CSS / JSON / WASM payloads; `respond` defaults to `text/plain`."
+            },
+            {
+              "sig": "pub fn header(self: Request, name: text) -> text",
+              "doc": "Look up a request header case-insensitively (e.g. \"Range\", \"Origin\", \"If-None-Match\"); returns \"\" if absent. Values containing ':' (an Origin URL, a date) are rejoined intact."
+            },
+            {
+              "sig": "pub fn respond_with_headers(self: Request, status: integer, body: text, headers: vector<text>)",
+              "doc": "Send a response with caller-controlled headers (Content-Range, ETag, the CORS headers, …). `headers` is a vector of \"Key: Value\" lines; Content-Length is auto-added from the body unless a header supplies one; the body is written verbatim (binary-safe)."
+            },
+            {
+              "sig": "pub fn cors_headers(origin: text) -> vector<text>",
+              "doc": "Standard CORS headers so a browser client can read Content-Range / Content-Length / ETag on a cross-origin byte-range fetch. `origin` is the allowed origin (\"*\" for any)."
+            },
+            {
+              "sig": "pub fn serve_range(self: Request, body: text, extra: vector<text>) -> boolean",
+              "doc": "Serve a byte range of `body` when the request carries a Range header, adding `extra` headers (CORS / ETag) to the 206 or 416. Returns true if a range response was sent; false when there is no Range header (the caller serves the full body). Single-range \"bytes=off-last\" / open-ended \"bytes=off-\" only."
+            },
+            {
+              "sig": "pub fn serve_data(self: Request, body: text, etag: text, origin: text) -> boolean",
+              "doc": "One-call helper to serve a (possibly binary) resource with full byte-range + CORS + HEAD + conditional support — the server counterpart to the web client's http_get_range / http_size. `etag` \"\" skips conditional; `origin` \"\" skips CORS."
+            },
+            {
+              "sig": "pub fn respond_html(self: Request, body: text)",
+              "doc": "Convenience wrappers for the common cases TTT v3 needs."
+            },
+            {
+              "sig": "pub fn respond_css(self: Request, body: text)"
+            },
+            {
+              "sig": "pub fn respond_js(self: Request, body: text)"
+            },
+            {
+              "sig": "pub fn respond_loft(self: Request, body: text)"
+            },
+            {
+              "sig": "pub fn respond_404(self: Request)"
+            },
+            {
+              "sig": "pub fn close(self: Server)"
+            },
+            {
+              "sig": "pub fn ws_upgrade() -> WebSocket"
+            },
+            {
+              "sig": "pub fn next(self: WebSocket) -> text?"
+            },
+            {
+              "sig": "pub fn send(self: WebSocket, msg: text) -> boolean"
+            },
+            {
+              "sig": "pub fn send_binary(self: WebSocket, msg: text) -> boolean",
+              "doc": "Send `msg` as a binary WebSocket frame (opcode 2).  Loft `text` is a byte buffer — pack u8/u16/i32/etc. into it via `to_bytes` style code, then ship it."
+            },
+            {
+              "sig": "pub fn last_opcode(self: WebSocket) -> integer",
+              "doc": "Opcode of the last frame returned by `next` on this socket. Use after `next` to decide whether to interpret the payload as utf-8 text or as a binary blob."
+            },
+            {
+              "sig": "pub fn close(self: WebSocket)"
+            },
+            {
+              "sig": "pub struct WsEvent",
+              "doc": "Event delivered to the on_event handler.  `connected` and `message` are mutually-exclusive booleans for fast dispatch without an integer enum.  Wire format `<msg_id>:<payload>` is parsed by `run` so msg_id and payload come pre-split."
+            },
+            {
+              "sig": "pub fn run(self: Server, on_event: fn(WsEvent))",
+              "doc": "Block forever, draining events and calling the handler. Malformed message frames are logged at warn level and silently dropped — the handler never sees them."
+            },
+            {
+              "sig": "pub fn poll_event(self: Server) -> WsEvent",
+              "doc": "Non-blocking single-event drain — returns the next WsEvent, or null when nothing is pending.  Lets a server that also needs a periodic tick (timers, decay, snapshots) run its OWN loop while still using the efficient Rust-side event pump: drain `poll_event` in a batch, do the periodic work, idle-sleep when a pass produced nothing.  `run` above is the convenience wrapper for servers that only react to events.  Disconnect (kind 2) and malformed message frames are skipped internally (the caller never sees them), so a null return always means \"idle\"."
+            },
+            {
+              "sig": "pub fn respond_html(self: Server, body: text)",
+              "doc": "Reply to the HTTP request currently parked by a `http` WsEvent and close it.  Call exactly once from the handler for an `ev.http` event."
+            },
+            {
+              "sig": "pub fn respond_typed(self: Server, status: integer, body: text, content_type: text)"
+            },
+            {
+              "sig": "pub fn respond_404(self: Server)"
+            },
+            {
+              "sig": "pub fn send_to(self: Server, client_id: integer, msg: text) -> boolean",
+              "doc": "Send a frame to a specific client.  Returns true on success."
+            },
+            {
+              "sig": "pub fn broadcast(self: Server, msg: text) -> integer",
+              "doc": "Send a frame to every active client.  Returns the count of successful sends.  Iteration happens entirely in Rust."
+            },
+            {
+              "sig": "pub fn disconnect(self: Server, client_id: integer)",
+              "doc": "Forcefully close one client's connection.  The slot is freed for reuse by future accepts."
+            }
+          ],
+          "published": "2026-07-24T21:47:55Z"
         }
       }
     },
