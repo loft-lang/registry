@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-24T17:21:01Z",
+  "updated": "2026-07-24T19:52:30Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -4365,6 +4365,93 @@
           "subpath": "ssh",
           "deps": {},
           "published": "2026-07-14T13:34:30Z"
+        }
+      }
+    },
+    "pluginabi": {
+      "description": "Plugin call protocol — the six-operation contract (initial_state / apply_op / make_op / render / snapshot / load_snapshot) as canonical-CBOR frames over a byte channel. Not a runtime, ABI or sandbox: loft already provides those.",
+      "homepage": "https://github.com/loft-lang/loft-libs-plugins/tree/main/pluginabi",
+      "categories": [
+        "plugins"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-plugins/releases/download/pluginabi-v0.1.0/pluginabi-0.1.0.tar.gz",
+          "sha256": "96da90af5bdcd9b712c805b62afb824d9599bc91c38076970f362ba68832ad45",
+          "size": 5413,
+          "loft": ">=0.8",
+          "subpath": "pluginabi",
+          "deps": {
+            "cbor": ">=0.1.2",
+            "crypto": ">=0.3.6"
+          },
+          "api": [
+            {
+              "sig": "pub const OP_INITIAL_STATE: text = \"initial_state\";"
+            },
+            {
+              "sig": "pub const OP_APPLY_OP:      text = \"apply_op\";"
+            },
+            {
+              "sig": "pub const OP_MAKE_OP:       text = \"make_op\";"
+            },
+            {
+              "sig": "pub const OP_RENDER:        text = \"render\";"
+            },
+            {
+              "sig": "pub const OP_SNAPSHOT:      text = \"snapshot\";"
+            },
+            {
+              "sig": "pub const OP_LOAD_SNAPSHOT: text = \"load_snapshot\";"
+            },
+            {
+              "sig": "pub fn valid_op(op: text) -> boolean"
+            },
+            {
+              "sig": "pub fn takes_arg(op: text) -> boolean"
+            },
+            {
+              "sig": "pub fn request(op: text, state_b64: text, arg_b64: text) -> vector<u8>"
+            },
+            {
+              "sig": "pub fn req_op(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub fn req_state_b64(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub fn req_arg_b64(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub fn reply_ok(out_b64: text) -> vector<u8>"
+            },
+            {
+              "sig": "pub fn reply_err(code: text) -> vector<u8>"
+            },
+            {
+              "sig": "pub fn reply_is_ok(frame: vector<u8>) -> boolean"
+            },
+            {
+              "sig": "pub fn reply_out_b64(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub fn reply_err_code(frame: vector<u8>) -> text"
+            },
+            {
+              "sig": "pub const ERR_UNKNOWN_OP: text = \"unknown-op\";"
+            },
+            {
+              "sig": "pub const ERR_MALFORMED:  text = \"malformed-frame\";"
+            },
+            {
+              "sig": "pub const ERR_PLUGIN:     text = \"plugin-error\";"
+            },
+            {
+              "sig": "pub fn check_request(frame: vector<u8>) -> text"
+            }
+          ],
+          "published": "2026-07-24T19:52:30Z"
         }
       }
     }
