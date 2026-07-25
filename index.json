@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-25T06:08:41Z",
+  "updated": "2026-07-25T18:10:17Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -626,6 +626,57 @@
             }
           ],
           "published": "2026-07-15T10:46:10Z"
+        },
+        "0.4.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/shapes-v0.4.0/shapes-0.4.0.tar.gz",
+          "sha256": "11adad405b0ae96ec91835e576d0bda4b74677e635bce5ac7ee809c3d3b53ce4",
+          "size": 2452,
+          "loft": ">=2026.7.2",
+          "subpath": "shapes",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Rect",
+              "doc": "Axis-aligned bounding box for 2D collision."
+            },
+            {
+              "sig": "pub struct Circle",
+              "doc": "Circle shape for 2D collision."
+            },
+            {
+              "sig": "pub fn rects_overlap(a: const Rect, b: const Rect) -> boolean",
+              "doc": "Test whether two axis-aligned rectangles overlap."
+            },
+            {
+              "sig": "pub fn circles_overlap(a: const Circle, b: const Circle) -> boolean",
+              "doc": "Test whether two circles overlap."
+            },
+            {
+              "sig": "pub fn rect_circle_overlap(r: const Rect, c: const Circle) -> boolean",
+              "doc": "Test whether a rectangle and a circle overlap."
+            },
+            {
+              "sig": "pub struct Overlap",
+              "doc": "Overlap depth between two rectangles on each axis."
+            },
+            {
+              "sig": "pub fn rect_overlap_depth(a: const Rect, b: const Rect) -> Overlap",
+              "doc": "Compute the overlap depth between two rectangles on each axis.\nReturns (0.0, 0.0) when they don't overlap.\nUseful for bounce direction: if ox < oy → horizontal bounce."
+            },
+            {
+              "sig": "pub fn aabb_overlap(ax: float, ay: float, aw: float, ah: float,",
+              "doc": "Test AABB overlap using raw coordinates (no struct allocation — safe in loops)."
+            },
+            {
+              "sig": "pub fn aabb_depth_x(ax: float, ay: float, aw: float, ah: float,",
+              "doc": "Compute AABB overlap depth on each axis using raw coordinates.\nReturns ox via the first return, oy via the second.\nBoth are 0.0 when no overlap. Safe in loops (no struct allocation)."
+            },
+            {
+              "sig": "pub fn aabb_depth_y(ax: float, ay: float, aw: float, ah: float,",
+              "doc": ""
+            }
+          ],
+          "published": "2026-07-25T18:10:17Z"
         }
       }
     },
@@ -794,6 +845,145 @@
             }
           ],
           "published": "2026-06-29T08:18:05Z"
+        },
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gridmesh-v0.2.0/gridmesh-0.2.0.tar.gz",
+          "sha256": "26656dccc2ef56be33514d16bc0c5500b6736d3407c6c91c126c77ae9fd25d43",
+          "size": 11890,
+          "loft": ">=2026.7.2",
+          "subpath": "gridmesh",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct CellRef",
+              "doc": "A coord→cell-index reference, stored in the spatial-index hash keyed on\nthe encoded coordinate `ck`."
+            },
+            {
+              "sig": "pub fn enc_coord(x: integer, y: integer) -> integer",
+              "doc": "Encode an offset coord into one integer key.  The hex world is small;\n±2^20 per axis covers it with room to spare and stays within i64."
+            },
+            {
+              "sig": "pub fn build_index(xs: vector<integer>, ys: vector<integer>) -> hash<CellRef[ck]>",
+              "doc": "Build the coord→cell-index spatial index for a placement-ordered cell\nlist given as parallel (xs, ys).  O(N), built once and reusable across\nneighbour/on-axis queries.  (@P300 — assigning a hash-returning call's\nresult to a local — was fixed 2026-05-21, so this helper replaces the\nold inline-build workaround the consumers used.)"
+            },
+            {
+              "sig": "pub fn axial_dq(d: integer) -> integer",
+              "doc": "Axial unit-direction components for hex axis d (0..5), via 60°·d.\nBranch form avoids per-call vector-literal allocation."
+            },
+            {
+              "sig": "pub fn axial_dr(d: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn step_x(x: integer, y: integer, d: integer, k: integer) -> integer",
+              "doc": "Offset coord `k` steps from (x, y) along hex axis `d`."
+            },
+            {
+              "sig": "pub fn step_y(_x: integer, y: integer, d: integer, k: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn idx_at(cidx: hash<CellRef[ck]>, x: integer, y: integer) -> integer",
+              "doc": "snap index of the cell at (x, y), or -1 if none.  (`cidx` not `index`\n— `index` is a reserved keyed-collection-type keyword in loft.)"
+            },
+            {
+              "sig": "pub fn nbr_count_idx(cidx: hash<CellRef[ck]>, cx: integer, cy: integer) -> integer",
+              "doc": "Index-backed filled-neighbour count (distance 1) — the 6 axis-1 cells."
+            },
+            {
+              "sig": "pub struct SegMesh",
+              "doc": "── B1: SegMesh accumulator ──────────────────────────────────────────\n\nStruct-of-arrays line-segment mesh for segment/ribbon consumers (the\ncrystal rule).  Each segment is a 3D line (x0,y0,z0)→(x1,y1,z1) with a\nkind, a colour, and the OWNING cell index (`cell_ix`) — the latter lets\na consumer attribute a segment back to its cell (e.g. GPU bloom-from-\ncentre keyed by cell age) and lets the dirty-rebuild find-and-replace a\ncell's segments.  Coordinates are `single` (f32 — the GPU VBO format,\nno precision loss vs what is rendered) and kind/colour are `u8`\n(M1 narrowing: ~60 % less memory than the i64/f64 prototype)."
+            },
+            {
+              "sig": "pub fn seg_mesh_new() -> SegMesh",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn emit_segment(m: SegMesh, kind: integer,",
+              "doc": "Append one segment owned by cell `owner`.  Callers pass `float` coords\nand `integer` kind/colour; they are narrowed to the storage width here."
+            },
+            {
+              "sig": "pub fn seg_len(m: SegMesh) -> integer",
+              "doc": "Number of segments in the mesh."
+            },
+            {
+              "sig": "pub fn seg_mesh_append(dst: SegMesh, src: SegMesh)",
+              "doc": "Append all of `src`'s segments onto `dst` (concatenate the nine parallel\narrays).  Used to assemble a render-group mesh from its chunks' CACHED\nmeshes and to concatenate chunk meshes into a full build — order-preserving,\nso the consumer can rely on a stable per-group draw order."
+            },
+            {
+              "sig": "pub struct ChunkKey",
+              "doc": "A chunk-space coordinate.  `ck = enc_coord(cx, cy)` is its identity for\ndedup in the dirty index."
+            },
+            {
+              "sig": "pub fn chunk_of(x: integer, y: integer, shift: integer) -> ChunkKey",
+              "doc": "The chunk owning offset coord (x, y) for a field with `shift`\n(chunk = 1<<shift cells per axis; shift 5 = the moros 32×32 chunk)."
+            },
+            {
+              "sig": "pub struct ChunkField",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn field_new(layout: integer, xs: vector<integer>, ys: vector<integer>,",
+              "doc": "Build a field from placement-ordered coords.  The dirty index starts\nempty; the spatial index (cidx) and the chunk->cell partition (buckets)\nare built once (O(N)) and maintained incrementally thereafter\n(field_add_cell), so a later collect_dirty_inputs is O(dirty), not O(N)."
+            },
+            {
+              "sig": "pub fn field_add_cell(f: ChunkField, x: integer, y: integer)",
+              "doc": "Edit — append a new cell (its index = old len(xs)), add it to its chunk's\nbucket (O(1) amortised), and mark its chunk (+ halo-border neighbours)\ndirty.  Keeping the bucket current here is what makes collect_dirty_inputs\nO(dirty) rather than a full re-partition."
+            },
+            {
+              "sig": "pub fn field_mark_dirty(f: ChunkField, x: integer, y: integer)",
+              "doc": "Edit — RECOLOUR an existing cell: mark its chunk (+ halo border) dirty\nwithout touching the coord arrays or index (the cell stays; only its\nconsumer-side payload — colour/height — changed).  Erase uses\nfield_remove_cell instead (it must also drop the cell from the index)."
+            },
+            {
+              "sig": "pub fn field_remove_cell(f: ChunkField, x: integer, y: integer)",
+              "doc": "Edit — REMOVE an existing cell: drop it from the spatial index (cidx) and\nits chunk bucket, then mark its chunk (+ halo border) dirty.  The MIRROR of\nfield_add_cell, sharing mark_borders so a removal flows through the IDENTICAL\nincremental rebuild path as a paint.  The coord slot in xs/ys is deliberately\nLEFT in place (not compacted): cell indices the field already handed out stay\nstable, so a consumer's parallel per-cell arrays (e.g. the projector's bloom\nbirths, indexed by cell index) are not invalidated.  The orphaned slot is\nnever read again — its index is in no bucket and no longer in cidx — and\nre-painting the same coord allocates a FRESH index (field_add_cell appends),\nso identity is never reused."
+            },
+            {
+              "sig": "pub fn clear_dirty(f: ChunkField)",
+              "doc": "Clear the dirty index after a rebuild (@P307 OpClearKeyed: in-place free)."
+            },
+            {
+              "sig": "pub fn dirty_count(f: ChunkField) -> integer",
+              "doc": "Number of chunks currently dirty (verification / O(dirty) sizing)."
+            },
+            {
+              "sig": "pub fn chunk_is_dirty(f: ChunkField, x: integer, y: integer) -> boolean",
+              "doc": "Is the chunk owning (x, y) currently marked dirty?"
+            },
+            {
+              "sig": "pub struct ChunkInput",
+              "doc": "── B3: ChunkInput + per-chunk gather ─────────────────────────────────\n\nWhat a per-cell RULE needs for ONE chunk: the indices of the cells it\nOWNS (emit geometry for these) + the ≤halo_k border-neighbour cells in\nOTHER chunks it may READ as context.  COMPACT — no payload, and NO copy\nof the shared spatial index (`cidx`).  The rule receives `cidx`\nSEPARATELY as a read-only ref (keyed params don't deep-copy) and `par`\nforwards it as a context arg, so the per-chunk working set stays small\nand cache-resident (copying the whole index per chunk would be O(N))."
+            },
+            {
+              "sig": "pub fn all_inputs(f: ChunkField, halo_k: integer) -> vector<ChunkInput>",
+              "doc": "One ChunkInput per chunk that holds cells (the full-build work-list).\nReads the wired-in `f.buckets` (no re-partition)."
+            },
+            {
+              "sig": "pub fn collect_dirty_inputs(f: ChunkField, halo_k: integer) -> vector<ChunkInput>",
+              "doc": "One ChunkInput per DIRTY chunk (the incremental-rebuild work-list).\nIterates ONLY the dirty set and looks up each dirty chunk's bucket — so\nthe cost is O(dirty chunks × their cells), independent of total N.  A\ndirty chunk with no owned cells (a halo-marked empty neighbour) is\nskipped.  Clear the dirty index after rebuilding."
+            },
+            {
+              "sig": "pub struct GroupKey",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct GroupInput",
+              "doc": "The chunk ck's a group contains that actually hold cells (the assemble\nwork-list).  No mesh here — gridmesh partitions; the consumer owns meshes."
+            },
+            {
+              "sig": "pub fn group_of(cx: integer, cy: integer, group_dim: integer) -> GroupKey",
+              "doc": "The group owning CHUNK coord (cx, cy): chunk-space divided by group_dim.\nUses chunk_div so any group_dim works (not just powers of two) — a free dial."
+            },
+            {
+              "sig": "pub fn all_groups(f: ChunkField, group_dim: integer) -> vector<GroupInput>",
+              "doc": "One GroupInput per group that holds cells (the full-build work-list).\nO(chunks): each non-empty chunk dedups into its group's chunk list."
+            },
+            {
+              "sig": "pub fn collect_dirty_groups(f: ChunkField, group_dim: integer) -> vector<GroupInput>",
+              "doc": "One GroupInput per DIRTY group (the incremental re-upload work-list).\nA group is dirty if any of its chunks is dirty; its chunk_cks lists ALL its\nmember chunks that hold cells (so the consumer reassembles the group's VBO\nfrom those chunks' CACHED meshes — unchanged chunks copied, not rebuilt).\n\nFLAT COST: derives the dirty groups from f.dirty (O(dirty)), then for each\nenumerates its group_dim × group_dim member chunk coords analytically and\nprobes f.buckets — O(dirty groups × group_dim²), independent of total N.\n(Never scans all chunks, which would make per-edit cost grow with N.)"
+            }
+          ],
+          "published": "2026-07-25T18:10:09Z"
         }
       }
     },
@@ -4554,6 +4744,85 @@
             }
           ],
           "published": "2026-07-02T18:52:16Z"
+        },
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_world-v0.2.0/hex_world-0.2.0.tar.gz",
+          "sha256": "f7e7f41d3618607aa408c54676f28df51e0d3746e7b2f9eaa008c65b09b6f075",
+          "size": 18059,
+          "loft": ">=2026.7.2",
+          "subpath": "hex_world",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Cell",
+              "doc": "4-byte cell.  c_color uses the u8 typedef (integer limit(0,255)\nsize(1)); c_age uses u16 (size(2)).  Storage packs to exactly 4\nbytes per cell — the projector ships them through the binary\nsurface in chunk-major order.\n\nc_color = 0 means \"empty\" (no crystal, no TTT mark).  Both clients\ntreat 0 as background; non-zero as live content."
+            },
+            {
+              "sig": "pub struct Chunk",
+              "doc": "32x32 grid at chunk coords (ck_cx, ck_cz).  Index into ck_cells:\nhx * 32 + hz where hx, hz ∈ [0, 31].  Same shape as moros_map's\nChunk minus the cy layer (this world is single-layer)."
+            },
+            {
+              "sig": "pub struct World",
+              "doc": "Top-level container.  Sparse: only chunks with at least one\nnon-empty cell live in `chunks`; empty chunks are removed by the\ntick loop's GC pass.  `tick` is monotonic per server lifetime."
+            },
+            {
+              "sig": "pub fn chunk_idx_32(v: integer) -> integer",
+              "doc": "floor(v / 32) — handles negative v correctly (C-style `/` rounds\ntoward zero, which silently maps cell (-1, 0) to chunk 0 instead\nof chunk -1)."
+            },
+            {
+              "sig": "pub fn hex_idx_32(v: integer) -> integer",
+              "doc": "v mod 32, always in [0, 31]."
+            },
+            {
+              "sig": "pub fn cell_empty() -> Cell",
+              "doc": "Default empty cell.  All fields zero; serialises to four 0x00\nbytes on the wire."
+            },
+            {
+              "sig": "pub fn build_chunk(cx: integer, cz: integer) -> Chunk",
+              "doc": "Build a 32x32 chunk filled with empty cells at chunk coords\n(cx, cz)."
+            },
+            {
+              "sig": "pub fn world_empty() -> World",
+              "doc": "New empty world, tick 0, no chunks."
+            },
+            {
+              "sig": "pub fn has_chunk(self: World, q: integer, r: integer) -> boolean",
+              "doc": "True iff a chunk exists at the global (q, r)."
+            },
+            {
+              "sig": "pub fn ensure_chunk(self: &World, q: integer, r: integer)",
+              "doc": "Ensure a chunk exists at the global (q, r); creates a 32x32 of\nempty cells if absent."
+            },
+            {
+              "sig": "pub fn get_cell(self: World, q: integer, r: integer) -> Cell",
+              "doc": "Read the cell at global (q, r).  Returns `cell_empty()` when the\nchunk does not exist (sparse-world convention — empty chunks are\nimplicitly all-empty)."
+            },
+            {
+              "sig": "pub fn set_cell(self: &World, q: integer, r: integer, value: Cell)",
+              "doc": "Write a cell at global (q, r).  Creates the containing chunk on\ndemand; does NOT GC empty chunks (the tick loop's end-of-tick\npass owns that)."
+            },
+            {
+              "sig": "pub fn cell_count(self: World) -> integer",
+              "doc": "Total number of non-empty cells across every chunk."
+            },
+            {
+              "sig": "pub fn neighbour_count(self: World, q: integer, r: integer) -> integer",
+              "doc": "Count filled axial-hex neighbours of the cell at global (q, r).\nReturns 0..=6.  Empty centre cell is fine — neighbours are read\nindependently of the centre's state."
+            },
+            {
+              "sig": "pub fn tick_and_decay(self: &World, base_lifetime: integer,",
+              "doc": "── Tick + decay ───────────────────────────────────────────────────\n\nOne world step: advances `tick`, ages every non-empty cell by 1,\nthen removes any cell whose `c_age` has crossed\n`effective_lifetime + decay_window` where\n`effective_lifetime = base_lifetime + neighbour_lease *\nfilled_neighbour_count`.  Neighbour counts are computed against\nthe PRE-TICK state — a single tick can remove a connected blob\nof cells, but the cascade (centre losing its neighbour support)\nonly fires on the NEXT tick.  This keeps the simulation\ndeterministic per-step and prevents one-tick complete collapse\nof large clusters."
+            },
+            {
+              "sig": "pub fn world_save(self: World, path: text)",
+              "doc": "Save the world to `path`, replacing whatever was there."
+            },
+            {
+              "sig": "pub fn world_load(self: &World, path: text) -> integer",
+              "doc": "Load the world from `path`.  Mutates `self` in place; pre-existing\ncells in `self` are left untouched unless the snapshot overwrites\nthe same (q, r).  Returns the number of cells loaded.  Returns 0 if\nthe file does not exist, has the wrong magic, or carries an\nunsupported version — never panics."
+            }
+          ],
+          "published": "2026-07-25T18:10:12Z"
         }
       }
     },
@@ -4594,6 +4863,91 @@
             "graphics": ">=0.1"
           },
           "published": "2026-06-14T14:42:36Z"
+        },
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-game/releases/download/input-v0.2.0/input-0.2.0.tar.gz",
+          "sha256": "dad926113f0cb373b2351320f9c7621f940bee3ad6f5c481c8a700efc1b92a5d",
+          "size": 6197,
+          "loft": ">=2026.7.2",
+          "subpath": "input",
+          "deps": {
+            "graphics": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct ActionBinding",
+              "doc": "One named action: \"jump\" → [KEY_SPACE, KEY_UP] (any of the listed\nkeys triggers the action).  An empty `ab_keys` is degenerate but\nvalid — the action will simply never fire."
+            },
+            {
+              "sig": "pub struct AxisBinding",
+              "doc": "One named axis: pair of (negative key, positive key) → -1.0 / 0.0\n/ +1.0.  If both are down simultaneously the axis reads 0.0 (they\ncancel) — same convention as Unity / Godot's built-in axis pairs."
+            },
+            {
+              "sig": "pub struct Bindings",
+              "doc": "Full binding set — game code constructs this once and passes it\ninto `input_new`.  Re-binding at runtime: mutate this struct in\nplace (or build a new one) and call `input_set_bindings`."
+            },
+            {
+              "sig": "pub struct InputState",
+              "doc": "Abstract input state.  Fields are documented but considered\nopaque — query via the `is_action_*` / `get_axis` / `mouse_*`\nfunctions below.\n\n`is_keys_now[i]` is true if key code `i` is currently down;\n`is_keys_prev[i]` holds the same flag from the previous tick so\nedge detection compares the two.  Mouse buttons are a bitmask\n(`MB_LEFT | MB_RIGHT | …`)."
+            },
+            {
+              "sig": "pub fn input_new(b: Bindings) -> InputState",
+              "doc": "Construct an `InputState` from a `Bindings` set.  Both key tables\nstart fully released; the first call to `input_tick` populates\n`is_keys_now` (and `is_keys_prev` stays all-false, so any key down\non the first tick fires its `just_pressed` edge — the documented\n\"first frame counts as a transition\" semantics)."
+            },
+            {
+              "sig": "pub fn input_set_bindings(self: &InputState, b: Bindings)",
+              "doc": "Replace the binding set on a live state (e.g. after the player\nremaps keys in a settings menu).  Does NOT clear the key tables —\nin-flight key presses survive the rebind so a remap doesn't\nstrand an already-held key."
+            },
+            {
+              "sig": "pub fn input_tick(self: &InputState)",
+              "doc": "Poll the graphics input primitives and refresh state for one tick.\nReads `gl_key_pressed` for every key code referenced by the\ncurrent bindings (avoids a 256-call sweep — only ask about keys\nthe game actually cares about), plus `gl_mouse_x`/`gl_mouse_y`/\n`gl_mouse_button`/`gl_mouse_wheel` unconditionally."
+            },
+            {
+              "sig": "pub fn input_tick_from_state(",
+              "doc": "Advance state from a caller-supplied snapshot instead of polling\n`graphics`.  Used by tests (no GL context) and by network replay\n/ record-playback systems.  `keys` length is clamped to KEY_MAX;\nout-of-range entries are ignored."
+            },
+            {
+              "sig": "pub fn is_action_pressed(self: const InputState, action: text) -> boolean",
+              "doc": "True if ANY of the action's bound keys is currently down."
+            },
+            {
+              "sig": "pub fn is_action_just_pressed(self: const InputState, action: text) -> boolean",
+              "doc": "True for exactly one tick: the moment any of the action's bound\nkeys transitions from up to down.  If multiple bound keys all\ntransition on the same tick it still fires once."
+            },
+            {
+              "sig": "pub fn is_action_just_released(self: const InputState, action: text) -> boolean",
+              "doc": "True for exactly one tick: the moment any of the action's bound\nkeys transitions from down to up."
+            },
+            {
+              "sig": "pub fn get_axis(self: const InputState, axis: text) -> float",
+              "doc": "Read an axis pair: -1.0 if only `ax_neg` is down, +1.0 if only\n`ax_pos` is down, 0.0 if neither or both.  Unknown axis name\nreturns 0.0."
+            },
+            {
+              "sig": "pub fn mouse_x(self: const InputState) -> float",
+              "doc": "Mouse position — pixels from the top-left of the window\n(matches `graphics::gl_mouse_x` / `gl_mouse_y`)."
+            },
+            {
+              "sig": "pub fn mouse_y(self: const InputState) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn mouse_button_down(self: const InputState, button: integer) -> boolean",
+              "doc": "True if the given mouse button (`MB_LEFT` / `MB_RIGHT` / `MB_MIDDLE`)\nis currently down.  Pass the constant, not a bitmask of multiple."
+            },
+            {
+              "sig": "pub fn mouse_button_just_pressed(self: const InputState, button: integer) -> boolean",
+              "doc": "True for exactly one tick — the moment the button transitions\nfrom up to down."
+            },
+            {
+              "sig": "pub fn mouse_button_just_released(self: const InputState, button: integer) -> boolean",
+              "doc": "True for exactly one tick — the moment the button transitions\nfrom down to up."
+            },
+            {
+              "sig": "pub fn mouse_wheel(self: const InputState) -> integer",
+              "doc": "Accumulated scroll-wheel delta since the last `input_tick` —\npositive = scroll up.  Mirrors `graphics::gl_mouse_wheel`."
+            }
+          ],
+          "published": "2026-07-25T18:10:15Z"
         }
       }
     },
