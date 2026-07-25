@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-07-24T21:47:55Z",
+  "updated": "2026-07-25T06:08:41Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -5059,6 +5059,25 @@
             "hex_recover": ">=0.1"
           },
           "published": "2026-07-24T20:56:38Z"
+        }
+      }
+    },
+    "hex_body": {
+      "description": "The moving body — rigs, revolute joints with computed limits, pure poses, and collision proxies. hexbody's own body model, part of the hex_* family.",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_body",
+      "categories": [
+        "geometry"
+      ],
+      "yanked": false,
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_body-v0.1.0/hex_body-0.1.0.tar.gz",
+          "sha256": "d674a3ef332580daace28043d343931b2df467f2e1563ddb465e615364c91e27",
+          "size": 8924,
+          "loft": ">=0.8",
+          "subpath": "hex_body",
+          "deps": {},
+          "published": "2026-07-25T06:08:41Z"
         }
       }
     }
