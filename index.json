@@ -5198,7 +5198,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_field-v0.1.0/hex_field-0.1.0.tar.gz",
@@ -5217,7 +5217,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_edge-v0.1.0/hex_edge-0.1.0.tar.gz",
@@ -5238,7 +5238,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_form-v0.1.0/hex_form-0.1.0.tar.gz",
@@ -5260,7 +5260,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_way-v0.1.0/hex_way-0.1.0.tar.gz",
@@ -5282,7 +5282,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_shape-v0.1.0/hex_shape-0.1.0.tar.gz",
@@ -5305,7 +5305,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_recover-v0.1.0/hex_recover-0.1.0.tar.gz",
@@ -5327,7 +5327,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_place-v0.1.0/hex_place-0.1.0.tar.gz",
@@ -5349,7 +5349,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_roof-v0.1.0/hex_roof-0.1.0.tar.gz",
@@ -5371,7 +5371,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_draw-v0.1.0/hex_draw-0.1.0.tar.gz",
@@ -5396,7 +5396,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_fit-v0.1.0/hex_fit-0.1.0.tar.gz",
@@ -5422,7 +5422,7 @@
       "categories": [
         "geometry"
       ],
-      "yanked": false,
+      "yanked": [],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_body-v0.1.0/hex_body-0.1.0.tar.gz",
