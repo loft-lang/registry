@@ -108,6 +108,24 @@ def gate_schema(idx: dict) -> None:
                 f"package `{name}`: `homepage` must be an http(s) URL "
                 f"(the catalogue links to it for the full API docs)"
             )
+        # `yanked` is a LIST of yanked version strings — never a bool.  A hand
+        # publish wrote `false` into eleven hex_* packages, and loft's nightly
+        # registry-validation does `.yanked | length` to pick what to test: jq
+        # dies on a boolean, so `discover` failed in 3s and the whole sweep was
+        # SKIPPED.  Every published package went unvalidated for days while the
+        # run merely looked red.  Typed here so bad data can never reach it.
+        yanked = pkg.get("yanked", [])
+        if not isinstance(yanked, list) or not all(
+            isinstance(v, str) for v in yanked
+        ):
+            fail(
+                f"package `{name}`: `yanked` must be a list of version strings "
+                f"(got {yanked!r}) — use [] when nothing is yanked"
+            )
+        # Deliberately NOT checked: that each yanked version still has a
+        # `versions` row.  Yanking REMOVES the row and records the string here
+        # (PKG_REGISTRY.md § Yanking), so requiring one would reject correct data
+        # — `web` 0.2.2 is exactly that shape.
         for ver, vobj in pkg["versions"].items():
             for required in ("url", "sha256", "size", "loft", "published"):
                 if required not in vobj:

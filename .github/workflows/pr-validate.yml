@@ -35,6 +35,18 @@ on:
   pull_request:
     paths:
       - "index.json"
+  # A foreign submission arrives as a PR, but an OWN-lib publish does not:
+  # loft's `scripts/registry_maintain.sh` commits index.json + index.json.sig
+  # straight to `main` (no PR, by design — the signature is the gate there).
+  # With only the pull_request trigger, every maintainer publish therefore
+  # bypassed validation entirely, which is how eleven packages landed with
+  # `"yanked": false` and silently broke loft's nightly registry-validation.
+  # Validating pushes too makes a bad direct publish go red immediately
+  # instead of surfacing days later as an unrelated-looking nightly failure.
+  push:
+    branches: [main]
+    paths:
+      - "index.json"
   workflow_dispatch:
 
 jobs:
@@ -58,7 +70,7 @@ jobs:
       - name: Clone loft source
         uses: actions/checkout@v4
         with:
-          repository: jjstwerff/loft
+          repository: loft-lang/loft      # was `jjstwerff/loft` — surviving only on GitHub's rename redirect
           path: loft-src
 
       - name: Cache cargo registry + loft build
