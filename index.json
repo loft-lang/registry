@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-17T20:25:36Z",
+  "updated": "2026-08-17T22:03:33Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -7403,6 +7403,211 @@
             }
           ],
           "published": "2026-08-17T20:25:36Z"
+        }
+      }
+    },
+    "fixstep": {
+      "description": "A fixed simulation step in exact integer time — clock, bank, one-shot timer",
+      "homepage": "https://github.com/loft-lang/loft-libs-game/tree/main/fixstep",
+      "categories": [],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-game/releases/download/fixstep-v0.1.0/fixstep-0.1.0.tar.gz",
+          "sha256": "70cc1fed7d2df2f102160d25258cecf54869c5766fe9ffea5630af66e146435c",
+          "size": 28294,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "fixstep",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn ease_fraction(k: float, dt: float) -> float",
+              "doc": "What one frame of `dt` closes of a gap, in `[0, 1)`.\n\n⚠ Zero for a frame with no time in it — which is what a PAUSED\nconsumer hands down, and it must not creep.\n\nExample: @FIX-012"
+            },
+            {
+              "sig": "pub fn approach(now: float, want: float, k: float, dt: float) -> float",
+              "doc": "Move `now` toward `want` by one frame's worth.\n\n⚠ **`k` is the gap fraction closed per SECOND**, so it is a rate and\nnot a step: an approach chasing something moving at `v` settles at a\nsteady lag of `v / k`.  ⚠⚠ That derivation assumes a CONTINUOUS\ntarget — against one that stands still and then jumps a whole step,\nthe real excursion is the step, not `v / k`, and a consumer that\nsized `k` on the formula will be out by the ratio of the two\n(measured at **3.7x** in this package's first consumer).\n\nExample: @FIX-012"
+            },
+            {
+              "sig": "pub fn wrap_deg(a: float) -> float",
+              "doc": "An angle in degrees, folded into `[0, 360)`."
+            },
+            {
+              "sig": "pub fn wrap_delta(d: float) -> float",
+              "doc": "A DIFFERENCE of angles, folded into `(−180, 180]` — the short way\nround.\n\n⚠⚠ **This is not defensive tidying, and a real key set reaches the\nwrong-way swing.**  In this package's first consumer, holding one key\ngives a bearing of 360° and adding a second gives 60°.  The true turn\nis 60°; eased as plain numbers it is **−300°**, and the camera spins\nfive sixths of a circle the wrong way on one extra keypress — while\nlooking like a working camera the whole time, which is why it needs a\ntest rather than an eye.\n\nExample: @FIX-013"
+            },
+            {
+              "sig": "pub fn approach_angle(now: float, want: float, k: float, dt: float) -> float",
+              "doc": "Move an ANGLE toward another by one frame's worth, the short way.\n\n⚠ A separate door from `approach` rather than a flag on it: an angle\nis not a number that happens to wrap, and a consumer that eased a\nbearing with `approach` gets a camera that is correct at every angle\nexcept across the seam.\n\nExample: @FIX-013"
+            },
+            {
+              "sig": "pub struct Bank",
+              "doc": "Progress banked toward the next whole unit.\n\n⚠ **One field, and the struct exists so the caller cannot forget to\nwrite the remainder back.**  loft has no by-reference integer, so a\nfree function over an `integer` would have to answer a pair and\nleave the carry to the call site — which is the seven-sites problem\nwearing a library's clothes.  Passed as a parameter it aliases, so\n`bank_gain` updates it in place and answers only the whole units."
+            },
+            {
+              "sig": "pub fn bank_new() -> Bank",
+              "doc": "A bank with nothing carried."
+            },
+            {
+              "sig": "pub fn bank_whole(units_per_second: integer) -> integer",
+              "doc": "How much banked progress makes one whole unit, for a clock counting\n`units_per_second` base units a second.\n\n⚠ dryopea's answer is the `BANK_WHOLE` constant above; this is the\nderivation, for a consumer whose clock counts something else."
+            },
+            {
+              "sig": "pub fn bank_rate(per_second: float) -> integer",
+              "doc": "Quantise a rate quoted in whole units per second.\n\n⚠ **It ROUNDS rather than truncating**, and the difference is\nvisible at every rate that is not a whole millionth: truncating\nwould make a mover systematically slower, which is the shape of\ndefect this whole plan exists to remove.  ⚠ Truncation is also what\n`@D003` was — the same mistake one unit further out."
+            },
+            {
+              "sig": "pub fn bank_gain(b: Bank, rate: integer, elapsed: integer,",
+              "doc": "Gain ground at `rate` for `elapsed` base time units, and answer the\nwhole units it releases.  The remainder stays banked.\n\n⚠ **This is the one implementation of *do not lose a fraction* in\ndryopea**, and it is exact: `progress` is an integer, `rate ×\nelapsed` is an integer, and a whole unit costs an integer, so there\nis nothing to round and no epsilon to get the direction of wrong\n(`CLAUDE.md` § Timers and epsilons: *neither direction is safe*).\n\n⚠ **A rate of zero banks nothing and keeps what is banked** — a\nmover that stops has not forgotten how far it had come.  Same for a\nnon-positive `elapsed`: `tick_clock.loft` gives the reason time\ngoing backwards must be dropped rather than owed.\n\n⚠ **What it does NOT do is decide whether the mover may move.**\n`enemy_tick` asks the pre-walk window first, `helper_tick` asks\nwhether the crew member is alive; a bank that knew about standing\nwould have to know about every other reason not to move too.\nExample: @FIX-009"
+            },
+            {
+              "sig": "pub fn bank_most(rate: integer, elapsed: integer, whole: integer) -> integer",
+              "doc": "The MOST one step at `rate` over `elapsed` could release — the\nceiling, carry included, touching no bank.\n\n⚠ **An upper bound is a different question from a release**, and\nconflating them is what a caller does when it has no bank to spend.\n`play.loft::play_steer_reach` is the case: it asks how far ahead a\nheld key should point, which must exceed anything one tick can\ncover, and it must not consume the player's carry to find out.\nExample: @FIX-010"
+            },
+            {
+              "sig": "pub fn bank_progress(b: const Bank) -> integer",
+              "doc": "What is banked, in raw progress.\n\n⚠ **Readable so a run can be COMPARED and RESTORED** —\n`compare.loft::state_diff` reads it as part of a mover's state, and\nit is an integer now, so the comparison is exact without the\n\"floats EXACTLY\" argument that file had to make."
+            },
+            {
+              "sig": "pub fn bank_fraction(b: const Bank, whole: integer) -> float",
+              "doc": "What is banked, as a fraction of a whole unit.\n\n⚠ **The AUTHORING door, and the one place a float appears** —\n`emit.loft` writes a captured situation as `.keys` text and\n`script.loft` reads it back, and *hexes* is the unit a person\nauthors in.  The round trip is exact because a double carries 53\nbits and `BANK_WHOLE` needs 42: `bank_restore_fraction` recovers the\ninteger this answered."
+            },
+            {
+              "sig": "pub fn bank_restore(b: Bank, progress: integer, whole: integer)",
+              "doc": "Put a bank back where it was, in raw progress.\n\n⚠ Clamped into `[0, whole)` rather than trusted, for the reason\n`clock_restore` clamps: a carry at or past a whole unit is a state\n`bank_gain` can never leave behind, and accepting one would release\na unit nothing paid for."
+            },
+            {
+              "sig": "pub fn bank_restore_fraction(b: Bank, units: float, whole: integer)",
+              "doc": "Put a bank back from a fraction of a whole unit — `bank_fraction`'s\nother half."
+            },
+            {
+              "sig": "pub fn bank_reset(b: Bank)",
+              "doc": "Throw the carry away.\n\n⚠ **Deliberately a door of its own rather than `bank_restore(b, 0)`,\nbecause it is a DECISION.**  A helper that comes back from recovery\nis a repaired vehicle rather than the wreck that was carried in, so\nits banked ground goes with the damage; an enemy that is merely\nblocked keeps everything.  Two behaviours, and the one that discards\nsays so by name."
+            },
+            {
+              "sig": "pub struct TickClock",
+              "doc": "A fixed step and the time banked toward the next one.\n\n⚠ **Both integers, and that is the whole file.**  `banked` is always\nin `[0, step)` between calls, so there is no rounding to accumulate\nand no epsilon to get the direction of wrong (`CLAUDE.md` § Timers\nand epsilons: *neither direction is safe*)."
+            },
+            {
+              "sig": "pub fn clock_new(step: integer) -> TickClock",
+              "doc": "A clock ticking every `step` base units.\n\n⚠ **One argument, and a clock nobody configures behaves exactly as\ndryopea's did before this file** — uncapped, unscaled, carrying its\nremainder.  `plans/26` § The two rules under all of it: *defaults\nmean the behaviour you already had*.\n\n⚠ A step below 1 is clamped to 1 rather than refused, because the\nalternative is a nullable clock at every call site for a case no\ncaller has: `clock_new(0)` is a mistake, not a mode."
+            },
+            {
+              "sig": "pub fn clock_units_from_micros(us: integer) -> integer",
+              "doc": "Convert wall-clock microseconds — what loft's `ticks()` answers — to\nthis clock's base units.\n\n⚠ **A multiplication, so it is exact.**  `main.loft` used to divide\nmicroseconds by 1e6 into float seconds before the simulation saw\nthem, which threw the exactness away at the boundary and is half of\nwhat plan 26 was opened for (`plans/26` § 1)."
+            },
+            {
+              "sig": "pub fn clock_seconds_from_units(units: integer) -> float",
+              "doc": "The other direction, in SECONDS.\n\n⚠⚠ **The seam plan 26 L3 was going to CLOSE, and what it did instead\nwas change hands.**  Before L3 every one-shot timer in the game came\nthrough here to count float seconds — the boost and its cooldown, 90\nticks of helper recovery, 20 s of tower rebuild, the wave lull — and\n`tick_timer.loft` took all four into integer units.  What is left is\nnot simulation at all:\n\n* **authoring** — `emit.loft` writes a captured situation as\n`.keys` text and a person reads it, and *seconds* is the unit a\nperson authors in.  Exactly `bank_fraction`'s position one family\nover, and exactly as exact: a duration is a whole number of base\nunits, so the round trip through `clock_units_from_seconds`\nrecovers the integer this answered.\n* **presentation** — the camera's ease is `1 − e^(−k·dt)` over real\nframe time and is float by nature (`plans/26` § The invariant).\n\n⚠ **No mover and no timer may call this.**  A mover that did would be\nthrowing away what `bank_gain` was built to keep, and a timer that did\nwould be re-introducing the direction problem `tick_timer.loft` exists\nto delete."
+            },
+            {
+              "sig": "pub fn clock_units_from_seconds(seconds: float) -> integer",
+              "doc": "Float seconds to base units, ROUNDED — the authoring door's other\nhalf.\n\n⚠ **Rounding rather than truncating, for `tests/26_l1`'s reason one\nlayer out**: a float second's worth of units is a hair over or under\nits exact count, and truncating a hair-under value costs a whole unit\nat every boundary.  The error is ~1e-10 against a step of 2 000 000.\n\n⚠ Negative time answers 0 rather than a negative count — the same\nrefusal `clock_advance` makes, stated here too because the rounding\nwould otherwise turn a small negative into `-0.5` and then into 0 by\naccident rather than by rule."
+            },
+            {
+              "sig": "pub fn clock_set_rate(clk: TickClock, num: integer, den: integer)",
+              "doc": "Run simulated time at `num / den` of wall time.\n\n⚠ **A RATIONAL rather than a float, and that is the whole reason it\nneeds no epsilon.**  `clock_set_rate(clk, 1, 3)` is a third of speed\nexactly, for ever: a frame worth 100 units contributes 33 and the\nleftover 1/3 is carried, where `elapsed * 0.3333…` drifts against a\nrate it could not state in the first place.  Same distinction\n`tick_bank.loft` § THE RATE IS SCALED AND THE TIME IS NOT draws one\nfamily over — except that a clock's rate is authored by a KEYPRESS\nrather than by `numbers.json`, so it is exact rather than quantised.\n\n⚠ **Pause is `0 / 1`**, and it banks nothing while keeping what is\nbanked — so unpausing resumes mid-step rather than re-phasing the\nsimulation.  A step of 0 is a mistake, never a pause\n(`clock_new`).\n\n⚠ A negative `num` is clamped to 0 rather than rewinding.  Time\ngoing backwards is dropped everywhere else in this file, and a rate\nthat ran the simulation in reverse would need every consumer to have\nan inverse tick.\n\n⚠ **Changing the rate DROPS the wall carry**, because the carry is\nmeasured in `den`-ths of a base unit and the old `den` is gone.  It\nis under one base unit — a third of a microsecond — and a rate\nchange is an event a player caused, not a per-frame path.\nExample: @FIX-007"
+            },
+            {
+              "sig": "pub fn clock_rate_num(clk: const TickClock) -> integer",
+              "doc": "The rate's numerator — 0 for a paused clock."
+            },
+            {
+              "sig": "pub fn clock_rate_den(clk: const TickClock) -> integer",
+              "doc": "The rate's denominator — never 0, and 1 for an unconfigured clock."
+            },
+            {
+              "sig": "pub fn clock_advance(clk: TickClock, elapsed: integer) -> integer",
+              "doc": "Spend elapsed time, and answer the whole steps it bought.\n\n⚠ **Integer division, not a subtraction loop.**  The loop is what\nlost the tick — eleven subtractions of a repeating fraction leave a\nremainder a hair under the twelfth — and it is also O(steps), so a\nframe that delivered an hour walked five thousand iterations to say\nso.  One division answers both.\n\n⚠ **Time going backwards is DROPPED, not banked.**  A negative\nelapsed is a clock that was reset or a caller subtracting in the\nwrong order; banking it would owe the simulation negative ticks and\nthen swallow the next real frame.  Answering 0 and keeping the bank\nis the only behaviour that cannot corrupt a run.\n\n⚠ **No cap, and `clock_advance_capped` is the door that has one.**\nA frame that delivers 20 s buys 30 ticks here, which is the property\ndryopea's 654 gate measurements rest on.\nExample: @FIX-001"
+            },
+            {
+              "sig": "pub fn clock_advance_capped(clk: TickClock, elapsed: integer,",
+              "doc": "The same, for a driver that may have been backgrounded — at most\n`max_steps`, and the excess is GONE.\n\n⚠⚠ **It DROPS rather than defers, and the difference is the whole\ndoor.**  `clock_advance` has already reduced the bank to the\nsub-step remainder by the time this clamps, so the steps beyond the\ncap are not owed: the next frame answers 1, not a burst.  The\ntempting wrong version clamps the answer and leaves the backlog\nbanked, which runs the simulation behind the wall for ever after —\n`tests/26_l4` § A cap that defers is that version, kept as the\ncontrol, and it is the only thing that makes this function's gate\nnon-trivial.\n\n⚠ **And it must not compress**, which is moros's own note: *a\ncompressed catch-up is the variable-step bug wearing a bound's\nclothes*.  Nothing here can — the step is fixed and this answers a\nCOUNT — but a driver that multiplied its tick's dt to \"catch up\"\nwould reintroduce exactly what `plans/22` § LOD is warned against.\n\n⚠ A cap below 1 is clamped to 1, for `clock_new`'s reason: a cap of\nzero is a simulation that can never advance, which is a mistake\nrather than a mode.  Pause is a rate of 0.\nExample: @FIX-004"
+            },
+            {
+              "sig": "pub fn clock_pump(clk: TickClock, now: integer) -> integer",
+              "doc": "Spend the time since the last reading of an ABSOLUTE wall clock.\n\n⚠ **The server pump's door: it owns the wall and the caller owns no\nsubtraction.**  `now - last` written at the call site is where a\ndriver gets the order backwards once and silently swallows a frame —\n`clock_advance` drops negative time, so the mistake looks like a\nstutter rather than an error.\n\n⚠ **The FIRST call primes and answers none.**  A pump whose first\nreading was treated as elapsed would open a server with its whole\nuptime as one burst of ticks.\n\n⚠ **A wall going backwards re-primes** rather than dropping the\nreading, because an absolute clock that jumped back is the new truth;\ndropping it would owe every future pump the difference.\n\n⚠ No cap — moros's server has none and `plans/26` § 3 says why the\ntwo repos are both right.  A pump that needs one wraps this in the\nsame clamp `clock_advance_capped` applies.\nExample: @FIX-003"
+            },
+            {
+              "sig": "pub fn clock_step(clk: const TickClock, n: integer) -> integer",
+              "doc": "Ask for `n` steps, and answer how many that was.\n\n⚠ **It does not touch the bank, and that is the whole point of it\nbeing a separate door.**  A count is not elapsed time: a script\nsaying `tick 30` neither spends a live session's remainder nor\nleaves one behind.  `play.loft` § TWO ways to ask made this\ndistinction one level up and measured what folding them costs.\n\n⚠ It looks trivial and is not free to delete: without it a caller\nthat has a count must spell it as `n * step`, which is the exact\nmistake `tests/19_p1` records — and which is only safe here because\nthe arithmetic is integer.  The door is what says so.\nExample: @FIX-002"
+            },
+            {
+              "sig": "pub fn clock_step_units(clk: const TickClock) -> integer",
+              "doc": "The step this clock ticks on, in base units."
+            },
+            {
+              "sig": "pub fn clock_banked(clk: const TickClock) -> integer",
+              "doc": "Time banked toward the next step, in base units — always in\n`[0, step)`.\n\n⚠ **Readable so a run can be RESTORED**, which is the whole of what\na rollback consumer needs from the timing half (`plans/26` § What\nthis plan does NOT build): re-running N steps from a restored bank\nis bit-identical because `clock_step` is exact.\nExample: @FIX-006"
+            },
+            {
+              "sig": "pub fn clock_restore(clk: TickClock, banked: integer)",
+              "doc": "Put a clock back where it was — the other half of `clock_banked`.\n\n⚠ Clamped into `[0, step)` rather than trusted: a bank at or past\nthe step is a state `clock_advance` can never leave behind, and\naccepting one would make the next call answer a step nobody's time\npaid for."
+            },
+            {
+              "sig": "pub fn clock_alpha(clk: const TickClock) -> float",
+              "doc": "How far the bank is toward the next step, in `[0, 1)`.\n\n⚠ **The one number a renderer needs from a fixed-step clock**, and\nthe reason it is here rather than at the call site: `banked / step`\nwritten by hand is a caller reaching INTO the accumulator, and a\ncaller that can read `banked` can also write it.  This is the read\ndoor, and `clock_banked` (raw units, for save/restore) is the other\none — two questions, two answers, one field.\n\n⚠ **Half-open by construction, not by a clamp.**  `clock_advance`\nleaves `banked` in `[0, step)` and `clock_restore` refuses anything\nelse, so the division cannot reach 1.0 — which is what a caller\nlerping between two states depends on: an alpha of exactly 1.0 would\ndraw the NEXT state one frame early, on the frame before the tick\nthat produces it.\n\n⚠⚠ **What a consumer does with it is a PRESENTATION decision and this\nfile must not make it.**  The textbook use is\n`lerp(previous_state, current_state, alpha)` — and dryopea measured it\nagainst two alternatives over one drive (`tests/26_l5_the_alpha.loft`,\n`@M035`):\n\n* `lerp(prev, cur, alpha)` draws the step that has ALREADY happened,\nso it is **exactly one step behind, for ever** — 2.598 m here,\nbecause a step is 2/3 of a second;\n* `cur + alpha·(cur − prev)` is **exact to machine precision** while\nthe velocity holds, and jumps a whole step's travel on the frame\nthe mover starts or stops;\n* a first-order ease toward `cur` needs no previous state, lags\nbetween the two, and is the only one whose picture depends on the\nframes it was drawn on.\n\n⚠ Three prices on three different axes, and which one is right is a\nfunction of how long the STEP is — so a clock that picked one would be\nwrong for every consumer whose step is a different length.  This\nanswers *where between two steps are we*; it does not answer *what\nshould be drawn there*.\nExample: @FIX-005"
+            },
+            {
+              "sig": "pub fn clock_drive(slow: TickClock, fast: const TickClock, n: integer) -> integer",
+              "doc": "Spend `n` steps of `fast` on `slow`, and answer the slow steps that\nbought.\n\n⚠⚠ **The case is a strategy layer over a unit layer** — dryopea has\nthe shape twice already (the camera steps at frame rate while the sim\nsteps at 1.5 Hz, and `plans/22` § LOD contemplates ticking distant\nthings every N ticks).  ⚠ **And it is the OPPOSITE of that plan's\nwarning**: *bank progress, never multiply it* refuses to give a\ndistant enemy `N × dt` of movement in one tick.  This gives a slower\nCLOCK the time those N ticks took, and it still ticks one step at a\ntime.\n\n⚠ **Spelling it `n * step` at the call site is the shape of mistake\n`tests/19_p1` records** — a count folded into a duration, wrong for\n602 of the first 1000 `n`.  Here it is exact, because both sides are\nintegers; the door exists so that the next consumer does not\nre-derive it in seconds and find out the hard way, and\n`tests/26_l4` § Composing by hand is exact says so out loud rather\nthan letting this comment overclaim.\n\n⚠ **A slow clock driven this way LAGS its driver by less than one\nfast step, and never leads.**  The fast clock's own bank is time\nthat has not become a tick yet, so it has not been handed on — which\nis the correct answer and not an approximation: the composed clock is\nexactly as far along as the ticks that actually happened.\n\n⚠ **`slow`'s own rate still applies.**  A rate set on both clocks\nmultiplies, which is a composition a caller asked for; set it on the\none that faces the wall.\nExample: @FIX-008"
+            },
+            {
+              "sig": "pub struct Timer",
+              "doc": "A one-shot duration and how much of it has been spent.\n\n⚠ **Both integers, and `total == 0` is UNARMED** — the zero-default\nthat makes a partial struct literal correct everywhere this replaces\na `0.0` seconds field.  See the header."
+            },
+            {
+              "sig": "pub fn timer_new() -> Timer",
+              "doc": "A timer nobody has armed."
+            },
+            {
+              "sig": "pub fn timer_armed(units: integer) -> Timer",
+              "doc": "A timer armed for `units` — the factory, for a struct literal that\nwants one already running.\n\n⚠ `Enemy`'s pre-walk window is the case: an enemy is built already\nstanding, so the field has to arrive armed."
+            },
+            {
+              "sig": "pub fn timer_arm(t: Timer, units: integer)",
+              "doc": "Arm it for `units`, from zero.\n\n⚠ **A duration of zero or less DISARMS rather than firing.**  Both\nreadings are defensible and this one is what the call sites already\nmean: a schedule authored with a lull of 0 sends the next wave\nimmediately because nothing is running, not because a timer fired.\n⚠ It also re-arms from wherever it was, so a boost pressed during a\nboost restarts the clock rather than extending it — the behaviour the\nfloat version had, stated rather than inherited.\nExample: @FIX-011"
+            },
+            {
+              "sig": "pub fn timer_running(t: const Timer) -> boolean",
+              "doc": "Is this timer running — armed, and not yet fired?"
+            },
+            {
+              "sig": "pub fn timer_left(t: const Timer) -> integer",
+              "doc": "Base units still to go.  Zero for a timer that is not running.\n\n⚠ **The DOWN reading**, and it is a subtraction rather than a second\nfield.  `helper.recover` and `Vehicle.boost_left` were both stored\nthis way and each carried its own epsilon; there is one number now\nand it is exact."
+            },
+            {
+              "sig": "pub fn timer_spent(t: const Timer) -> integer",
+              "doc": "Base units gone by.  Zero for a timer that is not running.\n\n⚠ **The UP reading**, off the same number.  `TowerCharge.repair` was\nstored this way — *seconds banked toward the rebuild* — because zero\nhad to mean \"nobody is working on it\", and that is still what an\nunarmed timer says."
+            },
+            {
+              "sig": "pub fn timer_total(t: const Timer) -> integer",
+              "doc": "The whole duration this timer was armed for, in base units."
+            },
+            {
+              "sig": "pub fn timer_fraction(t: const Timer) -> float",
+              "doc": "How far through it is, in `[0, 1)` — 0.0 for a timer that is not\nrunning.\n\n⚠ **The presentation door, and the one place a float appears** — a\nHUD showing a rebuild part-done, exactly `bank_fraction`'s position\none family over.  Nothing in the simulation may read it: a\ncomparison against 1.0 here is the epsilon problem walking back in\nthrough the display."
+            },
+            {
+              "sig": "pub fn timer_spend(t: Timer, units: integer) -> boolean",
+              "doc": "Spend `units` of it.  Answers whether THIS call finished it.\n\n⚠ **It fires exactly once and then disarms**, which is the whole\ndifference from `bank_gain`: the remainder past the boundary is\nDISCARDED, because a one-shot's residue means nothing afterwards.\nCarrying it would make the next arming shorter than the one before —\nmeasured in `tests/26_l3` § A one-shot built on a bank, where a 5.0 s\ncooldown costs 8 ticks the first time and 7 the second.\n\n⚠ A timer that is not running answers false and stays that way, so a\ncaller may spend into it unconditionally — which is what\n`vehicle_burn` does with the cooldown every single tick.\n\n⚠ Non-positive time is dropped rather than owed, for\n`clock_advance`'s reason: time going backwards must not un-fire\nanything.\nExample: @FIX-011"
+            },
+            {
+              "sig": "pub fn timer_cancel(t: Timer)",
+              "doc": "Stop it without firing.\n\n⚠ **A door of its own rather than `timer_arm(t, 0)`, because it is a\nDECISION** — the same argument `bank_reset` makes.  A vehicle that\nrespawns loses the boost it was in the middle of; a cooldown that is\nmerely running keeps everything.  Two behaviours, and the one that\nthrows work away says so by name."
+            },
+            {
+              "sig": "pub fn timer_restore_left(t: Timer, left: integer, total: integer)",
+              "doc": "Put a timer back from a DOWN reading — `units` left of `total`.\n\n⚠ Clamped rather than trusted, for `clock_restore`'s reason: `left`\npast `total` is a state `timer_spend` can never leave behind, and a\n`left` of zero or less is a timer that has already fired, which is an\nunarmed one."
+            },
+            {
+              "sig": "pub fn timer_restore_spent(t: Timer, spent: integer, total: integer)",
+              "doc": "Put a timer back from an UP reading — `units` spent of `total`.\n\n⚠ The other half, and the two are not interchangeable at the call\nsite: `emit.loft` writes whichever reading its field was authored in,\nso a tower's rebuild round-trips as *banked* and a helper's recovery\nas *left*."
+            }
+          ],
+          "published": "2026-08-17T22:03:33Z"
         }
       }
     }
