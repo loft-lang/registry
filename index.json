@@ -7409,7 +7409,10 @@
     "fixstep": {
       "description": "A fixed simulation step in exact integer time — clock, bank, one-shot timer",
       "homepage": "https://github.com/loft-lang/loft-libs-game/tree/main/fixstep",
-      "categories": [],
+      "categories": [
+        "game",
+        "time"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
