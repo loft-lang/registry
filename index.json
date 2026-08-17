@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-12T21:13:13Z",
+  "updated": "2026-08-17T18:32:00Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -82,6 +82,40 @@
             }
           ],
           "published": "2026-07-24T17:21:01Z"
+        },
+        "0.1.3": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/cbor-v0.1.3/cbor-0.1.3.tar.gz",
+          "sha256": "2708deaadbbd622abfecf7e6ac6071bf3496ff20132346e96e537f54af618ca3",
+          "size": 5860,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.1",
+          "data_compatible_with": "0.1.1",
+          "subpath": "cbor",
+          "deps": {},
+          "triggers": [],
+          "api": [
+            {
+              "sig": "pub enum CborValue",
+              "doc": "A dynamic CBOR value.  Mirrors the stdlib `JsonValue`, with CBOR's extra\n`CBytes` (native byte string) and the integer split that CBOR makes at the\nwire level folded into one signed `CInt`."
+            },
+            {
+              "sig": "pub struct CborEntry",
+              "doc": "One key/value pair of a `CMap`."
+            },
+            {
+              "sig": "pub fn encode(v: CborValue) -> vector<u8>",
+              "doc": "Encode a `CborValue` to canonical CBOR bytes."
+            },
+            {
+              "sig": "pub struct Decoded",
+              "doc": "The result of decoding one CBOR value: the `value`, the byte position just\npast it (`next`), and `ok` — false on any malformed / non-canonical /\ntruncated input.  Decoding never crashes (loft-safe): a bad byte stream\nyields ok=false rather than a trap."
+            },
+            {
+              "sig": "pub fn decode(bytes: vector<u8>) -> Decoded",
+              "doc": "Decode canonical CBOR bytes into a `CborValue`.  Returns `ok=false` on any\nmalformed, non-canonical, or truncated input — and rejects trailing bytes\nafter the top-level value.  Never crashes."
+            }
+          ],
+          "published": "2026-08-17T18:32:00Z"
         }
       }
     },
