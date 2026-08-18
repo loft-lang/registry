@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-18T07:27:11Z",
+  "updated": "2026-08-18T07:36:38Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -7890,6 +7890,131 @@
           "subpath": "hex_body",
           "deps": {},
           "published": "2026-07-25T06:08:41Z"
+        },
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_body-v0.2.0/hex_body-0.2.0.tar.gz",
+          "sha256": "6d469feb6b1d54728137dd007cb4c288054781fa6e9256d13bcadee51d6cc8b7",
+          "size": 17652,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.2.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_body",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Joint",
+              "doc": "A REVOLUTE JOINT: its current value (in TURNS — a value of 1.0 is one revolution, the number a\ncontact point actually cares about) and its LIMITS.  The limits are the joint's `fits?` doorstep\n(`K-FIT`): a joint value is ORDINAL, so a refusal owes an OFFER of the nearest admissible — unlike\na material id, which is nominal and offers nothing (`X68`)."
+            },
+            {
+              "sig": "pub fn joint_new(value: float, lo: float, hi: float) -> Joint",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn pose_of(value: float, lx: float, ly: float) -> (float, float)",
+              "doc": "FORWARD KINEMATICS (phase B): a point `(lx, ly)` in a part's LOCAL frame, posed by rotating it\nthrough the joint's angle.  A PURE FUNCTION of `(value, lx, ly)` — it reads no stored state, no\nelapsed time, no call count, and no previous value.  Two different paths to the same `value`\ntherefore give byte-identical output, which is `I6` and the precondition for `I9`'s replay."
+            },
+            {
+              "sig": "pub fn wheel_value(travel: float, radius: float, slip: float) -> float",
+              "doc": "A WHEEL is a revolute joint whose value is DERIVED from how far it has travelled (phase C):\n`value = travel / (2πr)`.  Because the value is a function of travel and not an accumulation of\nsteps, the no-slip identity is exact by construction.  `slip` is the deliberate defect knob —\n0 for a true roll; non-zero is a skid, and it is the control that keeps `wheel_skid` honest."
+            },
+            {
+              "sig": "pub fn wheel_angle(value: float) -> float",
+              "doc": "The joint value as an ANGLE in radians."
+            },
+            {
+              "sig": "pub fn wheel_skid(radius: float, value: float, travel: float) -> float",
+              "doc": "THE SKID — the contact point's slip, `|r·θ − travel|`.  For a value derived by `wheel_value`\nwith `slip = 0` this is **machine-ε, not algebraic zero** — and that distinction was measured,\nnot assumed: `travel → value → r·θ` is a float round-trip (a divide by `2πr` then a multiply by\nit), which f64 does not close bit-for-bit, so the residual is ~1 ulp of `travel`.  This is the\nBODY'S SOLE FLOAT STEP — the wheel's `ε_seam` (`SPEC` **I-FSEAM**, `X53`): the pose/roll\ncomputation is exactly where imprecision is licensed, bounded by machine ε and nowhere else.\nIt is NOT a `P4` violation: `P4` governs the R1 geometry round trip, which is integer and exact;\na wheel's roll is kinematics, which is the float frame.  Drive `θ` independently of `travel` —\nthe spec's *\"spin a wheel off-travel\"* — and the skid is a real distance, orders of magnitude\nabove ε."
+            },
+            {
+              "sig": "pub fn joint_fits(j: Joint, value: float) -> boolean",
+              "doc": "THE DOORSTEP (`K-FIT` for a joint): a value inside the joint's limits fits."
+            },
+            {
+              "sig": "pub fn joint_offer(j: Joint, value: float) -> float",
+              "doc": "The OFFER a refusal owes — the nearest admissible value.  A joint value is ordinal, so clamping\nto the limit is a real correction the editor can show, not a silent snap to a different thing."
+            },
+            {
+              "sig": "pub fn joint_residual(j: Joint, value: float) -> float",
+              "doc": "The residual an offer carries — how far the requested value was from admissible."
+            },
+            {
+              "sig": "pub struct Rig",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn rig_new() -> Rig",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn rig_bone3(r: Rig, parent: integer, ox: float, oy: float, oz: float, len: float,",
+              "doc": "Append one bone in SPACE, growing the rig's parallel field vectors in place.\n\n⚠ Eleven parameters is the eight of `hex_part::Hinge` plus a parent, a length\nand the rig — the family's own shape rather than a shorter one invented here."
+            },
+            {
+              "sig": "pub fn rig_bone(r: Rig, parent: integer, ox: float, oy: float, len: float,",
+              "doc": "Append one bone in the PLANE — the special case, and its signature is\nunchanged from 0.1.0.  A planar bone is one at `oz = 0` about `(0, 0, 1)`,\nwhich is exactly the axis the 2-D code left implicit."
+            },
+            {
+              "sig": "pub fn rig_count(r: Rig) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn bone_planar(r: Rig, i: integer) -> boolean",
+              "doc": "Does bone `i` lie in the plane the 2-D rig assumes?  ⚠ It is asked with `==`\nand no tolerance, because it decides which RECORD the bone is written as and\na near-planar bone must not be written as a planar one."
+            },
+            {
+              "sig": "pub fn rig_planar(r: Rig) -> boolean",
+              "doc": "Is the whole rig planar?  The question `rig_world_seg` implicitly asks of\nevery rig it is handed, made available to a caller that wants to know."
+            },
+            {
+              "sig": "pub fn rig_joint(r: Rig, i: integer) -> Joint",
+              "doc": "The joint at bone `i`, as a `Joint` carrying its limits (value defaults to 0 — the neutral pose)."
+            },
+            {
+              "sig": "pub fn rig_admissible(r: Rig) -> boolean",
+              "doc": "ADMISSIBLE — topological (root is bone 0 with parent -1, every other parent is earlier), and\nevery joint limit is ordered `lo <= hi`.  This is the rig's doorstep: `fits?` for a whole rig."
+            },
+            {
+              "sig": "pub fn rig_write(r: Rig, name: text) -> text",
+              "doc": "── THE FORMAT, AND WHY A SPATIAL BONE CHANGES ITS RECORD TAG ────────────────\n\nA planar bone writes exactly the bytes 0.1.0 wrote, so **a planar rig\nround-trips byte-identically across the version** and every rig on disk today\nstill reads.\n\n⚠⚠ A spatial bone writes `bone3` rather than a longer `bone` line, and that\nis the whole compatibility decision — MEASURED against the shipped 0.1.0\nreader rather than reasoned about:\n\nextra words appended to a `bone` line  ->  0.1.0 reads 1 bone\nthe same rig under the tag `bone3`     ->  0.1.0 reads 0 bones\n\n0.1.0's parser checks the keywords it knows and never the word COUNT, so\nappending fields makes an old reader silently return the bone's PLANAR\nPROJECTION — a rig quietly flattened, which is exactly the failure this\nlibrary's *\"a lenient reader would void the byte diff\"* rule exists to stop.\nA new tag makes the same reader refuse the whole rig, which `rig_admissible`\nthen rejects.  Loud beats tidy."
+            },
+            {
+              "sig": "pub fn rig_read(t: text) -> Rig",
+              "doc": "STRICT PARSER — accepts exactly what `rig_write` emits, refuses anything else by returning an\nempty rig (which `rig_admissible` then rejects).  A lenient reader would void the byte diff."
+            },
+            {
+              "sig": "pub fn rig_eq(a: Rig, b: Rig) -> boolean",
+              "doc": "Byte-exact equality — floats compared with `==`, no tolerance (`I-EXACT`)."
+            },
+            {
+              "sig": "pub fn rig_world_seg(r: Rig, values: vector<float>, i: integer) -> (float, float, float, float)",
+              "doc": "The world segment of bone `i` at the given joint values: `(x0, y0)` its base, `(x1, y1)` its tip.\nComposes the tree from the root (bones are topological, so ancestors are computed first)."
+            },
+            {
+              "sig": "pub fn rig_world_seg3(r: Rig, values: vector<float>, i: integer)",
+              "doc": "── FORWARD KINEMATICS IN SPACE (`G1b`) ──────────────────────────────────────\n\nThe world segment of bone `i` IN THREE DIMENSIONS: `(x0,y0,z0)` its base,\n`(x1,y1,z1)` its tip.  The 2-D sibling above is not replaced and not\nre-expressed — see the header for what that would have cost.\n\nThe composition is the same tree walk one dimension up: a bone's offset rides\nits PARENT's rotation (not its own joint), and its length runs along its own\n`+x` under its OWN rotation.  What changes is that a rotation can no longer\nbe carried as an angle, because two rotations about different axes do not add\n— so a 3x3 basis is carried instead, and Rodrigues builds each joint's own.\n\n⚠ Nine parallel float vectors is the honest cost of a rig with NO\nDEPENDENCIES.  `mesh3d` owns a `Mat4` and is one `use` away, and taking it\nwould make the body model depend on a renderer's linear algebra — which the\nmanifest's own note refuses (*\"the body is pure continuous-space kinematics\n… with NO lattice dependency\"*), and a matrix library is the same kind of\ncoupling one step further out.\n\n⚠ A ZERO-LENGTH AXIS POSES AS THE IDENTITY — the joint simply does not turn,\nwhich is the honest reading of *\"nothing to turn about\"*.  It is not repaired\nto `+z`: that would invent an axis the author did not write, and\n`rig_admissible` refuses the rig anyway."
+            },
+            {
+              "sig": "pub struct Obb",
+              "doc": "An oriented bounding box: centre, unit axis (along the bone), and half-extents."
+            },
+            {
+              "sig": "pub fn bone_obb(r: Rig, values: vector<float>, i: integer, w: float) -> Obb",
+              "doc": "THE PROXY of bone `i`: the OBB that bounds its capsule of half-width `w`.  Length grows by `w`\nat each end to cover the rounded caps; width is `w`."
+            },
+            {
+              "sig": "pub fn obb_contains(o: Obb, px: float, py: float) -> boolean",
+              "doc": "Is a world point inside the OBB?  Project onto the axis and its perpendicular."
+            },
+            {
+              "sig": "pub fn seg_dist(x0: float, y0: float, x1: float, y1: float, px: float, py: float) -> float",
+              "doc": "Distance from a point to a segment — the capsule test's core."
+            },
+            {
+              "sig": "pub fn bone_shape_has(r: Rig, values: vector<float>, i: integer, w: float,",
+              "doc": "The bone's SHAPE: is a world point within `w` of its segment (inside the capsule)?"
+            }
+          ],
+          "published": "2026-08-18T07:36:38Z"
         }
       }
     },
