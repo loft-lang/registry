@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-18T08:49:07Z",
+  "updated": "2026-08-18T09:13:07Z",
   "packages": {
     "cbor": {
-      "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
+      "description": "Canonical CBOR (RFC 8949) in pure loft — deterministic bytes for signable records",
       "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/cbor",
       "categories": [
         "encoding"
@@ -116,6 +116,40 @@
             }
           ],
           "published": "2026-08-17T18:32:00Z"
+        },
+        "0.1.4": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/cbor-v0.1.4/cbor-0.1.4.tar.gz",
+          "sha256": "e47952414f40761c73994647cabf6c7d67ac2d83407e8477f45131a114a8c92c",
+          "size": 9227,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.1",
+          "data_compatible_with": "0.1.1",
+          "subpath": "cbor",
+          "deps": {},
+          "triggers": [],
+          "api": [
+            {
+              "sig": "pub enum CborValue",
+              "doc": "A dynamic CBOR value.  Mirrors the stdlib `JsonValue`, with CBOR's extra\n`CBytes` (native byte string) and the integer split that CBOR makes at the\nwire level folded into one signed `CInt`.\nExample: @CBR-002 — which variant you pick is part of the wire form: the same\ntwo payload bytes are a different record as `CBytes` than as `CText`."
+            },
+            {
+              "sig": "pub struct CborEntry",
+              "doc": "One key/value pair of a `CMap`."
+            },
+            {
+              "sig": "pub fn encode(v: CborValue) -> vector<u8>",
+              "doc": "Encode a `CborValue` to canonical CBOR bytes.\nA map's entries are SORTED here by their encoded key bytes, so the order you\nbuilt the map in never reaches the wire.\nExample: @CBR-001 — two maps built in opposite orders encode identically, which\nis what keeps a signature over the bytes valid.\nExample: @CBR-002 — `CBytes` and `CText` are different wire types, so the\nloft-side choice is part of what gets signed.\nExample: @CBR-004 — canonical is about ORDER, not uniqueness: duplicate keys\nencode without complaint."
+            },
+            {
+              "sig": "pub struct Decoded",
+              "doc": "The result of decoding one CBOR value: the `value`, the byte position just\npast it (`next`), and `ok` — false on any malformed / non-canonical /\ntruncated input.  Decoding never crashes (loft-safe): a bad byte stream\nyields ok=false rather than a trap."
+            },
+            {
+              "sig": "pub fn decode(bytes: vector<u8>) -> Decoded",
+              "doc": "Decode canonical CBOR bytes into a `CborValue`.  Returns `ok=false` on any\nmalformed, non-canonical, or truncated input — and rejects trailing bytes\nafter the top-level value.  Never crashes.\nExample: @CBR-003 — `ok=false` is one answer for four different problems, and\nthe surprising one is that well-formed but NON-canonical CBOR is refused.\nExample: @CBR-004 — a map carrying two entries under one key decodes ok=true."
+            }
+          ],
+          "published": "2026-08-18T09:12:43Z"
         }
       }
     },
@@ -519,6 +553,131 @@
             }
           ],
           "published": "2026-07-29T18:00:24Z"
+        },
+        "0.3.8": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.8/crypto-0.3.8.tar.gz",
+          "sha256": "74b257dc67617ad9dc4f9a126d384f323105382fc21b840f495b69160d8662ba",
+          "size": 61917,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.3.2",
+          "data_compatible_with": "0.3.2",
+          "subpath": "crypto",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn sha256(data: text) -> text",
+              "doc": "SHA-256 hash of a string. Returns 64-char hex string."
+            },
+            {
+              "sig": "pub fn sha256_b64(data_b64: text) -> text",
+              "doc": "SHA-256 of the RAW BYTES decoded from base64 `data_b64`. Returns base64 of the\n32-byte digest. Use this to hash arbitrary byte strings (ciphertext, canonical\nCBOR) that are not valid UTF-8 and so cannot be passed to `sha256` as text.\nExample: @CRY-001 — the two hashing doors: text in / hex out vs base64 both ways."
+            },
+            {
+              "sig": "pub fn hmac_sha256(key: text, data: text) -> text",
+              "doc": "HMAC-SHA256 of data with key. Returns 64-char hex string."
+            },
+            {
+              "sig": "pub fn base64_encode(data: text) -> text",
+              "doc": "Base64 encode a string."
+            },
+            {
+              "sig": "pub fn base64_decode(data: text) -> text",
+              "doc": "Base64 decode a string."
+            },
+            {
+              "sig": "pub fn base64url_encode(data: text) -> text",
+              "doc": "Base64url encode (JWT-safe, no padding)."
+            },
+            {
+              "sig": "pub fn ed25519_public_key(secret_key_b64: text) -> text",
+              "doc": "Derive the 32-byte public key (base64) from a 32-byte secret seed (base64)."
+            },
+            {
+              "sig": "pub fn ed25519_sign(secret_key_b64: text, message_b64: text) -> text",
+              "doc": "Sign the base64 `message` bytes with the 32-byte secret seed (base64).\nReturns the 64-byte signature, base64.\nExample: @CRY-002 — sign `base64_encode(msg)`; the bare text signs other bytes, silently."
+            },
+            {
+              "sig": "pub fn ed25519_verify(public_key_b64: text, message_b64: text, signature_b64: text) -> boolean",
+              "doc": "Verify a signature over the base64 `message` bytes under a public key.\nReturns true iff the signature is valid.\nExample: @CRY-002 — why a wrongly-spelled message still verifies against itself."
+            },
+            {
+              "sig": "pub fn ecdsa_p256_keygen() -> text",
+              "doc": "Generate a fresh 32-byte P-256 secret scalar (base64) from the OS CSPRNG."
+            },
+            {
+              "sig": "pub fn ecdsa_p256_public_key(secret_key_b64: text) -> text",
+              "doc": "Derive the 64-byte public key `x || y` (base64) from a 32-byte secret scalar (base64).\nExample: @CRY-003 — the three JOSE lengths (32 / 64 / 64) a caller should check."
+            },
+            {
+              "sig": "pub fn ecdsa_p256_sign(secret_key_b64: text, message_b64: text) -> text",
+              "doc": "Sign the base64 `message` bytes with the 32-byte secret scalar (base64).\nReturns the 64-byte `r || s` signature (base64), deterministic per RFC 6979.\nExample: @CRY-003 — signing twice answers identical bytes, and `r || s` is not DER."
+            },
+            {
+              "sig": "pub fn ecdsa_p256_verify(public_key_b64: text, message_b64: text, signature_b64: text) -> boolean",
+              "doc": "Verify an ES256 signature (64-byte `r || s`) over the base64 `message` bytes\nunder a 64-byte `x || y` public key.  Returns true iff the signature is valid."
+            },
+            {
+              "sig": "pub fn x25519_dh(secret_key_b64: text, public_key_b64: text) -> text",
+              "doc": "A secret key is a 32-byte X25519 scalar (base64); a public key is the\n32-byte u-coordinate (base64).  Returns the raw 32-byte shared secret\n(base64), or \"\" if either input is the wrong length.  Run the result\nthrough `hkdf_sha256` before using it as a key (RFC 7748 §6.1).\nExample: @CRY-004 — the DH output is keying material, not a key; and how to get a\npublic key out of a secret scalar (X25519 has no separate keygen)."
+            },
+            {
+              "sig": "pub fn hkdf_sha256(salt_b64: text, ikm_b64: text, info_b64: text, length: integer) -> text",
+              "doc": "Derive `length` bytes of output keying material from `ikm`, `salt`, and\n`info` (each base64).  An empty base64 `salt` selects the all-zero salt.\nReturns the base64 OKM, or \"\" if `length` exceeds 255*32 or is <= 0.\nExample: @CRY-004 — `info` is what separates two keys from one shared secret."
+            },
+            {
+              "sig": "pub fn hkdf_extract(salt_b64: text, ikm_b64: text) -> text",
+              "doc": "HKDF-Extract (RFC 5869 §2.2): the 32-byte PRK (base64) HMAC-SHA256(salt, ikm).\nAn empty base64 `salt` selects the all-zero salt.  Use the Extract/Expand\nhalves directly (rather than `hkdf_sha256`) when a PRK is reused for several\nExpands or when an Extract output is itself the value you want (e.g. HPKE).\nExample: @CRY-004 — the split halves compose to exactly `hkdf_sha256`."
+            },
+            {
+              "sig": "pub fn hkdf_expand(prk_b64: text, info_b64: text, length: integer) -> text",
+              "doc": "HKDF-Expand (RFC 5869 §2.3) from an existing 32-byte PRK.  Returns `length`\nbytes of OKM (base64), or \"\" on a short PRK, length > 255*32, or length <= 0."
+            },
+            {
+              "sig": "pub fn bytes_to_base64(bytes: vector<u8>) -> text",
+              "doc": "Standard base64 of a raw byte vector.  Empty vector -> \"\"."
+            },
+            {
+              "sig": "pub fn base64_to_bytes(b64: text) -> vector<u8>",
+              "doc": "Raw bytes from standard base64.  Malformed / empty input -> empty vector.\nSee the CAUTION above: read the result, never `+=` onto it.\nExample: @CRY-001 — reading a decoded byte vector, and hashing non-UTF-8 bytes."
+            },
+            {
+              "sig": "pub fn aes256gcm_seal(key_b64: text, nonce_b64: text, aad_b64: text, plaintext_b64: text) -> text",
+              "doc": "Encrypt + authenticate `plaintext` under `key`/`nonce`, binding `aad`.\nReturns base64 of ciphertext WITH the 16-byte tag appended, or \"\" on bad\nkey/nonce length.\nExample: @CRY-005 — the tag rides in the blob, and a fresh nonce per message."
+            },
+            {
+              "sig": "pub fn aes256gcm_open(key_b64: text, nonce_b64: text, aad_b64: text, ciphertext_b64: text) -> text",
+              "doc": "Verify + decrypt `ciphertext` (ciphertext||tag, base64) under `key`/`nonce`,\nbinding `aad`.  Returns the base64 plaintext, or \"\" on ANY authentication\nfailure — an empty result means the ciphertext/tag/aad did not verify.\nExample: @CRY-005 — \"\" is a failure signal, and an authentic empty plaintext gives it too."
+            },
+            {
+              "sig": "pub fn random_bytes(length: integer) -> text",
+              "doc": "Return `length` cryptographically secure random bytes (base64) from the OS\nRNG.  Returns \"\" for length <= 0.  Use for keys (32), nonces (12), salts."
+            },
+            {
+              "sig": "pub struct HpkeSealed",
+              "doc": "The result of `hpke_seal_base`: the KEM-encapsulated key `enc` and the AEAD\n`ciphertext` (ciphertext||16-byte-tag), both base64."
+            },
+            {
+              "sig": "pub fn hpke_seal_base(pk_r_b64: text, info_b64: text, aad_b64: text, pt_b64: text) -> HpkeSealed",
+              "doc": "HPKE SealBase (RFC 9180 §6.1): encrypt `pt` to recipient public key `pk_r`,\nbinding `info` (key-schedule context) and `aad` (per-message AAD).  Generates\na fresh ephemeral key, so each call's output differs.  All args/fields base64.\nReturns HpkeSealed { enc, ciphertext }; both \"\" on failure.\nExample: @CRY-006 — `enc` is fresh per call and must travel with the ciphertext."
+            },
+            {
+              "sig": "pub fn hpke_seal_base_deterministic(pk_r_b64: text, sk_e_b64: text, info_b64: text, aad_b64: text, pt_b64: text) -> HpkeSealed",
+              "doc": "Deterministic SealBase — TEST ONLY.  Uses the caller-supplied ephemeral\nsecret `sk_e_b64` instead of a random one, so the output is reproducible\nagainst an RFC 9180 known-answer vector.  Never use in production."
+            },
+            {
+              "sig": "pub fn hpke_open_base(sk_r_b64: text, enc_b64: text, info_b64: text, aad_b64: text, ct_b64: text) -> text",
+              "doc": "HPKE OpenBase (RFC 9180 §6.1): decrypt `ct` for recipient secret key `sk_r`\nusing the sender's `enc`, binding `info` and `aad`.  All args base64.  Returns\nthe base64 plaintext, or \"\" on ANY failure (bad enc/key or AEAD auth failure).\nExample: @CRY-006 — `info` AND `aad` must both match the sender's, or open gives \"\"."
+            },
+            {
+              "sig": "pub fn hpke_key_schedule_base_for_test(shared_secret_b64: text, info_b64: text) -> (text, text)",
+              "doc": "Expose the key-schedule outputs for KAT assertions — TEST ONLY.  Given a\nshared secret and base64 `info`, returns (key_b64, base_nonce_b64)."
+            },
+            {
+              "sig": "pub fn hpke_encap_deterministic_for_test(pk_r_b64: text, sk_e_b64: text) -> (text, text)",
+              "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
+            }
+          ],
+          "published": "2026-08-18T09:12:46Z"
         }
       }
     },
@@ -702,6 +861,103 @@
             }
           ],
           "published": "2026-07-21T06:35:48Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/arguments-v0.2.1/arguments-0.2.1.tar.gz",
+          "sha256": "c2b411dfc58036abc1126a1648a56519926db46597da4f95c0ec204a88e6f684",
+          "size": 10975,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.2.0",
+          "data_compatible_with": "0.2.0",
+          "subpath": "arguments",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn create(name: text, version: text, description: text) -> Args",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn flag(self: Args, opt_short: text, opt_long: text, desc: text)",
+              "doc": "A boolean flag (`--verbose` / `-v`)."
+            },
+            {
+              "sig": "pub fn option(self: Args, opt_short: text, opt_long: text, arg_name: text, desc: text)",
+              "doc": "An optional value option (`--output FILE`).  `arg_name` is the metavar shown in help."
+            },
+            {
+              "sig": "pub fn required(self: Args, opt_short: text, opt_long: text, arg_name: text, desc: text)",
+              "doc": "A required value option: `parse` fails if it is absent.\nExample: @ARG-004 — the parse-failure idiom (`ok`/`error_msg`/`try_help`)."
+            },
+            {
+              "sig": "pub fn optional(self: Args, opt_short: text, opt_long: text, arg_name: text, desc: text)",
+              "doc": "An optional-argument option: its value attaches only via `=` / glued form\n(`--color=auto`, `-cauto`); given bare (`--color`) it is present with value \"\".\nExample: @ARG-002 — glued value vs bare, and why the next word stays a positional."
+            },
+            {
+              "sig": "pub fn set_usage(self: Args, synopsis: text)",
+              "doc": "Set the positional synopsis for the usage line (e.g. \"[FILE...]\")."
+            },
+            {
+              "sig": "pub fn set_bug_address(self: Args, address: text)",
+              "doc": "Set the \"Report bugs to <addr>.\" help footer."
+            },
+            {
+              "sig": "pub fn set_epilog(self: Args, epilog: text)",
+              "doc": "Set free text printed after the option list in help."
+            },
+            {
+              "sig": "pub fn enable_help(self: Args)",
+              "doc": "Opt-in: register `--help`/`-h` and `--version`/`-V` (short forms only when free),\nso `parse` records `--help`/`--version` and `help()` lists them.  Nothing is\nauto-printed — the caller checks `wants_help()` / `wants_version()`.\nExample: @ARG-003 — the opt-in dance, and `--help` bypassing the required check."
+            },
+            {
+              "sig": "pub fn parse(self: Args, argv: vector<text>) -> boolean",
+              "doc": "Parse a command line against the declared options.  Answers false on a usage\nerror (see `ok`/`error_msg`); afterwards flags read through `has`, value options\nthrough `get`, and every non-option word lands in `positionals` in order.\nExample: @ARG-001 — the declare → parse → query lifecycle."
+            },
+            {
+              "sig": "pub fn has(self: Args, name: text) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn get(self: Args, name: text) -> text?",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn get_or(self: Args, name: text, fallback: text) -> text",
+              "doc": "The option's value, or `fallback` when unset."
+            },
+            {
+              "sig": "pub fn get_int(self: Args, name: text) -> integer?",
+              "doc": "The option's value parsed as an integer, or null when unset or non-numeric."
+            },
+            {
+              "sig": "pub fn ok(self: Args) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn error_msg(self: Args) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wants_help(self: Args) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wants_version(self: Args) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn version_text(self: Args) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn try_help(self: Args) -> text",
+              "doc": "The GNU \"Try '<prog> --help' …\" hint to print alongside a parse error."
+            },
+            {
+              "sig": "pub fn help(self: Args) -> text",
+              "doc": "Render a GNU-format help screen from the declared options."
+            }
+          ],
+          "published": "2026-08-18T09:12:40Z"
         }
       }
     },
@@ -4831,7 +5087,7 @@
       }
     },
     "web": {
-      "description": "HTTP client + WebSocket client — ureq + tungstenite via cdylib.",
+      "description": "HTTP client and WebSocket client for loft",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/web",
       "categories": [
         "net"
@@ -5749,11 +6005,160 @@
             }
           ],
           "published": "2026-07-29T18:00:28Z"
+        },
+        "0.3.5": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.5/web-0.3.5.tar.gz",
+          "sha256": "88612d88224af7cf7efad2fcdfae188a439aa058ee0aa3f2d3a9f4ac8979de68",
+          "size": 43190,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.3.0",
+          "data_compatible_with": "0.3.0",
+          "subpath": "web",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct HttpResponse",
+              "doc": "The result of an HTTP request."
+            },
+            {
+              "sig": "pub fn ok(self: HttpResponse) -> boolean",
+              "doc": "Returns true when the status code is in the 200-299 range."
+            },
+            {
+              "sig": "pub fn http_get(url: text) -> HttpResponse",
+              "doc": "Send a GET request."
+            },
+            {
+              "sig": "pub fn http_post(url: text, body: text) -> HttpResponse",
+              "doc": "Send a POST request with a body."
+            },
+            {
+              "sig": "pub fn http_put(url: text, body: text) -> HttpResponse",
+              "doc": "Send a PUT request with a body."
+            },
+            {
+              "sig": "pub fn http_delete(url: text) -> HttpResponse",
+              "doc": "Send a DELETE request."
+            },
+            {
+              "sig": "pub fn http_get_h(url: text, headers: vector<text>) -> HttpResponse",
+              "doc": "GET with custom headers."
+            },
+            {
+              "sig": "pub fn http_post_h(url: text, body: text, headers: vector<text>) -> HttpResponse",
+              "doc": "POST with custom headers."
+            },
+            {
+              "sig": "pub fn http_put_h(url: text, body: text, headers: vector<text>) -> HttpResponse",
+              "doc": "PUT with custom headers."
+            },
+            {
+              "sig": "pub fn http_delete_h(url: text, headers: vector<text>) -> HttpResponse",
+              "doc": "DELETE with custom headers."
+            },
+            {
+              "sig": "pub fn http_get_range(url: text, offset: integer, len: integer) -> HttpResponse",
+              "doc": "Read the byte range [offset, offset+len) of a remote file via a Range\nrequest. Returns status 206 (Partial Content) with the raw bytes in `body`\nwhen the server honours ranges; a server that ignores Range returns 200 with\nthe full body. Read the bytes with `byte_at(response.body, i)`."
+            },
+            {
+              "sig": "pub fn http_get_range_h(url: text, offset: integer, len: integer, headers: vector<text>) -> HttpResponse",
+              "doc": "Byte-range read with extra custom headers (e.g. If-Range / If-None-Match)."
+            },
+            {
+              "sig": "pub fn http_size(url: text) -> integer",
+              "doc": "Resolve a URL's total byte size without downloading it. Tries a HEAD request\n(Content-Length); if the server omits the length on HEAD (some CDNs — e.g.\ngithub-raw — only report it on GET), falls back to a 1-byte range read and\ntakes the total from the Content-Range header. Returns -1 if size is\nunavailable."
+            },
+            {
+              "sig": "pub struct WsHandler",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn ws_handler(url: text) -> WsHandler",
+              "doc": "Open a WebSocket session.  Returns null only if the URL is\nmalformed; transient connection failures (server not yet up,\nnetwork blip) are absorbed by the auto-reconnect loop in the Rust\nlayer, so this call always returns a usable handle for any\nwell-formed `ws://...` or `wss://...` URL.\n\n`wss://` (TLS) works on BOTH targets: the browser uses the platform\nWebSocket (which has always spoken wss), and since web 0.3.2 the\nnative client dials TLS through rustls with certificate validation\nON by default (default port 443).  For a self-signed dev endpoint,\nset `LOFT_WS_INSECURE_SKIP_VERIFY=1` in the native process — an\nexplicit opt-out, never a URL option, so it cannot be baked into a\ndeployed config by accident.\nExample: @WEB-003 — a handle is not a connection; ask the traffic, not the handle."
+            },
+            {
+              "sig": "pub fn send(self: WsHandler, msg: text) -> boolean",
+              "doc": "Send a text message to the server.  Returns true on success; false\nmeans the connection is currently in backoff / reconnecting and the\ncaller may retry after the next `pump()`.\nExample: @WEB-003 — this false, not a null handle, is what reports the link down."
+            },
+            {
+              "sig": "pub fn send_binary(self: WsHandler, msg: text) -> boolean",
+              "doc": "Send `msg` as a binary WebSocket frame (opcode 2).  Loft `text`\nis a byte buffer — pack u8/u16/i32/etc. into it via `to_bytes`\nstyle code, then ship it.  Returns true on success; false means\nthe connection is currently in backoff / reconnecting."
+            },
+            {
+              "sig": "pub fn last_opcode(self: WsHandler) -> integer",
+              "doc": "Opcode of the last frame surfaced by `try_recv` / `pump` on this\nhandler.  Use after a successful read to decide whether to\ninterpret the payload as utf-8 text or as a binary blob."
+            },
+            {
+              "sig": "pub fn pump(self: WsHandler, on_message: fn(text)) -> integer",
+              "doc": "Drain any pending received messages, firing `on_message` for each.\nReturns the count of messages delivered this call.  Call this from\na main loop (and yield to the host between iterations on the browser\ntarget) to drive event delivery without async."
+            },
+            {
+              "sig": "pub fn try_recv(self: WsHandler) -> text?",
+              "doc": "Non-blocking single-message receive.  Returns the next pending\nmessage text if one is available, null otherwise.  Equivalent to a\nsingle iteration of pump without the callback — useful when the\nreceiver wants to drive its own loop and accumulate messages\nlocally without capturing state inside a closure."
+            },
+            {
+              "sig": "pub fn close(self: WsHandler)",
+              "doc": "Permanently close the session (no further reconnect attempts)."
+            },
+            {
+              "sig": "pub fn sleep_ms(ms: integer)",
+              "doc": "Block the calling thread for `ms` milliseconds.  Convenience for\ntests and pacing loops; non-positive values are a no-op.  Not\navailable on the WASM target — the host event loop is the\nequivalent."
+            },
+            {
+              "sig": "pub fn pack_reset()",
+              "doc": "Empty the per-thread pack buffer.  Call before each blob.\nExample: @WEB-001 — reset, append in wire order, take (which moves, not reads)."
+            },
+            {
+              "sig": "pub fn pack_u8(b: integer)",
+              "doc": "Append a single byte to the pack buffer.  `b` is masked to 8 bits."
+            },
+            {
+              "sig": "pub fn pack_u16_le(v: integer)",
+              "doc": "Append a 2-byte little-endian unsigned value."
+            },
+            {
+              "sig": "pub fn pack_u32_le(v: integer)",
+              "doc": "Append a 4-byte little-endian unsigned value.  Loft `integer` is\ni32 — bit-cast to u32 to preserve the LE byte pattern across the\nsign boundary."
+            },
+            {
+              "sig": "pub fn pack_take() -> text",
+              "doc": "Take the contents of the pack buffer and return them as a `text`\nwhose UTF-8 bytes are exactly the buffer bytes.  Resets the buffer.\nExample: @WEB-001 — the three-step protocol, and the NUL that interpolation drops."
+            },
+            {
+              "sig": "pub fn byte_at(idx: integer, t: text) -> integer",
+              "doc": "Read the byte at `idx` of the text payload.  Out-of-range (negative\nor past the end) returns -1.  Use to decode binary frames received\nvia `try_recv` / `pump`.  Argument order is (idx, t) — the C-ABI\nauto-marshal in src/extensions.rs supports (I32, Text) -> I32 but\nnot (Text, I32) -> I32.\nExample: @WEB-002 — why the bounds test is `< 0` and never `== 0`."
+            },
+            {
+              "sig": "pub struct WsGroupEvent",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct WsGroup",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn ws_group() -> WsGroup",
+              "doc": "Create a new (empty) group."
+            },
+            {
+              "sig": "pub fn add(self: WsGroup, h: WsHandler)",
+              "doc": "Add a handler to the group."
+            },
+            {
+              "sig": "pub fn poll(self: WsGroup) -> WsGroupEvent",
+              "doc": "Poll all handles round-robin.  Returns a WsGroupEvent with\nhandle >= 0 and the message if one is ready; handle == -1\nmeans nothing is available right now."
+            },
+            {
+              "sig": "pub fn frame_yield()",
+              "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
+            }
+          ],
+          "published": "2026-08-18T09:13:04Z"
         }
       }
     },
     "server": {
-      "description": "HTTP + WebSocket server — TCP sockets + tungstenite via cdylib.",
+      "description": "HTTP and WebSocket server for loft: accept TCP, answer requests, run WebSocket connections",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/server",
       "categories": [
         "net"
@@ -6675,11 +7080,190 @@
             }
           ],
           "published": "2026-07-24T21:47:55Z"
+        },
+        "0.5.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.5.1/server-0.5.1.tar.gz",
+          "sha256": "3084319f051525184eed611ff5d8963131cfb4b1168971eb4ff9608fc2ee5c6e",
+          "size": 38031,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.3.1",
+          "data_compatible_with": "0.3.1",
+          "subpath": "server",
+          "deps": {
+            "web": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct Server",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct WebSocket",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Request",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn listen(port: integer) -> Server",
+              "doc": "Bind a TCP listener on `port` and return the server.\n\nFailing to take the port is FATAL here, deliberately.  The native listener answers\n-1 when the bind fails, and a `Server` built on -1 is indistinguishable from a\nhealthy one at every call site: `run` spins forever on an empty event pump, so the\nprocess reports itself up and serves nobody.  Worse, that state is invisible from\nOUTSIDE the process too — a readiness probe that connects to the port reaches\nwhoever DID win the bind and reports success — so the failure surfaces somewhere\nelse entirely, as a client that hangs or talks to a stranger's server.\n\nUse `try_listen` when losing the port is an outcome you mean to handle: retrying on\nanother port, or scanning a range.\nExample: @SRV-001 — halting door vs recoverable door, and why `bound()` is not optional."
+            },
+            {
+              "sig": "pub fn try_listen(port: integer) -> Server",
+              "doc": "Like `listen`, but hands back an UNBOUND server instead of halting when the port\ncannot be taken.  Check `bound()` before using it: every other method on an unbound\nserver does nothing, quietly.\nExample: @SRV-001 — the retry shape: try_listen, then bound(), then use it."
+            },
+            {
+              "sig": "pub fn listen_on(addr: text, port: integer) -> Server",
+              "doc": "Bind on a chosen address rather than the wildcard `0.0.0.0` that plain `listen` uses.\n`\"127.0.0.1\"` restricts the server to loopback — unreachable from the network — which is\nthe safe default a machine sitting behind a reverse proxy or an SSH tunnel wants, and the\none `listen` deliberately does NOT give (it binds every interface). An empty `addr` means\n`0.0.0.0`. Halts if the bind fails; `try_listen_on` hands back an unbound server instead."
+            },
+            {
+              "sig": "pub fn try_listen_on(addr: text, port: integer) -> Server",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn listen_tls(port: integer, cert: text, key: text) -> Server",
+              "doc": "Serve TLS (https:// / wss://). `cert` is a PEM certificate CHAIN (leaf first, then any\nintermediates — what an ACME client writes as fullchain.pem); `key` is the PEM private\nkey. Both are the file CONTENTS, not paths, so the caller reads them however it likes\n(`file(path).content()`), keeping this layer free of any filesystem policy. The op surface\nis identical to a plaintext server — accept, respond, WebSocket upgrade all work the same,\njust over TLS. Halts if the certificate/key is unusable or the bind fails (never a silent\nfallback to cleartext — a TLS server that quietly served http would be the worst surprise)."
+            },
+            {
+              "sig": "pub fn try_listen_tls(port: integer, cert: text, key: text) -> Server",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn try_listen_tls_on(addr: text, port: integer, cert: text, key: text) -> Server",
+              "doc": "TLS on a chosen bind address — `listen_tls` + `listen_on` combined. An empty `addr` means\n`0.0.0.0`."
+            },
+            {
+              "sig": "pub fn bound(self: Server) -> boolean",
+              "doc": "True when this server actually owns its port.  Always true for a `listen()` result\n(that halts otherwise) — it is the check that makes a `try_listen()` result usable."
+            },
+            {
+              "sig": "pub fn next_nonblocking(self: Server) -> Request",
+              "doc": "Non-blocking variant of `next()`.  Returns null immediately if no\nconnection is pending.  Use this when the server interleaves HTTP\naccept with multi-client WS polling on a single port (single_port\naudience demo / future TTT-style multi-tab apps)."
+            },
+            {
+              "sig": "pub fn next(self: Server) -> Request",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond(self: Request, status: integer, body: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_typed(self: Request, status: integer, body: text, content_type: text)",
+              "doc": "Send an HTTP response with a caller-specified Content-Type and\nclose the connection.  Use for HTML / CSS / JSON / WASM payloads;\n`respond` defaults to `text/plain`."
+            },
+            {
+              "sig": "pub fn header(self: Request, name: text) -> text",
+              "doc": "Look up a request header case-insensitively (e.g. \"Range\", \"Origin\",\n\"If-None-Match\"); returns \"\" if absent. Values containing ':' (an Origin URL,\na date) are rejoined intact.\nExample: @SRV-002 — why a hand-rolled `h.split(':')[1]` over `headers` loses the port."
+            },
+            {
+              "sig": "pub fn respond_with_headers(self: Request, status: integer, body: text, headers: vector<text>)",
+              "doc": "Send a response with caller-controlled headers (Content-Range, ETag, the CORS\nheaders, …). `headers` is a vector of \"Key: Value\" lines; Content-Length is\nauto-added from the body unless a header supplies one; the body is written\nverbatim (binary-safe)."
+            },
+            {
+              "sig": "pub fn cors_headers(origin: text) -> vector<text>",
+              "doc": "Standard CORS headers so a browser client can read Content-Range /\nContent-Length / ETag on a cross-origin byte-range fetch. `origin` is the\nallowed origin (\"*\" for any)."
+            },
+            {
+              "sig": "pub fn serve_range(self: Request, body: text, extra: vector<text>) -> boolean",
+              "doc": "Serve a byte range of `body` when the request carries a Range header, adding\n`extra` headers (CORS / ETag) to the 206 or 416. Returns true if a range\nresponse was sent; false when there is no Range header (the caller serves the\nfull body). Single-range \"bytes=off-last\" / open-ended \"bytes=off-\" only.\nExample: @SRV-003 — the boolean says WHO answered; false is the case you must handle."
+            },
+            {
+              "sig": "pub fn serve_data(self: Request, body: text, etag: text, origin: text) -> boolean",
+              "doc": "One-call helper to serve a (possibly binary) resource with full byte-range +\nCORS + HEAD + conditional support — the server counterpart to the web client's\nhttp_get_range / http_size. `etag` \"\" skips conditional; `origin` \"\" skips CORS.\nExample: @SRV-003 — this one takes every branch, so it is always true and always final."
+            },
+            {
+              "sig": "pub fn respond_html(self: Request, body: text)",
+              "doc": "Convenience wrappers for the common cases TTT v3 needs."
+            },
+            {
+              "sig": "pub fn respond_css(self: Request, body: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_js(self: Request, body: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_loft(self: Request, body: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_404(self: Request)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn close(self: Server)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn ws_upgrade() -> WebSocket",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn next(self: WebSocket) -> text?",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn send(self: WebSocket, msg: text) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn send_binary(self: WebSocket, msg: text) -> boolean",
+              "doc": "Send `msg` as a binary WebSocket frame (opcode 2).  Loft\n`text` is a byte buffer — pack u8/u16/i32/etc. into it via\n`to_bytes` style code, then ship it."
+            },
+            {
+              "sig": "pub fn last_opcode(self: WebSocket) -> integer",
+              "doc": "Opcode of the last frame returned by `next` on this socket.\nUse after `next` to decide whether to interpret the payload\nas utf-8 text or as a binary blob."
+            },
+            {
+              "sig": "pub fn close(self: WebSocket)",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct WsEvent",
+              "doc": "Event delivered to the on_event handler.  `connected` and\n`message` are mutually-exclusive booleans for fast dispatch\nwithout an integer enum.  Wire format `<msg_id>:<payload>`\nis parsed by `run` so msg_id and payload come pre-split."
+            },
+            {
+              "sig": "pub fn run(self: Server, on_event: fn(WsEvent))",
+              "doc": "Block forever, draining events and calling the handler.\nMalformed message frames are logged at warn level and silently\ndropped — the handler never sees them."
+            },
+            {
+              "sig": "pub fn poll_event(self: Server) -> WsEvent",
+              "doc": "Non-blocking single-event drain — returns the next WsEvent, or null\nwhen nothing is pending.  Lets a server that also needs a periodic\ntick (timers, decay, snapshots) run its OWN loop while still using the\nefficient Rust-side event pump: drain `poll_event` in a batch, do the\nperiodic work, idle-sleep when a pass produced nothing.  `run` above is\nthe convenience wrapper for servers that only react to events.\n\nDisconnect (kind 2) and malformed message frames are skipped internally\n(the caller never sees them), so a null return always means \"idle\"."
+            },
+            {
+              "sig": "pub fn respond_html(self: Server, body: text)",
+              "doc": "Reply to the HTTP request currently parked by a `http` WsEvent and\nclose it.  Call exactly once from the handler for an `ev.http` event."
+            },
+            {
+              "sig": "pub fn respond_typed(self: Server, status: integer, body: text, content_type: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn respond_404(self: Server)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn send_to(self: Server, client_id: integer, msg: text) -> boolean",
+              "doc": "Send a frame to a specific client.  Returns true on success."
+            },
+            {
+              "sig": "pub fn broadcast(self: Server, msg: text) -> integer",
+              "doc": "Send a frame to every active client.  Returns the count of\nsuccessful sends.  Iteration happens entirely in Rust."
+            },
+            {
+              "sig": "pub fn disconnect(self: Server, client_id: integer)",
+              "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
+            }
+          ],
+          "published": "2026-08-18T09:12:59Z"
         }
       }
     },
     "game_protocol": {
-      "description": "Packet framing + ack/retransmit for loft game-networking demos.",
+      "description": "Per-tick state-update and event framing for loft multiplayer games — pure loft, over web + server",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/game_protocol",
       "categories": [
         "net",
@@ -6722,6 +7306,58 @@
             "web": ">=0.1"
           },
           "published": "2026-06-14T14:42:32Z"
+        },
+        "0.1.3": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/game_protocol-v0.1.3/game_protocol-0.1.3.tar.gz",
+          "sha256": "43c3381c4e711d0384171da4fbfb43d501cfcfefb20b815d161f4cf2d355910f",
+          "size": 22247,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "game_protocol",
+          "deps": {
+            "server": ">=0.1",
+            "web": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub enum MsgType",
+              "doc": "Message types for the game protocol envelope."
+            },
+            {
+              "sig": "pub struct WsMessage",
+              "doc": "A WebSocket message wrapper for game communication."
+            },
+            {
+              "sig": "pub struct GameEnvelope",
+              "doc": "The outer envelope for all game messages.\nContains routing info + the actual message."
+            },
+            {
+              "sig": "pub fn msg_ping(seq: integer) -> GameEnvelope",
+              "doc": "Create a ping message."
+            },
+            {
+              "sig": "pub fn msg_pong(seq: integer) -> GameEnvelope",
+              "doc": "Create a pong response."
+            },
+            {
+              "sig": "pub fn msg_chat(sender: text, content: text) -> GameEnvelope",
+              "doc": "Create a chat message."
+            },
+            {
+              "sig": "pub fn msg_input(sender: text, input_data: text) -> GameEnvelope",
+              "doc": "Create a player input message."
+            },
+            {
+              "sig": "pub fn msg_state(state_data: text) -> GameEnvelope",
+              "doc": "Create a state sync message."
+            },
+            {
+              "sig": "pub fn msg_error(error_text: text) -> GameEnvelope",
+              "doc": "Create an error message."
+            }
+          ],
+          "published": "2026-08-18T09:12:49Z"
         }
       }
     },
@@ -6799,6 +7435,47 @@
             }
           ],
           "published": "2026-07-04T21:53:29Z"
+        },
+        "0.3.1": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.1/random-0.3.1.tar.gz",
+          "sha256": "fa08d8d8d8a46888df461c070394073e57af73db6a4bae076ad380d84985b85e",
+          "size": 12514,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.3.0",
+          "data_compatible_with": "0.3.0",
+          "subpath": "random",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn rand(lo: integer, hi: integer) -> integer?",
+              "doc": "Returns a random integer in [lo, hi] (inclusive).\nReturns null when lo > hi or when either argument is null.\nDraws from the ONE hidden generator every call site shares — see `rand_seed`.\nExample: @RND-001 — why a seeded global sequence is not yours, and what a\nRandStream gives instead."
+            },
+            {
+              "sig": "pub fn rand_seed(seed: integer)",
+              "doc": "Seeds the thread-local random number generator with the given value.\nCall this before rand() or rand_indices() to get reproducible sequences — but\nnote that it fixes what the GENERATOR produces, not what you receive: it is\nshared, so one `rand()` from anywhere else shifts everything after it.  When\nreproducibility is a requirement rather than a convenience, own a stream.\nExample: @RND-001 — a foreign draw between two of yours, and the same\ninterruption against a RandStream."
+            },
+            {
+              "sig": "pub fn rand_indices(n: integer) -> vector<integer>",
+              "doc": "Returns a vector of n integers [0, 1, ..., n-1] in a random order.\nUseful for random iteration, shuffling, or sampling without replacement.\nReturns an empty vector when n is 0 or null.\nExample: @RND-001 — this draws from the shared global generator too."
+            },
+            {
+              "sig": "pub struct RandStream",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn seed_stream(seed: integer) -> RandStream",
+              "doc": "Seed an independent stream. Any integer seed is valid (negative and zero included);\nequal seeds give equal streams, different seeds give decorrelated streams.\nExample: @RND-001 — the reason to prefer this over `rand_seed`.\nExample: @RND-003 — equal seeds replay exactly, so a recorded seed is a\nrecorded run."
+            },
+            {
+              "sig": "pub fn get(self: RandStream, lo: integer, hi: integer) -> integer?",
+              "doc": "A random integer in [lo, hi] (inclusive) from THIS stream, advancing it.\nReturns null when lo > hi (the same contract as the global rand()).\nExample: @RND-002 — assigning a stream COPIES it, passing one to a function\nLINKS it, so a helper that draws spends the caller's sequence."
+            },
+            {
+              "sig": "pub fn indices(self: RandStream, n: integer) -> vector<integer>",
+              "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
+            }
+          ],
+          "published": "2026-08-18T09:12:52Z"
         }
       }
     },
@@ -6876,6 +7553,54 @@
             }
           ],
           "published": "2026-07-04T21:53:32Z"
+        },
+        "0.3.0": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.0/regex-0.3.0.tar.gz",
+          "sha256": "370d686ec61c902e0a33f52a9dbb7e4496375f53623352f8c60306ad84ba6672",
+          "size": 11220,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.2.1",
+          "data_compatible_with": "0.2.1",
+          "subpath": "regex",
+          "deps": {},
+          "triggers": [
+            "search:text",
+            "matches:text",
+            "split_on:text",
+            "regex_find:text",
+            "regex_split:text"
+          ],
+          "api": [
+            {
+              "sig": "pub fn search(self: text, pattern: text) -> integer",
+              "doc": "Byte offset of the first match of `pattern` in the text, or null when there\nis no match (or the pattern is invalid).  The conventional regex-search verb\n— named `search`, not `find`, because bare `find` on text is the stdlib's\nliteral substring search.  Call as  line.search(\"[0-9]+\").\nExample: @RGX-001 — why this is `search` and not `find`, and what a bare\n`find(pattern, input)` answers instead.\nExample: @RGX-002 — the answer is a BYTE offset (slice with it, compare it to\n`size()` not `len()`), and a miss is null despite the `integer` return type."
+            },
+            {
+              "sig": "pub fn matches(both: text, pattern: text) -> boolean",
+              "doc": "True if `pattern` matches anywhere in the text.  `both` registers this as\nBOTH a method (`line.matches(p)`) and a free function (`matches(line, p)`).\nCollision-free on `text` (the stdlib has `contains`, not `matches`).\nExample: @RGX-003 — a pattern that never compiled answers false, exactly like\ntext that simply did not match."
+            },
+            {
+              "sig": "pub fn split_on(self: text, pattern: text) -> iterator<text>",
+              "doc": "Split the text on matches of `pattern`, yielding each piece lazily through\nan `iterator<text>` (reuses loft's coroutine channel — nothing is\nmaterialised).  Named `split_on`, not `split`, because bare `split` on text\nis the stdlib character-separator split.  Call as\nfor piece in line.split_on(\"[,;]\") { }.\nExample: @RGX-004 — it yields the gaps between matches, so a separator at\neither end leaves an empty piece and unmatched text comes back as ONE piece."
+            },
+            {
+              "sig": "pub fn find(pattern: text, input: text) -> integer",
+              "doc": "Example: @RGX-001 — reachable only as `regex::find`; the bare spelling\nresolves the stdlib `text` method and answers something else entirely."
+            },
+            {
+              "sig": "pub fn split(pattern: text, input: text) -> iterator<text>",
+              "doc": "Example: @RGX-001 — same shadow as `find`: bare `split` is the stdlib's\ncharacter split, not this one."
+            },
+            {
+              "sig": "pub fn regex_find(self: text, pattern: text) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn regex_split(self: text, pattern: text) -> iterator<text>",
+              "doc": ""
+            }
+          ],
+          "published": "2026-08-18T09:12:55Z"
         }
       }
     },
@@ -8394,7 +9119,7 @@
       }
     },
     "ssh": {
-      "description": "SSH client — drive an interactive remote shell (e.g. attach tmux) over password auth. Native-only.",
+      "description": "SSH client for loft, for driving an interactive remote shell — password auth, never stored",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/ssh",
       "categories": [
         "net"
@@ -8409,6 +9134,63 @@
           "subpath": "ssh",
           "deps": {},
           "published": "2026-07-14T13:34:30Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/ssh-v0.1.1/ssh-0.1.1.tar.gz",
+          "sha256": "0cef32b5c84396945d95193a0135d4f605d8a60c1d80bea98e5c3588eab6103c",
+          "size": 22993,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "ssh",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Session",
+              "doc": "A live SSH session.  `handle >= 0` once the TCP connect + transport handshake\nsucceed; `< 0` means the connect failed.  Obtain one from `connect`."
+            },
+            {
+              "sig": "pub fn byte_at(idx: integer, data: text) -> integer",
+              "doc": "Read the byte at `idx` (0..size) of a `recv` result.  A terminal stream is raw\nbytes, so read it byte-by-byte rather than as UTF-8.  Out of range returns -1 —\nnot 0, which the stream itself may legitimately carry.\nExample: @SSH-002 — bound the loop with `size`, and test the end with `< 0`."
+            },
+            {
+              "sig": "pub fn connect(host: text, port: integer) -> Session",
+              "doc": "Open a TCP connection to `host:port` and run the SSH transport handshake.\nCheck `ok()` before authenticating.\nExample: @SSH-001 — a failed session stays callable and silent, so `ok()` is the\nonly thing that reports it."
+            },
+            {
+              "sig": "pub fn ok(self: Session) -> boolean",
+              "doc": "True when the session connected and completed the transport handshake.\nExample: @SSH-001 — skip this and the whole session ladder runs, quietly, on nothing."
+            },
+            {
+              "sig": "pub fn login(self: Session, user: text, password: text) -> boolean",
+              "doc": "Authenticate with a password.  Returns true on success.  The password is used\nonly for this handshake and is never stored by the library."
+            },
+            {
+              "sig": "pub fn open_shell(self: Session, term: text, cols: integer, rows: integer) -> boolean",
+              "doc": "Request a pseudo-terminal of `cols` x `rows` (terminal type `term`, e.g.\n\"xterm-256color\") and start the login shell.  Returns true on success."
+            },
+            {
+              "sig": "pub fn send(self: Session, data: text)",
+              "doc": "Send bytes to the remote shell (keystrokes, escape sequences).  Binary-safe."
+            },
+            {
+              "sig": "pub fn recv(self: Session) -> text",
+              "doc": "Return the bytes the remote shell produced since the last call, or \"\" when\nnothing is pending (non-blocking).  Binary-safe: iterate 0..size(result) and\nread each byte with `byte_at` — `size` is the BYTE count, which is what\n`byte_at` is indexed against; `len` counts characters and would truncate.\nExample: @SSH-002 — the byte a `len`-bounded loop drops, and why -1 is not 0."
+            },
+            {
+              "sig": "pub fn resize(self: Session, cols: integer, rows: integer)",
+              "doc": "Tell the remote the terminal resized to `cols` x `rows` so it re-flows.  Call\nafter a zoom / rotate / window resize."
+            },
+            {
+              "sig": "pub fn is_open(self: Session) -> boolean",
+              "doc": "True while the shell channel is open (the remote has not closed it)."
+            },
+            {
+              "sig": "pub fn close(self: Session)",
+              "doc": "Close the shell channel and disconnect."
+            }
+          ],
+          "published": "2026-08-18T09:13:01Z"
         }
       }
     },
@@ -9240,7 +10022,7 @@
       }
     },
     "zttext": {
-      "description": "loft library zttext",
+      "description": "A text engine for loft: piece-table content core, transactional undo, and portable layout with measurement injected",
       "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/zttext",
       "categories": [],
       "yanked": [],
@@ -9593,6 +10375,355 @@
             }
           ],
           "published": "2026-08-17T20:25:36Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/zttext-v0.1.1/zttext-0.1.1.tar.gz",
+          "sha256": "e7b366dd5074d55fcfcae0bf3427194682a74e06a7e10917c700bd98a6ffa8b2",
+          "size": 46834,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "zttext",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn zttext_version() -> text",
+              "doc": "The library's own version marker — a scaffold anchor so the parity harness (interpret ==\nnative == native-wasm) exists before any engine logic lands."
+            },
+            {
+              "sig": "pub struct Piece",
+              "doc": "A piece p = ⟨o, ℓ, s⟩ references the buffer span B[start, start+count) with style-id\n`style`. Pieces are immutable value objects: an edit REBUILDS the piece sequence, it\nnever mutates a piece or swaps vector slots in place."
+            },
+            {
+              "sig": "pub struct Doc",
+              "doc": "The content model. `buf` is the append-only buffer B ∈ Σ* (a vector<character>, so\noffsets are characters); `pieces` is the piece sequence D = ⟨p₁…pₙ⟩. The materialised\ntext ⌊D⌋ is the concatenation of each piece's buffer span. (Bundling B with D keeps the\nengine's surface small; the buffer is treated as append-only within an edit.)"
+            },
+            {
+              "sig": "pub struct Run",
+              "doc": "A styled run: a maximal same-style character span. `slice_runs` returns these; they are\nwhat an inverse Ins/Sty re-creates so undo restores styles, not just text."
+            },
+            {
+              "sig": "pub fn empty_doc() -> Doc",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn doc_from_text(s: text, style: integer) -> Doc",
+              "doc": "build a one-piece doc holding `s` at style-id `style`."
+            },
+            {
+              "sig": "pub fn materialise(d: Doc) -> text",
+              "doc": "⌊D⌋ — the logical text of the doc (concatenate every piece's buffer span in order)."
+            },
+            {
+              "sig": "pub fn doc_len(d: Doc) -> integer",
+              "doc": "|⌊D⌋| — the character length of the logical text.\nExample: @ZTX-002 — CHARACTERS, which is not the byte length of the\nmaterialised text."
+            },
+            {
+              "sig": "pub fn locate(d: Doc, a: integer) -> (integer, integer)",
+              "doc": "locate(D, a) → (piece index, in-piece offset). Anchor `a` ∈ [0,|⌊D⌋|] sits BETWEEN\ncharacters; piece i covers logical [Cᵢ, Cᵢ+countᵢ). A boundary a = Cᵢ₊₁ lands in piece\ni+1 at offset 0; a = |⌊D⌋| (the end) returns the sentinel (n_pieces, 0)."
+            },
+            {
+              "sig": "pub fn locate_inverse(d: Doc, pi: integer, ro: integer) -> integer",
+              "doc": "inverse of locate: (piece index, in-piece offset) → the logical anchor a."
+            },
+            {
+              "sig": "pub fn insert_text(d: Doc, a: integer, s: text, style: integer) -> Doc",
+              "doc": "insert text `s` (style-id `style`) at anchor `a`. Appends `s`'s characters to a fresh\nbuffer (append-only), then rebuilds the piece sequence splitting the piece at `a`.\nExample: @ZTX-001 — this RETURNS a new Doc; the one passed in is unchanged, so\na discarded result is an edit that silently never happened."
+            },
+            {
+              "sig": "pub fn delete_range(d: Doc, a: integer, b: integer) -> Doc",
+              "doc": "delete the range [a,b). Keeps each piece's portion outside [a,b); the buffer is\nUNCHANGED (deleted characters stay in B so undo can restore them).\nExample: @ZTX-001 — a value, not a mutation: bind the result.\nExample: @ZTX-002 — `a` and `b` are CHARACTER positions, and the append-only\nbuffer does not shrink (that is what undo restores from)."
+            },
+            {
+              "sig": "pub fn set_style(d: Doc, a: integer, b: integer, style: integer) -> Doc",
+              "doc": "set style-id `style` on the range [a,b): split each overlapping piece three ways\n([ps,a) old · [a,b) new · [b,pe) old) and restyle the middle.\nExample: @ZTX-001 — a value, not a mutation: bind the result."
+            },
+            {
+              "sig": "pub fn slice_runs(d: Doc, a: integer, b: integer) -> vector<Run>",
+              "doc": "the styled runs of [a,b): one Run per overlapping piece-fragment, carrying its text and\nstyle. Concatenating the run texts is exactly ⌊D⌋[a,b); the styles are χ_D over [a,b)."
+            },
+            {
+              "sig": "pub fn materialise_range(d: Doc, a: integer, b: integer) -> text",
+              "doc": "materialise just [a,b) as text."
+            },
+            {
+              "sig": "pub fn char_styles(d: Doc) -> vector<integer>",
+              "doc": "per-character style vector over the whole doc (χ_D as a concrete list) — the reference\nagainst which piece-blindness (I2) and undo are checked."
+            },
+            {
+              "sig": "pub enum Op",
+              "doc": "The primitive edit operations (notation §8): ins(a,t,σ) · del(a,b) · sty(a,b,σ)."
+            },
+            {
+              "sig": "pub struct Txn",
+              "doc": "A transaction τ — an atomic, ordered composition of primitive ops; the unit of undo."
+            },
+            {
+              "sig": "pub fn txn_of(ops: vector<Op>) -> Txn",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn apply_op(d: Doc, op: Op) -> Doc",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn apply(d: Doc, t: Txn) -> Doc",
+              "doc": "apply a whole transaction, left to right. Only the pre- and post-states are observable."
+            },
+            {
+              "sig": "pub fn inv_op_group(pre: Doc, op: Op) -> vector<Op>",
+              "doc": "the inverse of a single op against its PRE-state `pre`, as an ordered op list (a delete\nor restyle over a multi-style range inverts to one op per style-run, so undo restores\nstyles exactly, not just text)."
+            },
+            {
+              "sig": "pub fn invert(d: Doc, t: Txn) -> Txn",
+              "doc": "invert(D, τ) → τ⁻¹ such that apply(apply(D,τ), τ⁻¹) ≈ D (same text + same per-char\nstyles). Each op's inverse is computed against its pre-state; the groups are emitted in\nreverse op order (prepend each new group), since τ⁻¹ undoes the last op first.\nExample: @ZTX-003 — `d` must be the state BEFORE the transaction; the inverse of\na deletion is an insertion of what was there, which only the pre-state knows.\nRestores per-character styles as well as text."
+            },
+            {
+              "sig": "pub struct Style",
+              "doc": "A concrete style σ ∈ 𝕊. For the fake monospace measurer only `size` (per-character\nadvance) matters; `weight`/`italic`/`dir` (0 = LTR, 1 = RTL) round out the shape the\nreal backends will fill in. Layout reads styles ONLY through a StyleResolver, so a\nsurface restyles by swapping the resolver."
+            },
+            {
+              "sig": "pub fn default_style() -> Style",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn mono_measure(s: text, st: Style) -> float",
+              "doc": "The fake monospace Measurer μ: advance width = character-count × style.size. Pure and\ndeterministic, so every layout milestone is headless and parity-testable. The Measurer\nPORT type is `fn(text, Style) -> float`; this is one implementation (a named ref you\npass where a Measurer is expected)."
+            },
+            {
+              "sig": "pub fn default_resolver(_id: integer) -> Style",
+              "doc": "A trivial StyleResolver ρ: every id resolves to the default style. The port type is\n`fn(integer) -> Style`; a real surface passes its own (document stylesheet · IDE syntax\ntheme · cell format)."
+            },
+            {
+              "sig": "pub fn run_height(st: Style) -> float",
+              "doc": "The fake box height of a run in style `st`. Real backends give ascent+descent; the fake\nuses square cells (height = size) so line stacking is deterministic and hand-checkable."
+            },
+            {
+              "sig": "pub struct Rect",
+              "doc": "The render IR (notation §4). A Rect is a plane rectangle; a Box β = ⟨rect, κ, style⟩\ncarries the LOGICAL content-ref κ = [ks, ke) (character span in ⌊D⌋) and a single style.\nThe rect's position is the VISUAL order; κ is the LOGICAL order — both explicit in every\nbox, which is the whole BiDi story (a selection is κ-intersection, geometry-free)."
+            },
+            {
+              "sig": "pub struct Box",
+              "doc": "`hyphen` marks a synthetic line-end hyphen glyph (from a discretionary break, S4.7):\nit renders \"-\" rather than its κ text, and κ points at the soft-hyphen it stands in for."
+            },
+            {
+              "sig": "pub struct BoxSet",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct LaidLine",
+              "doc": "A laid-out visual line: the logical char span [cs,ce) its boxes cover, its top y and its\nheight. `para_end` is true when this is a paragraph's LAST line (ended at a hard break or\nthe doc end) — it is left ragged (justify skips it). `right` is the line's available right\nedge (the column edge, or an image's edge for a line beside one) — the target justify fills\nto. Carried by a Layout so incremental reflow can find the lines an edit touches (M3)."
+            },
+            {
+              "sig": "pub struct PlacedImage",
+              "doc": "A placed image on the page: its rectangle + the image reference `id` (a file_record id at\nthe app layer). It is BOTH a rendered element AND an exclusion region the text steers around."
+            },
+            {
+              "sig": "pub struct Layout",
+              "doc": "A full layout result: the text boxes (the render IR), per-line metadata (the seam\nincremental reflow needs), and the placed images (rendered separately; text never overlaps\nthem). `flow_layout` returns just the BoxSet; `flow_layout_full` returns this."
+            },
+            {
+              "sig": "pub struct Token",
+              "doc": "A token in the stream: a word (non-space run), glue (a space run), a discretionary break\n(`disc`, a soft hyphen), or a paragraph break (`brk`, a newline run). `word`/`disc`/`brk`\nare the kind flags; all false → glue. Glue is the breakable inter-word space; disc is a\nzero-width in-WORD break (S4.7); brk is a HARD break that ends the line and starts a new\nparagraph (a paragraph's last line is ragged, and gets paragraph spacing after it)."
+            },
+            {
+              "sig": "pub fn soft_hyphen() -> text",
+              "doc": "The canonical discretionary-hyphen character: Unicode SOFT HYPHEN U+00AD (UTF-8 0xC2 0xAD).\nIt is the PORTABLE storage form — invisible in any conforming Markdown/HTML pipeline, and\nrendered as a hyphen only when a line breaks at it. The `[-]` authoring notation maps to it."
+            },
+            {
+              "sig": "pub fn encode_shy(s: text) -> text",
+              "doc": "encode the `[-]` authoring notation → the canonical soft hyphen (import / editor-input path)."
+            },
+            {
+              "sig": "pub fn decode_shy(s: text) -> text",
+              "doc": "decode the canonical soft hyphen → the `[-]` notation (editor source-view / round-trip)."
+            },
+            {
+              "sig": "pub fn seg(d: Doc) -> vector<Token>",
+              "doc": "seg(⌊D⌋) → the token stream T of words ω, glue δ, and discretionary breaks (soft hyphens).\nA soft hyphen becomes its own zero-width Disc token; words are maximal non-space,\nnon-soft-hyphen runs, so every inter-token boundary is a legal break (space or hyphen)."
+            },
+            {
+              "sig": "pub fn token_width(d: Doc, tok: Token, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> float",
+              "doc": "ν(t) — the measured advance of a token: the sum over its style-runs of μ(run, ρ(style)).\n(A token may cross a style boundary; each run measures under its own resolved style.)"
+            },
+            {
+              "sig": "pub struct Line",
+              "doc": "A laid-out line: the half-open token range [first, last_excl). Trailing glue at a break\nis NOT included (notation §6: \"trailing glue on a line is dropped\")."
+            },
+            {
+              "sig": "pub fn lines_greedy(d: Doc, toks: vector<Token>, w_col: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> vector<Line>",
+              "doc": "greedy line breaking (notation §6, brk): pack words while they fit in width W; interior\nglue counts toward the width, trailing glue is deferred and dropped at a break. The first\nword on a line always fits (an over-wide word overflows onto its own line, no infinite loop)."
+            },
+            {
+              "sig": "pub fn next_line(d: Doc, toks: vector<Token>, from: integer, w_col: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> (integer, integer, integer, boolean)",
+              "doc": "Break ONE line greedily starting at token `from` → (last_excl, next_tok, hyphen_disc,\npara_break): the line covers tokens [from, last_excl); the next line starts at `next_tok`;\nhyphen_disc is the token index of a soft hyphen the line broke a word at (a trailing hyphen\nglyph), else -1; para_break is true when the line ended at a HARD paragraph break (which is\nconsumed — `next_tok` is past it). The per-line step both the full layout and the patch reuse."
+            },
+            {
+              "sig": "pub struct PlacedLine",
+              "doc": "A placed line: its boxes plus its LaidLine metadata."
+            },
+            {
+              "sig": "pub fn place_line(d: Doc, toks: vector<Token>, first: integer, last_excl: integer, hyphen_disc: integer, para_end: boolean, y: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> PlacedLine",
+              "doc": "Place tokens [first, last_excl) at top y — one box per style-run, x-advance left to right;\nthe shared placement primitive so the full layout and a patched tail are byte-identical. If\n`hyphen_disc >= 0`, append a trailing hyphen glyph box for that soft hyphen (S4.7)."
+            },
+            {
+              "sig": "pub fn layout_tokens_from(d: Doc, toks: vector<Token>, y0: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float, para_gap: float = 0.0) -> Layout",
+              "doc": "Lay out a TOKEN LIST (absolute char spans) from top y0 — the whole-doc layout, built as a\nsequence of next_line + place_line steps (the exact steps an incremental patch reuses)."
+            },
+            {
+              "sig": "pub fn flow_layout_full(d: Doc, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float, para_gap: float = 0.0) -> Layout",
+              "doc": "L for the flow surface: content + resolver + measurer + column width → a full Layout.\n`para_gap` is the extra vertical space after each paragraph (0 = paragraphs still break onto\nnew lines, just with no gap)."
+            },
+            {
+              "sig": "pub fn flow_layout(d: Doc, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> BoxSet",
+              "doc": "The BoxSet-only view of a flow layout (the M1/M2 surface).\nExample: @ZTX-004 — measurement is an ARGUMENT, which is why the same document\nand ports lay out identically on every target; `default_resolver` + `mono_measure`\nare the deterministic pair to test against."
+            },
+            {
+              "sig": "pub fn line_assignment(d: Doc, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> vector<LaidLine>",
+              "doc": "D1 (EDITOR_DESIGN step D) — the LINE ASSIGNMENT: the per-line logical char spans [cs,ce) a\ndocument breaks into (each with its y/height, its justify edge `right`, and whether it is a\nparagraph's ragged last line). It is a PURE function of (content, styles, metrics, column), and\nit is the layer the determinism budget lives at (§8.22): common word widths ⇒ identical breaks ⇒\nidentical assignment on every platform. This is what a screen RenderSink paints one element PER\n(step D2), and what the loft-native PDF emitter (step E) paginates from — both downstream of, and\nagreeing because of, this one assignment. Materialise a line's text with\n`materialise_range(d, cs, ce)`."
+            },
+            {
+              "sig": "pub fn render_dump(bs: BoxSet, d: Doc) -> text",
+              "doc": "A headless RenderSink R: a deterministic textual dump of the BoxSet, one line per box —\n`[x,y,w,h] ks..ke s=style 'text'`. Golden-string comparable; the eyeball/regression view\nthat stands in for a real DOM/Canvas/PDF sink (which is a Tier-2 backend, swapped at the\nbrowser edge). Coordinates are printed to one decimal so the string is backend-stable."
+            },
+            {
+              "sig": "pub fn render_commands(l: Layout, d: Doc) -> text",
+              "doc": "The DOM/Canvas RenderSink R : 𝔅 → paint commands — the reusable engine-level sink PROTOCOL. A\nthin per-target host (browser host.js / native / PDF) paints these; loft owns every coordinate\n(§8.22), so the geometry is identical on every reader and the host only positions boxes it is\nhanded. One `LINE|y|h|right|paraEnd` per laid line (the justified line assignment, D2) then one\n`BOX|x|y|w|h|style|text` per glyph-box (CSS px, 2 decimals so the string is backend-stable). This\nis CONTENT-ONLY: caret/selection overlays are a consumer concern layered on top (cf. ztedit's\n`ed_render`, which adds SCALE/DOC/CARET/SEL around this same LINE/BOX core), so any read surface —\nviewer, editor, print preview — reuses it unchanged. Takes a full Layout (lines + boxes)."
+            },
+            {
+              "sig": "pub fn boxset_height(bs: BoxSet) -> float",
+              "doc": "The total laid-out height (sum of line heights) — the column's content height."
+            },
+            {
+              "sig": "pub fn box_at(bs: BoxSet, x: float, y: float) -> integer",
+              "doc": "box_at(𝔅, x, y) → the index of the box CONTAINING (x,y) (half-open rect), or -1 if the\npoint is in no box (a margin / gap — anchor_at then falls back to the nearest box)."
+            },
+            {
+              "sig": "pub fn anchor_at(bs: BoxSet, d: Doc, x: float, y: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> integer",
+              "doc": "H(q, 𝔅) — the logical anchor for a point: pick the box (containing, else nearest), then\nrefine x WITHIN the box by finding the character split whose prefix width is closest to\nthe local x (via μ, so it is correct for proportional fonts, not just monospace).\n(RTL refinement, where the prefix mapping reverses, is completed with BiDi placement in\nS4.5; this LTR refinement is exact for the flow surface.)"
+            },
+            {
+              "sig": "pub fn sel(bs: BoxSet, a: integer, b: integer) -> vector<integer>",
+              "doc": "Sel(a,b) = { β : κ(β) ∩ [a,b) ≠ ∅ } — the boxes a logical selection [a,b) covers, returned\nas box indices. Defined PURELY by κ-intersection: it never mentions geometry, so a range\ncrossing a direction boundary yields the correct (possibly visually-split) box set with no\nspecial-case code. THIS is the whole BiDi selection story."
+            },
+            {
+              "sig": "pub fn sel_rects(bs: BoxSet, d: Doc, a: integer, b: integer, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> vector<Rect>",
+              "doc": "Sel(a,b) as precise highlight RECTANGLES — character-granular. Each box the range covers is\nCLIPPED to its selected sub-span [max(a,ks), min(b,ke)), the endpoints mapped to x within the\nbox via μ. So a partially-selected word highlights only the selected characters, not the whole\nword (`sel` returns whole boxes; this returns the sub-rects to paint). A fully-selected box\nyields its whole rect; the boundary boxes are the fine ones."
+            },
+            {
+              "sig": "pub fn caret_at(bs: BoxSet, d: Doc, a: integer, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> Rect",
+              "doc": "caret_at(a) — the caret rectangle (zero width) for logical anchor a: the x is refined within\nthe box holding a (a==ke → the box's right edge; a==ks → its left), y/h from that box. The\ndual of anchor_at (point → anchor); this is anchor → point, for drawing the cursor."
+            },
+            {
+              "sig": "pub fn word_at(d: Doc, a: integer) -> (integer, integer)",
+              "doc": "word(a) — the [ts,te) span of the word containing anchor a (what a double-click selects). A\ndiscretionary break does NOT end a word, so a hyphenated word selects whole: expand across\nadjacent word/disc tokens, stopping at glue. a in whitespace returns that glue run."
+            },
+            {
+              "sig": "pub fn line_boxes(bs: BoxSet, a: integer) -> vector<integer>",
+              "doc": "line(a) — the box indices on the VISUAL line containing anchor a. A visual line is the\nmaximal run of boxes sharing box@a's y that is CONTIGUOUS in reading order — not every box\nat that y. This matters for multi-column pages: column 1's line 3 and column 2's line 3\nhave the same absolute y, but they are laid out in reading order (all of column 1, then\ncolumn 2), so a same-y run stays within one column. (A degenerate page with columns only\none line tall would put two columns' first lines adjacent at the same y; real pages are\ntaller, and layout_columns emits boxes column-major, so the run boundary is exact.)"
+            },
+            {
+              "sig": "pub fn doc_chars(d: Doc) -> vector<character>",
+              "doc": "the doc's logical text as a character vector (for the styled-string diff)."
+            },
+            {
+              "sig": "pub fn dirty(old_d: Doc, new_d: Doc) -> (integer, integer, integer)",
+              "doc": "dirty(D, D′) → (lo, hi_old, hi_new): the minimal changed span, computed by diffing the\nSTYLED string (char AND style per position) — common prefix `lo`, common suffix trimmed.\nold[lo,hi_old) was replaced by new[lo,hi_new); the net char change is hi_new - hi_old.\nDiffing the observable styled string (not τ's op structure) gives the tightest range and\nmakes patch independent of HOW the edit was expressed."
+            },
+            {
+              "sig": "pub struct PatchResult",
+              "doc": "The result of an incremental relayout: the new Layout, plus how many boxes were RECOMPUTED\n(the tail) vs REUSED from the old layout (the prefix). The counts are the bounded-work\nevidence M5 asserts; the layout is what M3's differential checks against a full relayout."
+            },
+            {
+              "sig": "pub fn patch(old_layout: Layout, old_doc: Doc, new_doc: Doc, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> PatchResult",
+              "doc": "patch(L(D), D, D′) → a Layout EQUAL to L(D′) (the differential law I5), computed\nincrementally and with BOUNDED re-measurement (I7): reuse every line strictly before the\nedit verbatim, re-lay lines from there only until the break structure RECONVERGES with the\nold layout, then TRANSLATE the untouched tail (a cheap char+y shift, no re-measure).\n\nTwo correctness hinges:\n· start one line EARLIER than the line containing the edit — that earlier line's content\nis entirely before the edit, so the break INTO it is fixed; re-laying from there catches\na \"backward join\" (a shrunk word rising onto the previous line);\n· reconvergence — once a re-laid line ends at a new-doc char `nsc` past the dirty region\nand some OLD line starts at `nsc − delta`, the token streams from there are identical\n(shifted by delta), so the greedy produces identical lines: reuse the old tail, shifted.\nFirst-line / before-all edits fall back to a full relayout (still trivially I5-correct)."
+            },
+            {
+              "sig": "pub fn render_dump_layout(l: Layout, d: Doc) -> text",
+              "doc": "The BoxSet dump of a Layout (for golden/differential comparison)."
+            },
+            {
+              "sig": "pub fn map_anchor(a: integer, op: Op) -> integer",
+              "doc": "map_anchor(a, op) — where a caret at logical anchor a lands after op. Insert strictly\nbefore a shifts it right (a stays attached to the same following text); insert at/after a\nleaves it (typed text lands after the caret). Delete before a shifts it left; delete after\na leaves it; delete spanning a collapses it to the deletion start. Style ops don't move it."
+            },
+            {
+              "sig": "pub fn map_anchor_txn(a: integer, t: Txn) -> integer",
+              "doc": "map a caret through a whole transaction (op by op, left to right)."
+            },
+            {
+              "sig": "pub struct Page",
+              "doc": "A page: the line range [first_line, last_excl) it holds, plus the char and y at which it\nstarts (its π entry — enough to lay the page out from scratch without the pages before it)."
+            },
+            {
+              "sig": "pub fn paginate(layout: Layout, page_h: float) -> vector<Page>",
+              "doc": "paginate a laid-out column: lines stack onto a page until the next line would exceed\npage_h, then a new page begins. The first line of a page always fits (even if taller than\npage_h). The page list IS the break-point index π (each Page.first_char = π(n))."
+            },
+            {
+              "sig": "pub fn seek_page_char(pages: vector<Page>, n: integer) -> integer",
+              "doc": "seek(N) — the first CHARACTER of page N, read directly from π in O(1) (no laying out of\npages 1..N−1). Pairs with layout_page to render page N from scratch (I6)."
+            },
+            {
+              "sig": "pub fn layout_page(d: Doc, start_char: integer, y0: float, page_h: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> Layout",
+              "doc": "Lay out ONE page directly from a page-start (its first_char + top_y) — the same stop rule\npaginate uses, so it reproduces exactly that page's lines. This is \"seek to page N without\nlaying out 1..N−1\": the work is one page of lines, independent of N (I6)."
+            },
+            {
+              "sig": "pub fn apply_bidi(layout: Layout, resolve: fn(integer) -> Style) -> Layout",
+              "doc": "Apply the UAX-9 L2 reorder (LTR/RTL subset) to a laid-out column: within each visual line,\neach maximal run of RTL boxes (resolved dir == 1) has its VISUAL order reversed — the boxes\nkeep their logical κ, only their x changes. So x follows ψ while κ follows logical, and any\nκ-based operation (Sel, hit-test) is unaffected. Base direction is LTR (the flow surface)."
+            },
+            {
+              "sig": "pub fn justify(layout: Layout, d: Doc, w_col: float, justify_last: boolean = false) -> Layout",
+              "doc": "Justify each visual line by distributing its leftover space equally across its glue boxes\n(widen each, shift the rest right). The target right edge is the line's OWN available right\n(`LaidLine.right`) — the column edge, or an image's edge for a line beside one — so it works\nper column AND beside images (falls back to line_left + w_col for a hand-built layout). A\nparagraph's LAST line stays ragged UNLESS `justify_last` (the old-school \"fill every line\"\nlook). Overfull or glue-less lines are left as-is. (Per-glue stretch/shrink BOUNDS are a\nrefinement; this distributes equally.)"
+            },
+            {
+              "sig": "pub fn materialise_viewport(d: Doc, pages: vector<Page>, page_h: float, y_top: float, y_bottom: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> Layout",
+              "doc": "Materialise only the pages overlapping the vertical window [y_top, y_bottom) — the boxes a\nviewport (plus its page margin) actually shows. Each page is re-laid from its π entry, so\nthe materialised box count tracks the VIEWPORT, not the document (I7): a 10× larger doc\nwith the same viewport materialises the same boxes."
+            },
+            {
+              "sig": "pub fn piece_count(d: Doc) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn compact_step(d: Doc, budget: integer) -> Doc",
+              "doc": "Coalesce up to `budget` adjacent piece pairs that reference a CONTIGUOUS buffer span with\nthe SAME style (edits fragment the piece vector; those fragments often become mergeable\nagain). Bounded per call (≤ budget merges) so it is interruptible — run it repeatedly in\nidle time. ⌊D⌋ is unchanged (a pure storage-layer coalesce), which is probe P3."
+            },
+            {
+              "sig": "pub struct PageGeom",
+              "doc": "Page geometry: the physical page, its margins, and its column grid. Column width is\nderived so `columns` equal columns plus `gutter` gaps exactly fill the content box."
+            },
+            {
+              "sig": "pub fn column_width(g: PageGeom) -> float",
+              "doc": "the width of one column: (content width − the inter-column gutters) / columns."
+            },
+            {
+              "sig": "pub fn column_height(g: PageGeom) -> float",
+              "doc": "the usable height of a column (page height minus top/bottom margins)."
+            },
+            {
+              "sig": "pub fn layout_columns(d: Doc, g: PageGeom, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> Layout",
+              "doc": "Lay text out over a multi-column page grid in ABSOLUTE canvas coordinates (pages stacked\ndownward, columns side by side within a page). Lines are broken at the column width and\nstacked down a column; when a line would overflow the column, flow moves to the next\ncolumn, then to column 0 of the next page. Reuses next_line + place_line, so styles,\nper-run boxes, and discretionary hyphenation all carry over unchanged; the produced boxes\nfeed Sel / hit-test / render directly. (Incremental multi-column reflow is a follow-on;\nan edit currently re-runs this full flow, which is fine at document scale.)"
+            },
+            {
+              "sig": "pub struct FlowImage",
+              "doc": "An in-text (flow) image anchored at content char `at`, with a placement mode and size.\nmode: IMG_LEFT → float left, text wraps right; IMG_FULL → full-width block, text below;\nIMG_RIGHT → float right, text wraps left. Placed at the flow position when reached."
+            },
+            {
+              "sig": "pub fn free_span(left: float, right: float, y: float, h: float, imgs: vector<PlacedImage>) -> (float, float, boolean)",
+              "doc": "free_span(left, right, y, h, imgs) → (flo, fhi, blocked): the WIDEST free horizontal interval\nin [left,right] over the vertical band [y, y+h), after removing every image rectangle that\nintersects that band. `blocked` is true when no free width remains (a full-width obstruction\n— the flow must drop below it). This is the one primitive both image kinds route through.\n\nThe seam for NON-RECTANGULAR page images (arbitrary shapes — deferred until the page-layout\ndesigner makes them usable): this function turns exclusions into a per-band covered interval\n[clo,chi]. A shape only has to report ITS covered interval at (y,h) instead of a rectangle's;\nthe flow above never changes. So \"shapes not just rects\" is a change to the coverage query,\nnot to the layout."
+            },
+            {
+              "sig": "pub fn band_bottom(imgs: vector<PlacedImage>, y: float, h: float, left: float, right: float) -> float",
+              "doc": "the y to drop to when a band is fully blocked: the nearest bottom edge of an obstruction\nintersecting [y, y+h) (so at least one rectangle ends there, opening space). Always > y."
+            },
+            {
+              "sig": "pub fn layout_flow_images(d: Doc, left: float, right: float, y0: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, para_gap: float, line_h: float, page_imgs: vector<PlacedImage>, flow_imgs: vector<FlowImage>) -> Layout",
+              "doc": "Lay text into a single flow region [left,right] starting at top y0, steering around images.\n`page_imgs` are FIXED exclusion rectangles (page-layout images). `flow_imgs` are IN-TEXT\nimages anchored at a content char, placed when the flow reaches them: IMG_FULL blocks the\nwidth (text resumes below), IMG_LEFT/IMG_RIGHT float to a side (text wraps in the free gap).\nEach line's width comes from free_span at its band, so text never overlaps an image; a\nfully-blocked band drops below the obstruction. `line_h` is the nominal line height used for\nthe band test (exact for a uniform surface). Returns the text boxes + the placed images."
+            },
+            {
+              "sig": "pub fn layout_page_columns(d: Doc, g: PageGeom, page_imgs: vector<PlacedImage>, flow_imgs: vector<FlowImage>, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> Layout",
+              "doc": "The full page: multi-column flow (paragraphs + hyphenation) that steers around BOTH image\nkinds. Page images are fixed absolute rectangles (each column avoids the ones over its\nx-range); in-text images are placed in whichever column the flow reaches their anchor in\n(IMG_LEFT/RIGHT float to that column's side, IMG_FULL blocks the column, breaking to the next\ncolumn if it will not fit). The nominal line height is run_height(resolve(0)) — exact for a\nuniform surface. With no images this is identical to layout_columns; that is asserted."
+            }
+          ],
+          "published": "2026-08-18T09:13:07Z"
         }
       }
     },
