@@ -3,7 +3,7 @@
   "updated": "2026-08-18T09:13:07Z",
   "packages": {
     "cbor": {
-      "description": "Canonical CBOR (RFC 8949) in pure loft — deterministic bytes for signable records",
+      "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
       "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/cbor",
       "categories": [
         "encoding"
@@ -5087,7 +5087,7 @@
       }
     },
     "web": {
-      "description": "HTTP client and WebSocket client for loft",
+      "description": "HTTP client + WebSocket client for loft — ureq + tungstenite via cdylib.",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/web",
       "categories": [
         "net"
@@ -6158,7 +6158,7 @@
       }
     },
     "server": {
-      "description": "HTTP and WebSocket server for loft: accept TCP, answer requests, run WebSocket connections",
+      "description": "HTTP + WebSocket server for loft — TCP sockets + tungstenite via cdylib.",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/server",
       "categories": [
         "net"
@@ -9119,7 +9119,7 @@
       }
     },
     "ssh": {
-      "description": "SSH client for loft, for driving an interactive remote shell — password auth, never stored",
+      "description": "SSH client for loft — drive an interactive remote shell (e.g. attach tmux) over password auth, never stored. Native-only.",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/ssh",
       "categories": [
         "net"
