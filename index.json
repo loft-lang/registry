@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-18T05:46:26Z",
+  "updated": "2026-08-18T07:27:11Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949) - pure loft. Encode with canonical map-key ordering + full decode (int/negint/bytes/text/array/map/bool/null); encode->decode->encode byte-identical, native == wasm.",
@@ -7743,6 +7743,83 @@
             "hex_way": ">=0.1"
           },
           "published": "2026-07-24T20:56:38Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_roof-v0.1.1/hex_roof-0.1.1.tar.gz",
+          "sha256": "891c4b3a022c369e805860caf3600a350ef0bc00101a00f419738375cb939852",
+          "size": 8307,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_roof",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn roof_cone(s: HexSet, f: Heights, cx: float, cy: float,",
+              "doc": "z = peak - slope*d about a point.  Clamping d at dmax is not a detail: it is what makes\nan eave LEVEL on a quantised footprint, where the boundary cells sit at a spread of true\nradii (rooftest measures the difference)."
+            },
+            {
+              "sig": "pub fn roof_ridge(s: HexSet, f: Heights, t: Track,",
+              "doc": "The same profile about a ridge.  A full-length ridge gives a gable; shorten it and the\nends hip in, because track_distance clamps to the segment."
+            },
+            {
+              "sig": "pub fn vault_arc(s: HexSet, f: Heights, t: Track, spring: float, radius: float)",
+              "doc": "The SOFFIT of a barrel vault or an arch: spring + sqrt(R^2 - d^2), d measured from the\ncrown line.  Beyond the springing the opening has closed, so the soffit is the springing\nitself.  Pass a radius larger than the half-span for a segmental arch; equal to it for a\nsemicircular one."
+            },
+            {
+              "sig": "pub fn roof_hip(s: HexSet, f: Heights, eave: float, per_ring: float) -> integer",
+              "doc": "THE DISTANCE-TO-BOUNDARY ROOF — the one that actually matters on a quantised footprint.\n\nEvery cell rises at a constant slope from its NEAREST EAVE, which is the definition of a\nhip roof. On a circular footprint that is a cone; on an octagonal one a pyramid; on an\nL-shaped hall a properly mitred hip-and-valley. The FORM is entirely the footprint's\nshape — there is one function here, not a catalogue, and that is the whole reason \"roof\nforms\" stopped being a list.\n\nDriving it from the FOOTPRINT rather than from the ideal circle is also what makes the\neave level. Boundary cells are at ring 0 by definition, whatever their true radius. Drive\na cone from each cell's own radius instead and the eave inherits the footprint's\nroundness deviation, wobbling by slope x that spread — rooftest measures both, because\nthe failure is invisible until you look at the eave rather than the apex.\n\nMulti-source BFS inward from the boundary, on the pre-allocated array + index-write\nidiom (appending while a head pointer walks the same vector is the broken shape)."
+            },
+            {
+              "sig": "pub fn dome(s: HexSet, f: Heights, cx: float, cy: float, base: float, radius: float)",
+              "doc": "A DOME — a point source with a CIRCULAR profile, where a cone is a point source with a\nlinear one.  That single swap is the whole difference, and it is also why a dome is the\nharder object: a cone's slope is constant, a dome's diverges at the springing\n(dz/dr = -r/sqrt(R^2-r^2)).  Past the 45-degree point r = R/sqrt(2) the surface is more\nwall than roof and a per-cell height stops being able to carry it — which is exactly why\nreal domes sit on a vertical DRUM and only the cap is vaulted.  vaulttest measures it."
+            },
+            {
+              "sig": "pub fn vault_groin(s: HexSet, f: Heights, t1: Track, t2: Track,",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn vault_cloister(s: HexSet, f: Heights, t1: Track, t2: Track,",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn clear_height(fl: Heights, so: Heights, q: integer, r: integer) -> float",
+              "doc": "What can pass here: the gap between floor and soffit."
+            },
+            {
+              "sig": "pub fn roof_ponds(s: HexSet, f: Heights) -> integer",
+              "doc": "PONDING — the roof's correctness invariant, and the analogue of a stair's monotonicity.\nAn INTERIOR cell (all six neighbours in the footprint) every one of whose neighbours is\nstrictly higher is a local minimum: water collects and never leaves. A roof that sheds\nhas none. Boundary cells are exempt — they drain off the eave, which is their job."
+            },
+            {
+              "sig": "pub fn eave_spread(s: HexSet, f: Heights) -> float",
+              "doc": "The spread of eave heights around a footprint's boundary — 0 for a level eave."
+            },
+            {
+              "sig": "pub struct RoofFit",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn roof_plane_fit(s: HexSet, f: Heights) -> RoofFit",
+              "doc": "Least squares z = a*x + b*y + c.  Covers flat and every shed/mono-pitch."
+            },
+            {
+              "sig": "pub fn roof_cone_fit(s: HexSet, f: Heights) -> RoofFit",
+              "doc": "A cone: seed the centre at the highest cell, then refine.  The apex cell is only within\none circumradius of the true apex, so the seed alone is not good enough — the refinement\nis what makes the recovery exact rather than approximately right."
+            },
+            {
+              "sig": "pub fn roof_dome_fit(s: HexSet, f: Heights) -> RoofFit",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn roof_match(s: HexSet, f: Heights, tol: float) -> RoofFit",
+              "doc": "Decide what the field IS.  A plane wins ties: it is the simpler statement, and a cone\nfitted to a flat roof would put its apex somewhere arbitrary."
+            },
+            {
+              "sig": "pub fn roof_eval(fit: RoofFit, x: float, y: float) -> float",
+              "doc": "The recovered ANALYTIC surface — what a renderer should draw, at any resolution, instead\nof the cells it came from."
+            }
+          ],
+          "published": "2026-08-18T07:27:11Z"
         }
       }
     },
