@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-18T09:13:07Z",
+  "updated": "2026-08-20T05:47:47Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -9516,6 +9516,20 @@
             "hex_edge": ">=0.1"
           },
           "published": "2026-07-24T20:56:38Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_way-v0.1.1/hex_way-0.1.1.tar.gz",
+          "sha256": "4d0fbcaaa712bc99110610855375ddd4aa696e7c7b0cc16f1ab1451777650461",
+          "size": 16751,
+          "loft": ">=0.8",
+          "subpath": "hex_way",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_edge": ">=0.1"
+          },
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "published": "2026-08-20T05:47:47Z"
         }
       }
     },
