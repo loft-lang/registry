@@ -12657,6 +12657,25 @@
           "published": "2026-08-21T10:48:20Z"
         }
       }
+    },
+    "lavition_ui": {
+      "description": "Panel layout, hit-testing and text metrics for an in-engine editor UI: rectangles and hits, with no world, no lattice, no window and no GL.",
+      "homepage": "https://github.com/jjstwerff/moros/tree/main/lib/lavition_ui",
+      "categories": [
+        "graphics"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/jjstwerff/moros/releases/download/lavition_ui-v0.1.0/lavition_ui-0.1.0.tar.gz",
+          "sha256": "ea646e67be4fd75b1f6e4064d2ce1d7630a2d7fa9e0c49a92ae2db9908b431ea",
+          "size": 38236,
+          "loft": ">=0.8",
+          "subpath": "lib/lavition_ui",
+          "deps": {},
+          "published": "2026-08-21T11:18:22Z"
+        }
+      }
     }
   }
 }
