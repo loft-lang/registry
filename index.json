@@ -10038,7 +10038,9 @@
     "zttext": {
       "description": "A text engine for loft: piece-table content core, transactional undo, and portable layout with measurement injected",
       "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/zttext",
-      "categories": [],
+      "categories": [
+        "text"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
@@ -10744,7 +10746,10 @@
     "fixstep": {
       "description": "A fixed simulation step in exact integer time — clock, bank, one-shot timer",
       "homepage": "https://github.com/loft-lang/loft-libs-game/tree/main/fixstep",
-      "categories": [],
+      "categories": [
+        "game",
+        "time"
+      ],
       "yanked": [],
       "versions": {
         "0.1.0": {
