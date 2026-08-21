@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-20T05:47:47Z",
+  "updated": "2026-08-21T10:48:20Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -4916,6 +4916,550 @@
             }
           ],
           "published": "2026-08-18T08:49:07Z"
+        },
+        "0.5.6": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.6/graphics-0.5.6.tar.gz",
+          "sha256": "4dfa32b7d613e0266281b696b2b279cce2decc10d5cf5e96cd0d35f2309589db",
+          "size": 160731,
+          "loft": ">=2026.7.2",
+          "api_compatible_with": "0.4.2",
+          "data_compatible_with": "0.4.2",
+          "subpath": "graphics",
+          "deps": {
+            "mesh3d": ">=0.1.1",
+            "glb": ">=0.1.1"
+          },
+          "api": [
+            {
+              "sig": "pub fn rgba(cr: integer, cg: integer, cb: integer, ca: integer) -> integer",
+              "doc": "Pack RGBA channels into a single integer using bitwise ops.\nLayout: bits 24..31 = alpha, 16..23 = red, 8..15 = green, 0..7 = blue.\nLoft integers are 64-bit signed post-2c, so the packed value fits\ndirectly — no widening cast needed.  Each channel is MASKED to 8 bits, so an\nout-of-range argument wraps rather than saturating or being refused.\nExample: @GFX-001 — the alpha byte is the one a hand-written hex literal\nleaves at zero, and a zero alpha is fully transparent."
+            },
+            {
+              "sig": "pub fn rgb(cr: integer, cg: integer, cb: integer) -> integer",
+              "doc": "Opaque colour: the same pack with alpha 255.  `rgb(255, 0, 0)` is 0xFFFF0000 —\nNOT the 0xFF0000 a reader reaches for, which has alpha 0.\nExample: @GFX-001 — why the literal and this call are different colours, and\nwhat each compositing path does with the difference."
+            },
+            {
+              "sig": "pub fn color_r(color: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn color_g(color: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn color_b(color: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn color_a(color: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Canvas",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn canvas(cw: integer, ch: integer, fill_color: integer) -> Canvas",
+              "doc": "Create a canvas filled with a solid color."
+            },
+            {
+              "sig": "pub fn get_pixel(self: const Canvas, gx: integer, gy: integer) -> integer",
+              "doc": "Get pixel color at (x, y). Returns 0 if out of bounds — and 0 is a COLOUR the\ncanvas can hold (`rgba(0, 0, 0, 0)`), so the answer cannot serve as a bounds\ntest.  Bound with `width`/`height`.\nExample: @GFX-003 — a neighbourhood scan that tests the returned colour\nmiscounts its own transparent pixels as off-canvas."
+            },
+            {
+              "sig": "pub fn set_pixel(self: Canvas, sx: integer, sy: integer, color: integer)",
+              "doc": "Set pixel color at (x, y). No-op if out of bounds.  STORES the colour byte for\nbyte, alpha included — it does not composite; `blend_pixel` does.\nExample: @GFX-002 — storing a half-transparent colour replaces what was under\nit, rather than showing through it.\nExample: @GFX-003 — an out-of-range coordinate is declined in silence, so a\nwrong index is a missing part of the drawing, never a message."
+            },
+            {
+              "sig": "pub fn clear(self: Canvas, color: integer)",
+              "doc": "Fill the entire canvas with a solid color."
+            },
+            {
+              "sig": "pub fn blend(dst: integer, src: integer) -> integer",
+              "doc": "Alpha-blend src over dst. Both are 0xAARRGGBB packed integers.\nUses standard \"src over\" compositing: out = src * alpha + dst * (1 - alpha)."
+            },
+            {
+              "sig": "pub fn blend_pixel(self: Canvas, bx: integer, by: integer, color: integer)",
+              "doc": "Draw a pixel with alpha blending at (x, y) — the compositing counterpart to\n`set_pixel`, and the one a caller reaching for alpha usually meant.\nExample: @GFX-002 — store versus composite, side by side."
+            },
+            {
+              "sig": "pub fn fill_rect(self: Canvas, rx: integer, ry: integer, rw: integer, rh: integer, color: integer)",
+              "doc": "Fill a rectangle with a solid color. Clipped to canvas bounds.  Like every\nsolid primitive here it STORES the colour (see `set_pixel`); a rectangle drawn\nin a half-transparent colour is not a translucent overlay.\nExample: @GFX-002 — what the buffer holds afterwards."
+            },
+            {
+              "sig": "pub fn hline(self: Canvas, hx0: integer, hx1: integer, hy: integer, color: integer)",
+              "doc": "Draw a horizontal line from (x0, y) to (x1, y). Clipped.  The end is\nEXCLUSIVE — `[x0, x1)` — and a reversed span draws nothing rather than being\nnormalised.\nExample: @GFX-004 — where a span starts and stops, and what silence looks like."
+            },
+            {
+              "sig": "pub fn vline(self: Canvas, vx: integer, vy0: integer, vy1: integer, color: integer)",
+              "doc": "Draw a vertical line from (x, y0) to (x, y1). Clipped.  Exclusive end and\nno normalisation, exactly like `hline`.\nExample: @GFX-004 — the half-open span rule on both axes."
+            },
+            {
+              "sig": "pub fn draw_rect(self: Canvas, drx: integer, dry: integer, drw: integer, drh: integer, color: integer)",
+              "doc": "Draw a rectangle outline (1px border). Clipped.  Built from four half-open\nspans, so (x, y, w, h) covers x .. x + w - 1 by y .. y + h - 1.\nExample: @GFX-004 — the exact pixels, and the hollow interior."
+            },
+            {
+              "sig": "pub fn draw_line(self: Canvas, lx0: integer, ly0: integer, lx1: integer, ly1: integer, color: integer)",
+              "doc": "Draw a line from (x0, y0) to (x1, y1) using Bresenham's algorithm.\nHandles all octants. Each pixel is set (no blending)."
+            },
+            {
+              "sig": "pub fn draw_circle(self: Canvas, ccx: integer, ccy: integer, radius: integer, color: integer)",
+              "doc": "Draw a circle outline using the midpoint algorithm.\nCenter at (cx, cy) with the given radius. Clipped via set_pixel."
+            },
+            {
+              "sig": "pub fn fill_circle(self: Canvas, fcx: integer, fcy: integer, radius: integer, color: integer)",
+              "doc": "Fill a circle (solid disk). Center at (cx, cy), given radius."
+            },
+            {
+              "sig": "pub fn fill_ellipse(self: Canvas, fex: integer, fey: integer, ferx: integer, fery: integer, color: integer)",
+              "doc": "Fill an axis-aligned ellipse (solid). Center (cx, cy), radii (rx, ry)."
+            },
+            {
+              "sig": "pub fn draw_ellipse(self: Canvas, ecx: integer, ecy: integer, erx: integer, ery: integer, color: integer)",
+              "doc": "Draw an axis-aligned ellipse outline. Center (cx, cy), radii (rx, ry)."
+            },
+            {
+              "sig": "pub fn draw_bezier(self: Canvas, bx0: integer, by0: integer, bx1: integer, by1: integer, bx2: integer, by2: integer, bx3: integer, by3: integer, color: integer)",
+              "doc": "Draw a cubic Bezier curve from (bx0,by0) to (bx3,by3) with control points\n(bx1,by1) and (bx2,by2). Uses adaptive subdivision — splits until segments\nare flat enough, then draws with Bresenham lines.\nFlatness threshold: max deviation of control points from the chord."
+            },
+            {
+              "sig": "pub fn draw_aa_line(self: Canvas, ax0: integer, ay0: integer, ax1: integer, ay1: integer, color: integer)",
+              "doc": "Draw an anti-aliased line using Xiaolin Wu's algorithm.\nUses blend_pixel for sub-pixel coverage."
+            },
+            {
+              "sig": "pub fn fill_triangle(self: Canvas, tx0: integer, ty0: integer, tx1: integer, ty1: integer, tx2: integer, ty2: integer, color: integer)",
+              "doc": "Fill a triangle with vertices (tx0,ty0), (tx1,ty1), (tx2,ty2).\nUses flat-top/flat-bottom decomposition with scanline fill."
+            },
+            {
+              "sig": "pub fn save_png(self: const Canvas, path: text) -> boolean",
+              "doc": "Save canvas as a PNG file. Automatically uses RGBA if any pixel has alpha < 255,\notherwise uses RGB. Returns true on success.\nExample: @GFX-005 — the choice is read off the pixels, so ONE alpha-0 pixel\n(a hand-written hex literal — @GFX-001) makes the whole file RGBA and that\npixel a transparent hole."
+            },
+            {
+              "sig": "pub fn gl_screenshot(width: integer, height: integer, path: text) -> boolean",
+              "doc": "Capture the current GL back-buffer to an RGB PNG.  Call after a frame's\ndraw calls and BEFORE gl_swap_buffers (reads GL_BACK).  Works on a\nheadless / Wayland desktop where the window itself can't be grabbed."
+            },
+            {
+              "sig": "pub fn gl_create_window(width: integer, height: integer, title: text) -> boolean",
+              "doc": "Create a window with an OpenGL 3.3 context. Returns true on success."
+            },
+            {
+              "sig": "pub fn gl_create_fullscreen_window(title: text) -> boolean",
+              "doc": "Open a borderless fullscreen window at the primary monitor's native\nresolution. Returns true on success. Read the actual viewport size\nafterwards with `gl_window_width` / `gl_window_height` if you need\nto set up an aspect-aware camera."
+            },
+            {
+              "sig": "pub fn gl_set_fullscreen(on: boolean)",
+              "doc": "Toggle fullscreen on the existing window (runtime flip, cheaper\nthan recreating the GL context — textures / VAOs / shaders\nsurvive).  Pass `true` for borderless fullscreen, `false` for\nwindowed.  Browsers (WASM) require a user gesture to enter\nfullscreen; calling outside one is non-fatal."
+            },
+            {
+              "sig": "pub fn gl_window_width() -> integer",
+              "doc": "Current window inner size in physical pixels.  Query after creating a\n(especially fullscreen) window so projection / 2D ortho / overlays use\nthe real resolution rather than a windowed hint."
+            },
+            {
+              "sig": "pub fn gl_window_height() -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn gl_poll_events() -> boolean",
+              "doc": "Poll window events. Returns false when the window should close."
+            },
+            {
+              "sig": "pub fn gl_swap_buffers()",
+              "doc": "Swap buffers (present the frame)."
+            },
+            {
+              "sig": "pub fn gl_clear(color: integer)",
+              "doc": "Clear the screen with an RGBA color (packed as 0xRRGGBBAA)."
+            },
+            {
+              "sig": "pub fn gl_destroy_window()",
+              "doc": "Destroy the window and OpenGL context."
+            },
+            {
+              "sig": "pub fn gl_create_shader(vertex_source: text, fragment_source: text) -> integer",
+              "doc": "Compile and link a shader program. Returns the program ID (0 on failure)."
+            },
+            {
+              "sig": "pub fn gl_use_shader(program: integer)",
+              "doc": "Use a shader program for subsequent draw calls."
+            },
+            {
+              "sig": "pub fn gl_draw(vao: integer, vertex_count: integer)",
+              "doc": "Draw a VAO with vertex_count vertices as triangles."
+            },
+            {
+              "sig": "pub fn gl_upload_vertices(data: vector<single>, stride: integer) -> integer",
+              "doc": "Upload a vector<single> as a vertex buffer. Returns VAO handle.\nstride = floats per vertex (3=pos, 6=pos+normal, 10=pos+normal+color).\nNative codegen: loft_gl_upload_vertices(data_ptr: *const f32, count: u32, stride: i32) -> i32"
+            },
+            {
+              "sig": "pub fn gl_upload_instance_buffer(data: vector<single>) -> integer",
+              "doc": "Upload per-instance data to a DYNAMIC_DRAW buffer. Returns the VBO handle\n(pass it to gl_instance_attrib). DYNAMIC because instances change per frame."
+            },
+            {
+              "sig": "pub fn gl_instance_attrib(vao: integer, ivbo: integer, location: integer, components: integer, stride_floats: integer, offset_floats: integer)",
+              "doc": "Bind instance VBO `ivbo`'s field to attribute `location` on `vao`, advancing\nonce per INSTANCE (VertexAttribDivisor=1). components = floats in the field\n(2=vec2, 4=vec4); stride_floats = floats per instance record; offset_floats =\nthis field's start within the record. Use locations >=5 to clear the vertex attrs."
+            },
+            {
+              "sig": "pub fn gl_draw_instanced(vao: integer, vertex_count: integer, instance_count: integer)",
+              "doc": "Draw vertex_count vertices of `vao` as triangles, instance_count times."
+            },
+            {
+              "sig": "pub fn gl_update_buffer(vbo: integer, data: vector<single>)",
+              "doc": "Orphan + re-upload an existing VBO (returned by gl_upload_vertices /\ngl_upload_instance_buffer) with new data, DYNAMIC_DRAW — per-frame updates\nwithout recreating the buffer."
+            },
+            {
+              "sig": "pub fn gl_upload_indices(vao: integer, data: vector<integer>) -> integer",
+              "doc": "Upload triangle indices as an element (index) buffer bound to `vao`, so\ngl_draw_elements(vao, index_count, mode) draws indexed. Returns the EBO handle."
+            },
+            {
+              "sig": "pub struct GroupVboSet",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn group_vbos_new(stride: integer, draw_mode: integer) -> GroupVboSet",
+              "doc": "Create an empty set for a fixed vertex stride + draw mode."
+            },
+            {
+              "sig": "pub fn group_vbos_upsert(set: GroupVboSet, gk: integer, verts: vector<single>,",
+              "doc": "Upload (or RE-upload) one group's baked vertices: delete the group's old VAO\nif present, upload the new data, and record the handle + vertex count + world\nbounds.  Call this only for the DIRTY groups each edit; untouched groups keep\ntheir cached VBOs."
+            },
+            {
+              "sig": "pub fn group_vbos_draw_all(set: GroupVboSet)",
+              "doc": "Draw every group's cached VBO with the set's draw mode.  (Per-group frustum\nculling — skip groups whose world bounds fall outside the view — is a future\naddition; the bounds are already stored.)"
+            },
+            {
+              "sig": "pub fn group_vbos_destroy(set: GroupVboSet)",
+              "doc": "Free every group's VAO and clear the set (call on teardown / world reset)."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_mat4(program: integer, name: text, mat: vector<float>)",
+              "doc": "Set a mat4 uniform on a shader program. mat is a Mat4.m vector (16 floats).\nNative codegen: loft_gl_set_mat4(program: i32, name_ptr, name_len, mat_ptr: *const f64, count: u32)"
+            },
+            {
+              "sig": "pub fn gl_set_uniform_float(program: integer, name: text, val: float)",
+              "doc": "Set a float uniform."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_int(program: integer, name: text, val: integer)",
+              "doc": "Set an integer uniform (also used for sampler2D texture unit bindings)."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_vec2(program: integer, name: text, x: float, y: float)",
+              "doc": "Set a vec2 uniform (e.g. screen size, texel size, a 2D offset)."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_vec3(program: integer, name: text, x: float, y: float, z: float)",
+              "doc": "Set a vec3 uniform (e.g. light position, color)."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_vec4(program: integer, name: text, x: float, y: float, z: float, w: float)",
+              "doc": "Set a vec4 uniform (e.g. an RGBA color, a rect x/y/w/h)."
+            },
+            {
+              "sig": "pub fn gl_enable(cap: integer)",
+              "doc": "Enable a GL capability (GL_DEPTH_TEST, GL_BLEND, GL_CULL_FACE, GL_SCISSOR_TEST)."
+            },
+            {
+              "sig": "pub fn gl_disable(cap: integer)",
+              "doc": "Disable a GL capability."
+            },
+            {
+              "sig": "pub fn gl_blend_func(src: integer, dst: integer)",
+              "doc": "Set blend function (e.g. gl_blend_func(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA))."
+            },
+            {
+              "sig": "pub fn gl_cull_face(face: integer)",
+              "doc": "Set which face to cull (0=back, 1=front)."
+            },
+            {
+              "sig": "pub fn gl_depth_mask(write: boolean)",
+              "doc": "Enable/disable depth buffer writing."
+            },
+            {
+              "sig": "pub fn gl_finish()",
+              "doc": "Block until every GL command issued so far has completed.\n\nThe call that makes a read-back trustworthy: `gl_screenshot` and any other\nframebuffer read otherwise race the driver, so the same program can produce a\ncomplete frame or an empty one from run to run.  Costs a stall by definition —\nuse it in a test or a screenshot path, never in a frame loop."
+            },
+            {
+              "sig": "pub fn gl_viewport(x: integer, y: integer, w: integer, h: integer)",
+              "doc": "Set the viewport rectangle (used for FBO render passes)."
+            },
+            {
+              "sig": "pub fn gl_scissor(x: integer, y: integer, w: integer, h: integer)",
+              "doc": "Set the scissor box — clips rendering to this rect (origin bottom-left, like\nthe viewport). Takes effect only while gl_enable(GL_SCISSOR_TEST) is set; use\nit for partial-damage redraw (re-render just a changed region)."
+            },
+            {
+              "sig": "pub fn gl_create_framebuffer() -> integer",
+              "doc": "Create a framebuffer object. Returns FBO handle."
+            },
+            {
+              "sig": "pub fn gl_bind_framebuffer(fbo: integer)",
+              "doc": "Bind a framebuffer (0 = default screen framebuffer)."
+            },
+            {
+              "sig": "pub fn gl_framebuffer_texture(fbo: integer, attachment: integer, tex: integer)",
+              "doc": "Attach a texture to an FBO (attachment: 0=color, 1=depth)."
+            },
+            {
+              "sig": "pub fn gl_create_depth_texture(width: integer, height: integer) -> integer",
+              "doc": "Create a depth-only texture for shadow mapping."
+            },
+            {
+              "sig": "pub fn gl_create_color_texture(width: integer, height: integer) -> integer",
+              "doc": "Create an empty RGBA texture for render-to-texture."
+            },
+            {
+              "sig": "pub fn gl_texture_filter(tex: integer, nearest: boolean)",
+              "doc": "Set a texture's filtering: nearest = crisp pixel-art, else linear/smooth."
+            },
+            {
+              "sig": "pub fn gl_generate_mipmap(tex: integer)",
+              "doc": "Generate mipmaps + trilinear minification for `tex` (after its pixels are\nuploaded) — keeps minified sprites / atlas pages clean."
+            },
+            {
+              "sig": "pub fn gl_texture_subimage(tex: integer, x: integer, y: integer, w: integer, h: integer, data: vector<integer>)",
+              "doc": "Upload a sub-region of RGBA pixels (Canvas data, 0xAARRGGBB) into an existing\ntexture at (x,y) sized w*h — incremental atlas packing without re-uploading."
+            },
+            {
+              "sig": "pub fn gl_draw_fullscreen_quad()",
+              "doc": "Draw a fullscreen quad (for post-processing). Uses built-in VAO with UV coords.\nVertex shader receives: layout(location=0) vec2 aPos, layout(location=1) vec2 aUV."
+            },
+            {
+              "sig": "pub fn gl_draw_mode(vao: integer, vertex_count: integer, mode: integer)",
+              "doc": "Draw a VAO with explicit mode (DRAW_TRIANGLES, DRAW_LINES, DRAW_POINTS)."
+            },
+            {
+              "sig": "pub fn gl_draw_elements(vao: integer, index_count: integer, mode: integer)",
+              "doc": "Draw using an index buffer (EBO). mode: DRAW_TRIANGLES, DRAW_LINES, DRAW_POINTS."
+            },
+            {
+              "sig": "pub fn gl_line_width(width: float)",
+              "doc": "Set line width for DRAW_LINES rendering."
+            },
+            {
+              "sig": "pub fn gl_point_size(size: float)",
+              "doc": "Set point size for DRAW_POINTS rendering."
+            },
+            {
+              "sig": "pub fn gl_key_pressed(key_code: integer) -> boolean",
+              "doc": "Returns true if the key is currently pressed (use KEY_* constants)."
+            },
+            {
+              "sig": "pub fn gl_mouse_x() -> float",
+              "doc": "Mouse position X (pixels from left edge of window)."
+            },
+            {
+              "sig": "pub fn gl_mouse_y() -> float",
+              "doc": "Mouse position Y (pixels from top edge of window)."
+            },
+            {
+              "sig": "pub fn gl_mouse_button() -> integer",
+              "doc": "Mouse button bitmask: 1=left, 2=right, 4=middle."
+            },
+            {
+              "sig": "pub fn gl_mouse_wheel() -> integer",
+              "doc": "Scroll-wheel delta accumulated since the last call (positive = up).\nReset on read.  Use per-frame to drive the editor's `InputState.in_wheel`\nor any other scroll-driven UI.  Pixel-delta trackpad scrolling is\nquantised at 20 px/line."
+            },
+            {
+              "sig": "pub fn gl_next_event() -> integer",
+              "doc": "Pop the next queued input event and latch it; returns its EV_* tag, or\nEV_NONE when the queue is drained.  Call after gl_poll_events()."
+            },
+            {
+              "sig": "pub fn gl_event_key() -> integer",
+              "doc": "Named/keycode of the latched key event (the KEY_* constants)."
+            },
+            {
+              "sig": "pub fn gl_event_mods() -> integer",
+              "doc": "Modifier bitmask of the latched event (MOD_SHIFT | MOD_CTRL | MOD_ALT | MOD_SUPER)."
+            },
+            {
+              "sig": "pub fn gl_event_repeat() -> boolean",
+              "doc": "True if the latched key-down is an auto-repeat."
+            },
+            {
+              "sig": "pub fn gl_event_text() -> text",
+              "doc": "UTF-8 text of the latched EV_TEXT event (\"\" otherwise)."
+            },
+            {
+              "sig": "pub fn gl_event_x() -> float",
+              "doc": "X position (pixels) of the latched mouse/touch event; width for EV_RESIZE."
+            },
+            {
+              "sig": "pub fn gl_event_y() -> float",
+              "doc": "Y position (pixels) of the latched mouse/touch event; height for EV_RESIZE."
+            },
+            {
+              "sig": "pub fn gl_event_button() -> integer",
+              "doc": "Button of the latched mouse event (1=left, 2=right, 4=middle)."
+            },
+            {
+              "sig": "pub fn gl_event_wheel() -> integer",
+              "doc": "Wheel delta of the latched EV_WHEEL event (positive = up)."
+            },
+            {
+              "sig": "pub fn gl_event_touch_id() -> integer",
+              "doc": "Stable finger id of the latched EV_TOUCH_* event."
+            },
+            {
+              "sig": "pub fn gl_load_font(path: text) -> integer",
+              "doc": "Load a font from a file path. Returns a font handle (>= 0) or null on error.\n\n#255: a RELATIVE path resolves against the program's OWN directory\n(`source_dir()` — the source dir under `--interpret`, the executable's dir\nunder `--native`), so a bundled font travels with the program and loads\nregardless of the launch directory (the symptom #255 hit: a font addressed\nrelative to the source missed under `--native`, which runs from a temp dir,\nand text rendered invisible).  An ABSOLUTE path is used verbatim.  This\nmatches loft's program-relative file-I/O default (`file()` / `read_file`)."
+            },
+            {
+              "sig": "pub fn gl_measure_text(font: integer, content: text, size: float) -> float",
+              "doc": "Measure text width in pixels at the given font size."
+            },
+            {
+              "sig": "pub fn gl_text_height(font: integer, size: float) -> integer",
+              "doc": "Return the line height in pixels for a font at the given size."
+            },
+            {
+              "sig": "pub fn gl_font_ascent(font: integer, size: float) -> float",
+              "doc": "@P340: return the font ASCENT in pixels (baseline -> top of glyphs) from the\nfont's real metrics.  gl_draw_text(x, y) anchors by the TOP, placing the\nbaseline at y + gl_font_ascent(font, size); to baseline-align mixed sizes,\ndraw each at y = baseline - gl_font_ascent(font, size_i)."
+            },
+            {
+              "sig": "pub fn draw_text(self: Canvas, font: integer, content: text, size: float,",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn gl_load_texture(path: text) -> integer",
+              "doc": "Load an image file (PNG, JPG) and upload it as a GL texture.\nReturns the texture ID (0 on failure)."
+            },
+            {
+              "sig": "pub fn gl_upload_canvas(data: vector<integer>, width: integer, height: integer) -> integer",
+              "doc": "Upload Canvas pixel data as a GL texture. Returns the texture ID.\nConverts 0xAARRGGBB packed integers to RGBA bytes for OpenGL."
+            },
+            {
+              "sig": "pub fn gl_bind_texture(texture_id: integer, unit: integer)",
+              "doc": "Bind a texture to a texture unit (0-based) for rendering."
+            },
+            {
+              "sig": "pub fn gl_delete_texture(texture_id: integer)",
+              "doc": "Delete a texture."
+            },
+            {
+              "sig": "pub fn gl_delete_shader(program: integer)",
+              "doc": "Delete a shader program."
+            },
+            {
+              "sig": "pub fn gl_delete_vao(vao: integer)",
+              "doc": "Delete a vertex array object."
+            },
+            {
+              "sig": "pub fn gl_delete_framebuffer(fbo: integer)",
+              "doc": "Delete a framebuffer object."
+            },
+            {
+              "sig": "pub struct SpriteSheet",
+              "doc": "A sprite sheet backed by a Canvas atlas uploaded as a GL texture.\nSprites are arranged in a grid of `ss_cols` x `ss_rows` cells."
+            },
+            {
+              "sig": "pub fn create_sprite_sheet(atlas: const Canvas, cols: integer, rows: integer, vao: integer) -> SpriteSheet",
+              "doc": "Create a sprite sheet from a Canvas atlas.\nThe canvas is divided into a grid of `cols` x `rows` cells.\nSprite index 0 is top-left, incrementing left-to-right then top-to-bottom."
+            },
+            {
+              "sig": "pub fn draw_sprite(sheet: const SpriteSheet, mvp: const vector<float>, sp_idx: integer)",
+              "doc": "Draw sprite at `index` (0-based, row-major).\n`mvp` is the pre-multiplied projection * model matrix (16 singles).\nThe caller builds the MVP for the desired screen position and size."
+            },
+            {
+              "sig": "pub struct Painter2D",
+              "doc": "A 2D painter bundling shaders, a unit-quad VAO, and an orthographic\nprojection. Create once per window with `create_painter_2d`, then use\n`draw_rect_at`, `draw_sprite_at`, and `draw_texture_at` to render."
+            },
+            {
+              "sig": "pub fn create_painter_2d(screen_w: float, screen_h: float) -> Painter2D",
+              "doc": "Create a Painter2D for a window of size `screen_w` x `screen_h`.\nCompiles the flat and textured shaders, uploads the unit-quad VAO, and\nbuilds an orthographic projection with the origin at the top-left.\nCall once after `gl_create_window`."
+            },
+            {
+              "sig": "pub fn painter_vao(self: const Painter2D) -> integer",
+              "doc": "Return the unit-quad VAO owned by the painter, so it can be shared with\n`create_sprite_sheet` instead of uploading a second copy."
+            },
+            {
+              "sig": "pub fn draw_rect_at(painter: const Painter2D, x: float, y: float, w: float, h: float,",
+              "doc": "Draw a filled rectangle at screen position (x, y) with size (w, h).\nColour channels are in 0.0..1.0. Uses the painter's flat-color shader."
+            },
+            {
+              "sig": "pub fn draw_sprite_at(sheet: const SpriteSheet, painter: const Painter2D,",
+              "doc": "Draw a sprite from `sheet` at screen position (x, y) with size (w, h).\n`sp_idx` is the 0-based sprite index (row-major) in the sheet.\nThis is a one-liner replacement for `make_mvp` + `draw_sprite`."
+            },
+            {
+              "sig": "pub fn draw_texture_at(painter: const Painter2D, tex: integer,",
+              "doc": "Draw an arbitrary GL texture as a screen-space quad at (x, y, w, h).\nUses the painter's textured shader, which flips V to match canvas origin.\nSuitable for textures created with `create_text_texture` or `gl_upload_canvas`."
+            },
+            {
+              "sig": "pub fn create_text_texture(font: integer, content: text, size: float, color: integer) -> integer",
+              "doc": "Rasterize `content` with `font` at `size` pixels, upload the glyph bitmap\nas a GL texture, and return the texture ID. The texture is sized to fit\nthe measured text plus a small padding; pair with `draw_texture_at` to\nrender. Caller owns the texture — call `gl_delete_texture` when done.\nReturns 0 if the text cannot be measured."
+            },
+            {
+              "sig": "pub fn audio_load(path: text) -> integer",
+              "doc": "Load an audio clip (WAV or OGG). Returns handle (>= 0) or null on failure."
+            },
+            {
+              "sig": "pub fn audio_play(clip: integer, volume: float) -> integer",
+              "doc": "Play a loaded clip at the given volume (0.0-1.0). Returns playback handle."
+            },
+            {
+              "sig": "pub fn audio_stop(sink: integer)",
+              "doc": "Stop a playing clip by its playback handle."
+            },
+            {
+              "sig": "pub fn audio_set_volume(sink: integer, volume: float)",
+              "doc": "Set volume of a playing clip (0.0-1.0)."
+            },
+            {
+              "sig": "pub fn audio_play_raw(samples: vector<single>, sample_rate: integer, volume: float) -> integer",
+              "doc": "Play raw PCM samples (mono, values -1.0 to 1.0) at the given sample rate.\nReturns playback handle, or null on failure."
+            },
+            {
+              "sig": "pub fn sfx_beep(sb_freq: single, sb_dur: single, sb_vol: single) -> integer",
+              "doc": "Short percussive beep — brick hit, UI click."
+            },
+            {
+              "sig": "pub fn sfx_descend(sd_f0: single, sd_f1: single, sd_dur: single, sd_vol: single) -> integer",
+              "doc": "Descending tone — life lost, negative event."
+            },
+            {
+              "sig": "pub fn sfx_chirp(sc_f0: single, sc_f1: single, sc_dur: single, sc_vol: single) -> integer",
+              "doc": "Rising chirp — pickup collected, positive event."
+            },
+            {
+              "sig": "pub fn sfx_noise(sn_dur: single, sn_vol: single) -> integer",
+              "doc": "White noise burst — percussion, explosion, brick break."
+            },
+            {
+              "sig": "pub fn sfx_bounce(sp_freq: single, sp_vol: single) -> integer",
+              "doc": "Paddle bounce — low square wave thud with pitch drop."
+            },
+            {
+              "sig": "pub struct Renderer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn create_renderer(rw: integer, rh: integer, title: text) -> Renderer",
+              "doc": "Create a renderer with a window.  Compiles built-in shaders, allocates\nshadow map FBO.  Returns null on failure (no display)."
+            },
+            {
+              "sig": "pub fn elapsed(self: const Renderer) -> float",
+              "doc": "Seconds since the renderer was created."
+            },
+            {
+              "sig": "pub fn upload_scene(self: Renderer, sc: const scene::Scene)",
+              "doc": "Upload all meshes in the scene to GPU VAOs."
+            },
+            {
+              "sig": "pub fn render_frame_no_swap(self: Renderer, sc: const scene::Scene,",
+              "doc": "Render one frame's 3D passes WITHOUT swapping buffers.  Callers\nthat want to draw a 2D overlay between the 3D pass and the swap\n(e.g. the native Moros editor's panel) use this variant and\ninvoke `graphics::gl_swap_buffers()` themselves after their\noverlay renders.  Returns false when close requested.\n\nIntroduced by Initiative 03 Phase 3b (native moros editor\npanel overlay).  The existing `render_frame` wrapper below\npreserves backward compatibility with every current caller."
+            },
+            {
+              "sig": "pub fn render_frame(self: Renderer, sc: const scene::Scene,",
+              "doc": "Render one frame (3D passes + buffer swap).  Convenience wrapper\nfor callers that don't need a 2D overlay between the 3D pass and\nthe swap — brick-buster, 24-renderer-demo, and every other current\nconsumer.  Returns false when close requested."
+            },
+            {
+              "sig": "pub fn render_loop(self: Renderer, sc: const scene::Scene, cam: const scene::Camera)",
+              "doc": "Convenience: render loop until close."
+            },
+            {
+              "sig": "pub fn destroy(self: Renderer)",
+              "doc": "Destroy GPU resources and close the window."
+            }
+          ],
+          "published": "2026-08-21T10:48:07Z"
         }
       }
     },
@@ -10032,6 +10576,147 @@
             }
           ],
           "published": "2026-08-18T08:40:27Z"
+        },
+        "0.3.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_body-v0.3.1/hex_body-0.3.1.tar.gz",
+          "sha256": "01ed675eaace4763c6f8151f70bd5dd40c24d67458ece8e8c5d8720bd9f3bc01",
+          "size": 29064,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.2.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_body",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Joint",
+              "doc": "A REVOLUTE JOINT: its current value (in TURNS — a value of 1.0 is one revolution, the number a\ncontact point actually cares about) and its LIMITS.  The limits are the joint's `fits?` doorstep\n(`K-FIT`): a joint value is ORDINAL, so a refusal owes an OFFER of the nearest admissible — unlike\na material id, which is nominal and offers nothing (`X68`)."
+            },
+            {
+              "sig": "pub fn joint_new(value: float, lo: float, hi: float) -> Joint",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn pose_of(value: float, lx: float, ly: float) -> (float, float)",
+              "doc": "FORWARD KINEMATICS (phase B): a point `(lx, ly)` in a part's LOCAL frame, posed by rotating it\nthrough the joint's angle.  A PURE FUNCTION of `(value, lx, ly)` — it reads no stored state, no\nelapsed time, no call count, and no previous value.  Two different paths to the same `value`\ntherefore give byte-identical output, which is `I6` and the precondition for `I9`'s replay.\n\nExample: @HXB-001"
+            },
+            {
+              "sig": "pub fn wheel_value(travel: float, radius: float, slip: float) -> float",
+              "doc": "A WHEEL is a revolute joint whose value is DERIVED from how far it has travelled (phase C):\n`value = travel / (2πr)`.  Because the value is a function of travel and not an accumulation of\nsteps, the no-slip identity is exact by construction.  `slip` is the deliberate defect knob —\n0 for a true roll; non-zero is a skid, and it is the control that keeps `wheel_skid` honest.\n\nExample: @HXB-007"
+            },
+            {
+              "sig": "pub fn wheel_angle(value: float) -> float",
+              "doc": "The joint value as an ANGLE in radians."
+            },
+            {
+              "sig": "pub fn wheel_skid(radius: float, value: float, travel: float) -> float",
+              "doc": "THE SKID — the contact point's slip, `|r·θ − travel|`.  For a value derived by `wheel_value`\nwith `slip = 0` this is **machine-ε, not algebraic zero** — and that distinction was measured,\nnot assumed: `travel → value → r·θ` is a float round-trip (a divide by `2πr` then a multiply by\nit), which f64 does not close bit-for-bit, so the residual is ~1 ulp of `travel`.  This is the\nBODY'S SOLE FLOAT STEP — the wheel's `ε_seam` (`SPEC` **I-FSEAM**, `X53`): the pose/roll\ncomputation is exactly where imprecision is licensed, bounded by machine ε and nowhere else.\nIt is NOT a `P4` violation: `P4` governs the R1 geometry round trip, which is integer and exact;\na wheel's roll is kinematics, which is the float frame.  Drive `θ` independently of `travel` —\nthe spec's *\"spin a wheel off-travel\"* — and the skid is a real distance, orders of magnitude\nabove ε.\n\nExample: @HXB-007"
+            },
+            {
+              "sig": "pub fn joint_fits(j: Joint, value: float) -> boolean",
+              "doc": "THE DOORSTEP (`K-FIT` for a joint): a value inside the joint's limits fits.\n\nExample: @HXB-002"
+            },
+            {
+              "sig": "pub fn joint_offer(j: Joint, value: float) -> float",
+              "doc": "The OFFER a refusal owes — the nearest admissible value.  A joint value is ordinal, so clamping\nto the limit is a real correction the editor can show, not a silent snap to a different thing.\n\nExample: @HXB-002"
+            },
+            {
+              "sig": "pub fn joint_residual(j: Joint, value: float) -> float",
+              "doc": "The residual an offer carries — how far the requested value was from admissible."
+            },
+            {
+              "sig": "pub struct Rig",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn rig_new() -> Rig",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn rig_bone3(r: Rig, parent: integer, ox: float, oy: float, oz: float, len: float,",
+              "doc": "Append one bone in SPACE, growing the rig's parallel field vectors in place.\n\n⚠ Eleven parameters is the eight of `hex_part::Hinge` plus a parent, a length\nand the rig — the family's own shape rather than a shorter one invented here.\n\nExample: @HXB-004"
+            },
+            {
+              "sig": "pub fn rig_bone(r: Rig, parent: integer, ox: float, oy: float, len: float,",
+              "doc": "Append one bone in the PLANE — the special case, and its signature is\nunchanged from 0.1.0.  A planar bone is one at `oz = 0` about `(0, 0, 1)`,\nwhich is exactly the axis the 2-D code left implicit.\n\nExample: @HXB-001"
+            },
+            {
+              "sig": "pub fn rig_count(r: Rig) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn bone_planar(r: Rig, i: integer) -> boolean",
+              "doc": "Does bone `i` lie in the plane the 2-D rig assumes?  ⚠ It is asked with `==`\nand no tolerance, because it decides which RECORD the bone is written as and\na near-planar bone must not be written as a planar one."
+            },
+            {
+              "sig": "pub fn rig_planar(r: Rig) -> boolean",
+              "doc": "Is the whole rig planar?  The question `rig_world_seg` implicitly asks of\nevery rig it is handed, made available to a caller that wants to know.\n\nExample: @HXB-005"
+            },
+            {
+              "sig": "pub fn rig_joint(r: Rig, i: integer) -> Joint",
+              "doc": "The joint at bone `i`, as a `Joint` carrying its limits (value defaults to 0 — the neutral pose).\n\nExample: @HXB-002"
+            },
+            {
+              "sig": "pub fn rig_admissible(r: Rig) -> boolean",
+              "doc": "ADMISSIBLE — topological (root is bone 0 with parent -1, every other parent is earlier), and\nevery joint limit is ordered `lo <= hi`.  This is the rig's doorstep: `fits?` for a whole rig.\n\nExample: @HXB-004\nExample: @HXB-008"
+            },
+            {
+              "sig": "pub fn rig_write(r: Rig, name: text) -> text",
+              "doc": "── THE FORMAT, AND WHY A SPATIAL BONE CHANGES ITS RECORD TAG ────────────────\n\nA planar bone writes exactly the bytes 0.1.0 wrote, so **a planar rig\nround-trips byte-identically across the version** and every rig on disk today\nstill reads.\n\n⚠⚠ A spatial bone writes `bone3` rather than a longer `bone` line, and that\nis the whole compatibility decision — MEASURED against the shipped 0.1.0\nreader rather than reasoned about:\n\nextra words appended to a `bone` line  ->  0.1.0 reads 1 bone\nthe same rig under the tag `bone3`     ->  0.1.0 reads 0 bones\n\n0.1.0's parser checks the keywords it knows and never the word COUNT, so\nappending fields makes an old reader silently return the bone's PLANAR\nPROJECTION — a rig quietly flattened, which is exactly the failure this\nlibrary's *\"a lenient reader would void the byte diff\"* rule exists to stop.\nA new tag makes the same reader refuse the whole rig, which `rig_admissible`\nthen rejects.  Loud beats tidy.\n\nExample: @HXB-008"
+            },
+            {
+              "sig": "pub fn rig_read(t: text) -> Rig",
+              "doc": "STRICT PARSER — accepts exactly what `rig_write` emits, refuses anything else by returning an\nempty rig (which `rig_admissible` then rejects).  A lenient reader would void the byte diff.\n\nTHAT WAS A CLAIM BEFORE IT WAS A TEST, and it was wrong nine ways: `len 1.0`, `+1.5`, `01.5`,\n`1.50`, `1.5e0`, an empty field, a trailing space and an extra field were all ADMITTED and\nthen re-written differently — and `len x` became `len 0`, a BONE THAT IS NOT THERE, admitted\ninto the model without a word.  What pins it now is a RE-SPELLING IDENTITY: a field is a\nnumber only if printing the parse reproduces the original characters, and a line is a record\nonly if it carries exactly the fields the writer emits.\n\n⚠ WHAT THIS PARSER DOES NOT CHECK IS THE PARENT, and an earlier note here said it did.  A\nforward, absent or duplicate-root parent round-trips FAITHFULLY — nothing is repaired, the\nbyte diff still means what it says — so it is not the reader's to refuse.  It is\n`rig_admissible`'s, which is the rig's doorstep and catches every one of them.  Reading a rig\nis not the same as being allowed to pose it.\n\nExample: @HXB-008"
+            },
+            {
+              "sig": "pub fn rig_eq(a: Rig, b: Rig) -> boolean",
+              "doc": "Byte-exact equality — floats compared with `==`, no tolerance (`I-EXACT`)."
+            },
+            {
+              "sig": "pub fn rig_world_seg(r: Rig, values: vector<float>, i: integer) -> (float, float, float, float)",
+              "doc": "The world segment of bone `i` at the given joint values: `(x0, y0)` its base, `(x1, y1)` its tip.\nComposes the tree from the root (bones are topological, so ancestors are computed first).\n\n⚠⚠ PLANAR RIGS ONLY, and it says so with numbers rather than a refusal.  This walk composes\njoints by ADDING ANGLES, so it reads neither `rg_oz` nor the stored axis: hand it a bone hinged\nabout `+y` and it answers as though that hinge were about `+z`.  The rig can be perfectly\nADMISSIBLE, the call returns four ordinary floats, and nothing says the body it describes is not\nthe body you built — measured on a two-bone arm, the tip is 2.5 away at a quarter turn and 3.2 at\nthree quarters, on a bone 2 long.  `rig_planar` is the precondition; a spatial rig belongs on\n`rig_world_frame3` / `rig_world_seg3`, and its proxy has to be derived from those.\n\nExample: @HXB-001\nExample: @HXB-005"
+            },
+            {
+              "sig": "pub struct Frame",
+              "doc": "── FORWARD KINEMATICS IN SPACE (`G1b`) ──────────────────────────────────────\n\nThe world segment of bone `i` IN THREE DIMENSIONS: `(x0,y0,z0)` its base,\n`(x1,y1,z1)` its tip.  The 2-D sibling above is not replaced and not\nre-expressed — see the header for what that would have cost.\n\nThe composition is the same tree walk one dimension up: a bone's offset rides\nits PARENT's rotation (not its own joint), and its length runs along its own\n`+x` under its OWN rotation.  What changes is that a rotation can no longer\nbe carried as an angle, because two rotations about different axes do not add\n— so a 3x3 basis is carried instead, and Rodrigues builds each joint's own.\n\n⚠ Nine parallel float vectors is the honest cost of a rig with NO\nDEPENDENCIES.  `mesh3d` owns a `Mat4` and is one `use` away, and taking it\nwould make the body model depend on a renderer's linear algebra — which the\nmanifest's own note refuses (*\"the body is pure continuous-space kinematics\n… with NO lattice dependency\"*), and a matrix library is the same kind of\ncoupling one step further out.\n\n⚠ A ZERO-LENGTH AXIS POSES AS THE IDENTITY — the joint simply does not turn,\nwhich is the honest reading of *\"nothing to turn about\"*.  It is not repaired\nto `+z`: that would invent an axis the author did not write, and\n`rig_admissible` refuses the rig anyway.\nA bone's WORLD FRAME: where its joint sits, and how its own axes lie.\n\n⚠ **This is the thing `rig_world_seg3` used to compute and throw away**,\nand a consumer that draws a body needs it: a limb hung on a bone is a\ncloud of points in the BONE's frame, and posing them means applying this\nonce and reusing it, not walking the tree per point."
+            },
+            {
+              "sig": "pub fn rig_world_frame3(r: Rig, values: vector<float>, i: integer) -> Frame",
+              "doc": "The world frame of bone `i` at the given joint values.  ⚠ One tree walk;\npose as many points through it as you like with `frame_point`.\n\nExample: @HXB-003"
+            },
+            {
+              "sig": "pub fn frame_point(f: Frame, lx: float, ly: float, lz: float) -> (float, float, float)",
+              "doc": "Where a point in the bone's LOCAL frame lands in the world.\n\nExample: @HXB-003"
+            },
+            {
+              "sig": "pub fn rig_world_point3(r: Rig, values: vector<float>, i: integer,",
+              "doc": "The one-shot door: pose ONE point of bone `i`.  ⚠ It walks the tree, so\na caller posing many points should hold a `Frame` instead.\n\nExample: @HXB-003"
+            },
+            {
+              "sig": "pub fn rig_world_seg3(r: Rig, values: vector<float>, i: integer)",
+              "doc": "── FORWARD KINEMATICS IN SPACE (`G1b`) ──────────────────────────────────────\n\nThe world segment of bone `i` IN THREE DIMENSIONS: `(x0,y0,z0)` its base,\n`(x1,y1,z1)` its tip.  The 2-D sibling above is not replaced and not\nre-expressed — see the header for what that would have cost.\n\n⚠ Since 0.3.0 this is TWO POINTS of the bone's own frame and nothing more:\nits base is the frame's origin and its tip is `(len, 0, 0)` in it.  One\nimplementation of the walk, and the numbers are unchanged — adding a\nrotated `(0,0,0)` is an exact `+ 0.0`.\n\nExample: @HXB-003"
+            },
+            {
+              "sig": "pub struct Obb",
+              "doc": "An oriented bounding box: centre, unit axis (along the bone), and half-extents."
+            },
+            {
+              "sig": "pub fn bone_obb(r: Rig, values: vector<float>, i: integer, w: float) -> Obb",
+              "doc": "THE PROXY of bone `i`: the OBB that bounds its capsule of half-width `w`.  Length grows by `w`\nat each end to cover the rounded caps; width is `w`.\n\n⚠ IT IS BUILT ON `rig_world_seg`, so it is PLANAR-ONLY for the same reason and inherits the same\nsilence: on a spatial rig this boxes a bone that is somewhere else, and `I4`'s containment — a\nproxy never misses an overlap — does not hold.  Check `rig_planar` first.\n\nExample: @HXB-005\nExample: @HXB-006"
+            },
+            {
+              "sig": "pub fn obb_contains(o: Obb, px: float, py: float) -> boolean",
+              "doc": "Is a world point inside the OBB?  Project onto the axis and its perpendicular."
+            },
+            {
+              "sig": "pub fn seg_dist(x0: float, y0: float, x1: float, y1: float, px: float, py: float) -> float",
+              "doc": "Distance from a point to a segment — the capsule test's core."
+            },
+            {
+              "sig": "pub fn bone_shape_has(r: Rig, values: vector<float>, i: integer, w: float,",
+              "doc": "The bone's SHAPE: is a world point within `w` of its segment (inside the capsule)?\n\n⚠ Planar-only, like `bone_obb`: it asks `rig_world_seg`.\n\nExample: @HXB-006"
+            }
+          ],
+          "published": "2026-08-21T10:48:10Z"
         }
       }
     },
@@ -11145,6 +11830,831 @@
             }
           ],
           "published": "2026-08-17T22:25:44Z"
+        }
+      }
+    },
+    "stage": {
+      "description": "A retained 2-D scene for loft: a node tree you mutate, with transforms, clipping, batching, pointer routing and widget states",
+      "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/stage",
+      "categories": [
+        "graphics",
+        "game"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.18.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/stage-v0.18.1/stage-0.18.1.tar.gz",
+          "sha256": "1c3289c355c1abf0563387be2fa575f65b27059924c5e2fc5c8a95b4b48ffdcc",
+          "size": 92593,
+          "loft": ">=2026.8.0",
+          "api_compatible_with": "0.18.1",
+          "data_compatible_with": "0.18.1",
+          "subpath": "stage",
+          "deps": {
+            "graphics": ">=0.5.0",
+            "tween": ">=0.1.0"
+          },
+          "api": [
+            {
+              "sig": "pub struct StageNode",
+              "doc": "A node's local placement, plus the world affine `compose` derives for it.\n\n⚠ NAMED `StageNode` AND NOT `Node`, because a type name is GLOBAL across the\ndependency graph and `mesh3d` — which `graphics` pulls in — already publishes a\n`Node` for its 3-D scene.  The compiler refuses the collision outright rather\nthan resolving it silently, which is the good outcome; the cost of finding it\nafter publishing would have been a rename nobody can make.\n\nThe affine is 2x3 and is applied as\nx' = a*lx + c*ly + tx\ny' = b*lx + d*ly + ty\nwhich is the layout the instanced draw path consumes unchanged."
+            },
+            {
+              "sig": "pub struct Layer",
+              "doc": "Everything one ordering band carries: how much of the camera it feels, what\natmosphere stands in front of it, and how far out of focus it is.\n\n⚠ ONE RECORD, NOT THREE PARALLEL VECTORS.  Parallax lived in a bare\n`vector<float>` and fog and blur were about to join it as siblings — which is\nexactly the shape that put a sequence's name on another sequence's cells in\nP5: every list stays well-formed on its own and only the correspondence goes\nwrong, silently.  A layer's facts travel together."
+            },
+            {
+              "sig": "pub struct View",
+              "doc": "A way of LOOKING at the stage: a camera and the screen rect it paints into.\n\n⚠ A VIEW IS PRESENTATION, NEVER WORLD.  The scene cannot tell how many are\nlooking at it — which is the split this phase exists to enforce: the world is\ndeterministic and shared, the presentation is local and free.  Window size,\ncamera and ambient motion may differ per viewer and must be allowed to."
+            },
+            {
+              "sig": "pub struct StageLight",
+              "doc": "A point light: where it stands, how far it reaches, and what colour it casts.\n\n⚠ IT LIVES IN WORLD SPACE, like everything else the app places.  A light is\nnot attached to a node, so moving a torch-bearer means moving the light too —\ndeliberate, because a light parented to a sprite would inherit that sprite's\nrotation and scale, and neither means anything to a point light.\n⚠ `StageLight`, not `Light`: a TYPE name is global across every package in the\nbuild, and `mesh3d` — pulled in by `graphics` — already publishes a `Light`.\nThe compiler refusing is the good outcome; after publishing, this rename is one\nnobody can make.  Same reason the node is `StageNode`."
+            },
+            {
+              "sig": "pub struct Stage",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Sequence",
+              "doc": "A run of atlas cells played at a rate.\n\n⚠ THE NAME LIVES HERE, not in a list beside `st_seqs`.  A parallel vector that\nonly the naming registrar appended to drifted the moment a caller mixed\n`add_sequence` with `add_named_sequence`, and every later name then pointed at\nsomebody else's cells — silently, because both lists were individually\nwell-formed.  One home per fact; the test that caught it is kept."
+            },
+            {
+              "sig": "pub struct Mask",
+              "doc": "An alpha mask: per-texel coverage, row-major, 0..255.\n\nA sprite is mostly holes, so a rect test answers the wrong question — you can\nSEE through a tree, therefore you must be able to CLICK through it.  A node\nwithout a mask is solid, which is the right default for a panel or a tile."
+            },
+            {
+              "sig": "pub struct Place",
+              "doc": "Where to put a node, and how.  A struct rather than nine parameters because the\ncompiler said so — `too-many-parameters` fires at eight, and a caller's burden\nis fixed by a struct where a reader's is fixed by an extracted function.\n\n⚠ THE DEFAULTS ARE THE POINT, not convenience.  Scale defaults to 1.0 and not to\nthe zero an omitted field would otherwise take: a scale of 0 is a *meaningful*\nvalue of the field's domain — it collapses the node to nothing — so an author\nwho writes `Place { pl_x: 10.0, pl_y: 20.0 }` and gets an invisible node has\nbeen handed a legal answer to a question they did not ask.  That is exactly the\ncase `omitted-field-zero` exists to warn about, answered here at the declaration."
+            },
+            {
+              "sig": "pub struct Bounds",
+              "doc": "A point, so a caller can ask where something ended up without unpacking six\nfloats.  `world_point` is the only honest way to check a transform: a matrix\nmeans nothing except through what it does to a point."
+            },
+            {
+              "sig": "pub struct P2",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn stage_new() -> Stage",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn node_count(self: const Stage) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn node_add(self: Stage, parent: integer, p: const Place) -> integer",
+              "doc": "Add a node and answer its index.  `parent` is -1 for a root.\n\n⚠ Refuses a forward parent reference by answering -1.  `compose` is a single\nforward pass, so a child placed before its parent would read an unwritten world\ntransform — silently, and the frame would look almost right.\nExample: @STG-002 — the tree is a flat array and a forward parent reference is\nrefused, because `compose` is a single forward pass that would otherwise read an\nunwritten parent and answer plausibly."
+            },
+            {
+              "sig": "pub fn compose(self: Stage)",
+              "doc": "Derive every node's world affine in one forward pass.\n\nA node's local transform is  T(x, y) . R(rot) . S(sx, sy) . T(-ox, -oy), which\nis what makes the ORIGIN the anchor: the local point (ox, oy) maps exactly to\n(x, y), so a sprite whose origin sits at its feet stands up from where it is\nplaced.  World = parent's world composed with that.\nExample: @STG-003 — deriving is the caller's to trigger; skipping it renders the\nprevious state, which reads as input lag rather than as a missing call."
+            },
+            {
+              "sig": "pub fn depth_cue(self: Stage, near: float, far: float, far_scale: float,",
+              "doc": "Turn the depth cue on.  `near` and `far` are depths; a node at `far` is drawn at\n`far_scale` of its size and hazed `far_haze` toward `haze_colour`, and one at\n`near` is untouched.  Off by default, and off means an identical picture.\n\nThis is the 2.5-D FEEL: distance reads as smaller and less distinct, which is\nwhat separates a mob standing behind a wall from one standing in front of it\neven when neither overlaps the other.  Real blur belongs to the per-layer pass;\na haze toward the fog colour costs one lerp and carries most of the effect."
+            },
+            {
+              "sig": "pub fn cue_of(self: const Stage, depth: float) -> float",
+              "doc": "How far through the cue a depth sits: 0 at the near plane, 1 at the far one,\nclamped outside them so a stray depth cannot invert the effect."
+            },
+            {
+              "sig": "pub fn haze_of(self: const Stage, idx: integer) -> float",
+              "doc": "How hazed node `idx` is, 0..1 — what a renderer fades toward the haze colour."
+            },
+            {
+              "sig": "pub fn order(self: const Stage) -> vector<integer>",
+              "doc": "The draw order, derived by `compose`: indices, back to front."
+            },
+            {
+              "sig": "pub fn bounds_of(self: const Stage, idx: integer) -> Bounds",
+              "doc": "A node's axis-aligned bounds in world space.\nExample: @STG-007 — a clip inherits, intersects, and is axis-aligned.\n\n⚠ AXIS-ALIGNED, so a ROTATED clipper clips to its bounding box rather than to\nits turned rectangle.  A scissor is axis-aligned in hardware and there is no\nhonest way to make it otherwise; a rotated clip needs a stencil, which this arc\ndoes not have.  Stated rather than discovered."
+            },
+            {
+              "sig": "pub fn world_point(self: const Stage, idx: integer, lx: float, ly: float) -> P2",
+              "doc": "Where a point in node `idx`'s own space lands in world space.  Valid after\n`compose`; answers (0, 0) for an index that is not a node."
+            },
+            {
+              "sig": "pub fn world_origin(self: const Stage, idx: integer) -> P2",
+              "doc": "Where the node's ORIGIN is — the point A7's depth key sorts on.\nExample: @STG-001 — a node is anchored by its origin, so a sprite whose origin\nsits at its feet stands up from where it was placed."
+            },
+            {
+              "sig": "pub struct UiRect",
+              "doc": "── A2: the draw list ────────────────────────────────────────────────────────\n\n⚠ THESE THREE TYPES ARE NOT NEW.  Their field names and types are copied\nEXACTLY from `lavition_ui`, which produces `vector<DrawRect>` from\n`panel_draw_list` today and is proven by a 12 k-line editor.  Matching a working\ncommand shape rather than minting a rival one is the whole point: a game's UI\nand an editor's UI have to reach the GPU by one path, or the batcher sees two.\n\n⚠ AND THEY NEED ONE HOME, WHICH THEY DO NOT YET HAVE.  `lavition_ui` is\nunpublished, so its `DrawRect` and this one are two nominal types with one\nshape.  Until it is published (@PLN145 `D0`) the types cannot literally be\nshared, and one of the two must eventually give — see the plan."
+            },
+            {
+              "sig": "pub struct DrawRect",
+              "doc": "A packed 0xRRGGBB colour, as `lavition_ui` carries it."
+            },
+            {
+              "sig": "pub struct DrawText",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn draw_list(self: const Stage) -> vector<DrawRect>",
+              "doc": "Emit the scene as a flat command list, in index order.\n\nIndex order IS the draw order for now: `A4` gives depth its own key, and doing\nit here would be a second ordering rule to keep in step with that one.  A node\nwith no area emits nothing — a zero size is how a pure transform parent says it\nis scaffolding rather than a thing to look at."
+            },
+            {
+              "sig": "pub fn render(list: const vector<DrawRect>, cv: graphics::Canvas)",
+              "doc": "Paint a command list onto a software canvas.\n\n⚠ THE ALPHA BYTE IS ADDED HERE, and it has to be.  A `DrawRect` carries\n0xRRGGBB — `lavition_ui` says so, and keeps it a plain integer so it needs no\ngraphics dependency — while `graphics::Canvas` reads 0xAARRGGBB and treats a\nmissing top byte as FULLY TRANSPARENT.  That is graphics' own trap: the colour\nlooks right in the source and paints nothing.  One `| 0xff000000` at the\nboundary is the whole fix, and it belongs at the boundary rather than in every\ncaller.\n\nExample: @GFX-001"
+            },
+            {
+              "sig": "pub fn opaque(colour: integer) -> integer",
+              "doc": "0xRRGGBB -> 0xAARRGGBB, leaving an already-opaque colour alone."
+            },
+            {
+              "sig": "pub struct Batch",
+              "doc": "One run of consecutive instances that share an atlas."
+            },
+            {
+              "sig": "pub fn batches(self: const Stage) -> vector<Batch>",
+              "doc": "Split the visible nodes into runs, in scene order.\nExample: @STG-004 — adjacent runs only, never sorted, and what the interleave\ncosts: four sprites across two atlases are four draws, cured by packing."
+            },
+            {
+              "sig": "pub fn pack_instances(self: const Stage) -> vector<single>",
+              "doc": "Pack every visible node into one instance buffer, in the same order `batches`\ncounted.  The two walk the scene by the same rule, so a batch's `b_first` and\n`b_count` index this buffer directly."
+            },
+            {
+              "sig": "pub struct Painter",
+              "doc": "The GL objects a stage needs, built once."
+            },
+            {
+              "sig": "pub fn painter_new() -> Painter",
+              "doc": "Compile the shader and upload the unit quad.  Call once, after a window exists."
+            },
+            {
+              "sig": "pub fn gl_render(self: Stage, p: Painter, screen_w: float, screen_h: float) -> integer",
+              "doc": "Draw the scene, one instanced call per run.  Answers the number of draw calls\nissued, which is the half of the gate that pixels cannot see: a batch that fell\nback to one draw per sprite would look identical and cost N."
+            },
+            {
+              "sig": "pub fn scissor_of(self: const Stage, view: integer, b: const Batch, coff: const P2) -> Bounds",
+              "doc": "The screen rect a run may paint in: the view's own rect, intersected with the\nbatch's clip once that clip is moved by the same offset as its content.\n\nAn unbounded rect is spelled as the whole target rather than as a flag, so the\nintersection is arithmetic in every case and the unsplit stage is the\ndegenerate cell rather than a second path."
+            },
+            {
+              "sig": "pub fn add_mask(self: Stage, w: integer, h: integer, alpha: const vector<integer>) -> integer",
+              "doc": "Register an alpha mask and answer its index, for `Place.pl_mask`."
+            },
+            {
+              "sig": "pub fn to_local(self: const Stage, idx: integer, sx: float, sy: float) -> P2",
+              "doc": "Take a screen point into node `idx`'s own space.\n\nThe world affine is 2x2 plus a translation, so the inverse is closed form —\n`det = a*d - c*b`, and no general 4x4 inversion is involved.  A degenerate node\n(zero scale) has no inverse and answers its own origin rather than an infinity."
+            },
+            {
+              "sig": "pub fn hits(self: const Stage, idx: integer, sx: float, sy: float) -> boolean",
+              "doc": "Is this screen point ON node `idx` — inside its rect AND, where it has a mask,\non a texel that is not a hole?"
+            },
+            {
+              "sig": "pub fn pick(self: const Stage, sx: float, sy: float) -> integer",
+              "doc": "The topmost node under this screen point, or -1.\nExample: @STG-006 — picking samples alpha, so a click falls through a hole.\n\nWalks the draw order BACKWARDS, so the node drawn last — the one on top — is\ntested first, and insertion order breaks a tie the same way it does when\ndrawing.  One order, two consumers: a pick that disagreed with the picture\nwould be worse than no pick at all."
+            },
+            {
+              "sig": "pub fn press(self: Stage, sx: float, sy: float) -> integer",
+              "doc": "A press picks, and REMEMBERS."
+            },
+            {
+              "sig": "pub fn release(self: Stage, sx: float, sy: float) -> integer",
+              "doc": "A release answers the node that took the PRESS, wherever the pointer is now.\nExample: @STG-005 — why a hit test alone is not input routing.\n\n⚠ THE CAPTURE IS THE POINT, and it is the half everyone forgets.  Without it a\nbutton fires when you press it and slide away, and never fires when you press it\nand drift a pixel — both of which feel broken and neither of which a rect test\ncan explain.  A release with nothing captured answers -1."
+            },
+            {
+              "sig": "pub fn released_on(self: const Stage, idx: integer, sx: float, sy: float) -> boolean",
+              "doc": "Did the release land on the node that was pressed?  A button fires only when\nthis is true; `release` still reports the captured node either way."
+            },
+            {
+              "sig": "pub fn capture(self: const Stage) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub enum UiState",
+              "doc": "The four states a widget node can be in.\n\n⚠ `Disabled` outranks the other three: a node that cannot be used must not\nlook pressable even while the pointer is on it."
+            },
+            {
+              "sig": "pub fn set_pointer(self: Stage, kind: integer)",
+              "doc": "Say whether the pointer is a mouse or a finger.  Mouse is the default."
+            },
+            {
+              "sig": "pub fn pointer(self: const Stage) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn pointer_move(self: Stage, sx: float, sy: float)",
+              "doc": "The pointer moved without a button.  A touch stream never sends this."
+            },
+            {
+              "sig": "pub fn hovered(self: const Stage) -> integer",
+              "doc": "The node the pointer is over, or -1.  Answers even under touch, where it is\nthe node the finger is ON — `ui_state` is what declines to call that `Over`."
+            },
+            {
+              "sig": "pub fn set_enabled(self: Stage, idx: integer, on: boolean)",
+              "doc": "Take a node out of use, or put it back."
+            },
+            {
+              "sig": "pub fn enabled(self: const Stage, idx: integer) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn ui_state(self: const Stage, idx: integer) -> UiState",
+              "doc": "What this node looks like right now."
+            },
+            {
+              "sig": "pub fn click(self: Stage, sx: float, sy: float) -> integer",
+              "doc": "The release door for a widget: answers the node that FIRES, or -1.\n\n⚠ **Use this OR `release`, not both** — either ends the press.  `release`\nanswers *who took the press* and leaves the fired/not decision to the caller;\nthis answers the question a button actually asks.  It exists because combining\n`release` with `released_on` by hand is where press-then-leave-then-release\ngoes wrong, and that is a mistake a library can simply not offer."
+            },
+            {
+              "sig": "pub fn focusable(self: const Stage, idx: integer) -> boolean",
+              "doc": "Can this node hold the keyboard?"
+            },
+            {
+              "sig": "pub fn set_focusable(self: Stage, idx: integer, on: boolean)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn focused(self: const Stage) -> integer",
+              "doc": "Which node has the keyboard, or -1."
+            },
+            {
+              "sig": "pub fn set_focus(self: Stage, idx: integer)",
+              "doc": "Give it the keyboard.  A node that cannot take it clears the focus instead, so\nthis never leaves the keyboard somewhere unreachable."
+            },
+            {
+              "sig": "pub fn focus_next(self: Stage)",
+              "doc": "⚠ TAB ORDER IS THE DECLARED ORDER — the order the nodes were added, which is\nthe order a reader of the building code sees.  A separate `tab_index` would be\na second ordering to keep in step with the first, and the two disagree the\nmoment someone inserts a node."
+            },
+            {
+              "sig": "pub fn focus_prev(self: Stage)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn set_field(self: Stage, idx: integer, s: text)",
+              "doc": "Make this node an editable field holding `s`, and give it the tab order."
+            },
+            {
+              "sig": "pub fn is_field(self: const Stage, idx: integer) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn field_text(self: const Stage, idx: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn field_caret(self: const Stage, idx: integer) -> integer",
+              "doc": "Where the caret is, counted in CHARACTERS."
+            },
+            {
+              "sig": "pub fn field_mark(self: const Stage, idx: integer) -> integer",
+              "doc": "The selection anchor.  Equal to the caret when nothing is selected."
+            },
+            {
+              "sig": "pub fn field_selection(self: const Stage, idx: integer) -> text",
+              "doc": "The selected text, or \"\" when the caret is a point."
+            },
+            {
+              "sig": "pub fn field_place_caret(self: Stage, idx: integer, at_char: integer, extend: boolean)",
+              "doc": "Put the caret at a CHARACTER index — what a click resolves to once whoever\ndraws the text has turned an x-coordinate into a count."
+            },
+            {
+              "sig": "pub fn clipboard(self: const Stage) -> text",
+              "doc": "Our own clipboard — see the header."
+            },
+            {
+              "sig": "pub fn set_clipboard(self: Stage, s: text)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn text_event(self: Stage, s: text)",
+              "doc": "Commit text into the focused field, replacing any selection.\n\n⚠ This is where IME text arrives: `EV_TEXT` delivers a whole COMMITTED string,\nwhich may be several characters and is very often not ASCII."
+            },
+            {
+              "sig": "pub fn key_event(self: Stage, key: integer, mods: integer)",
+              "doc": "A key, with the modifiers that arrived WITH it.  Tab moves the focus; every\nother key goes to the focused field."
+            },
+            {
+              "sig": "pub fn render_stage(self: const Stage, cv: graphics::Canvas)",
+              "doc": "Paint the scene onto a software canvas, honouring each node's alpha and tint.\n\n`render(list, canvas)` stays the path for a `lavition_ui` command list, which\ncarries 0xRRGGBB and no alpha by design.  This is the stage's own path, where a\nnode has an alpha to respect — and the two must agree wherever alpha is 1."
+            },
+            {
+              "sig": "pub fn render_view(self: const Stage, view: integer, cv: graphics::Canvas)",
+              "doc": "Paint one VIEW of the scene: the same nodes, through that view's camera, and\nconfined to its own screen rect.\n\n⚠ THE VIEWPORT NARROWS THE SPAN, it does not test each pixel — the same\ntechnique A6's clip uses, so the boundary falls where the arithmetic puts it\nrather than where a per-pixel predicate rounds it, and the two cannot disagree\nabout a shared edge."
+            },
+            {
+              "sig": "pub fn set_camera(self: Stage, x: float, y: float)",
+              "doc": "Move the camera.  Does NOT dirty the instance buffer — that is the point.\n\nAn unsplit stage IS a one-view stage, so this is view 0's camera rather than a\nsecond place a camera can live — the same move P2 made with parallax, where\nflat scrolling is every factor at 1.0 instead of a separate path."
+            },
+            {
+              "sig": "pub fn camera_x(self: const Stage) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn camera_y(self: const Stage) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn set_parallax(self: Stage, layer: integer, factor: float)",
+              "doc": "How much of the camera a layer feels.  1.0 is the world; below that is a\nbackground that lags; above it a foreground that leads.  Flat scrolling is every\nfactor at 1.0, which is the degenerate case rather than a second code path."
+            },
+            {
+              "sig": "pub fn parallax_of(self: const Stage, layer: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn cam_offset(self: const Stage, layer: integer) -> P2",
+              "doc": "The screen-space offset a layer's content is drawn at, in view 0."
+            },
+            {
+              "sig": "pub fn uploads(self: const Stage) -> integer",
+              "doc": "How many times the instance buffer has been written.  A pure camera move must\nnot move this — the property the whole design turns on."
+            },
+            {
+              "sig": "pub fn set_time(self: Stage, t: float)",
+              "doc": "Example: @STG-008 — ambient motion is free, out of step, and visual only.\nAdvance the ambient clock.  Does NOT dirty the instance buffer — that is the\nwhole point of deriving the phase rather than stepping it."
+            },
+            {
+              "sig": "pub fn time_of(self: const Stage) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn sway_of(self: const Stage, idx: integer) -> float",
+              "doc": "How far node `idx` is displaced right now, in pixels.  Bounded by its amplitude\nby construction, since it is an amplitude times a sine."
+            },
+            {
+              "sig": "pub fn add_sequence(self: Stage, first: integer, count: integer, fps: float,",
+              "doc": "Register a sequence and answer its index, for `Place.pl_seq`."
+            },
+            {
+              "sig": "pub fn advance(self: Stage, dt_us: integer)",
+              "doc": "Step every animated node by `dt_us` MICROSECONDS — the simulation's own delta,\nnot a clock this library reads.\n\n⚠ Dirties the instance buffer, unlike the camera and the ambient clock — an\nanimated sprite genuinely changes one number per frame.  That number is a FRAME\nINDEX and not a uv rect, so it is one float and not four."
+            },
+            {
+              "sig": "pub fn frame_of(self: const Stage, idx: integer) -> integer",
+              "doc": "Which cell node `idx` shows right now."
+            },
+            {
+              "sig": "pub fn restart(self: Stage, idx: integer)",
+              "doc": "Reset a node to the start of its sequence."
+            },
+            {
+              "sig": "pub enum Prop",
+              "doc": "Which of a node's numbers a tween drives.\n\n⚠ Every one is a `float` the node already stores.  Colour, atlas and the\nsequence are not here on purpose: they are not numbers you can be *half way*\nbetween, and interpolating them would produce values the node never holds."
+            },
+            {
+              "sig": "pub fn prop_of(self: const Stage, idx: integer, p: Prop) -> float",
+              "doc": "What that property reads right now."
+            },
+            {
+              "sig": "pub fn set_prop(self: Stage, idx: integer, p: Prop, v: float)",
+              "doc": "Write it now.  The immediate door — the tween door writes through the same\nswitch, one frame at a time."
+            },
+            {
+              "sig": "pub fn tween_prop(self: Stage, idx: integer, p: Prop, to: float, dur_us: integer,",
+              "doc": "Move `p` from where it is now to `to`, over `dur_us` microseconds.\n\n⚠ `from` is read at THIS moment, so a tween started mid-flight carries on from\nwhere the last one had got to rather than snapping back to a remembered start.\nReplaces any tween already on this (node, property)."
+            },
+            {
+              "sig": "pub fn prop_tweening(self: const Stage, idx: integer, p: Prop) -> boolean",
+              "doc": "Is that property still moving?"
+            },
+            {
+              "sig": "pub fn cancel_prop_tween(self: Stage, idx: integer, p: Prop)",
+              "doc": "Stop it wherever it has got to.  The property keeps its current value."
+            },
+            {
+              "sig": "pub fn cancel_node_tweens(self: Stage, idx: integer)",
+              "doc": "Drop every tween on a node."
+            },
+            {
+              "sig": "pub fn tween_count(self: const Stage) -> integer",
+              "doc": "How many property tweens the stage is holding — the gate reads this."
+            },
+            {
+              "sig": "pub fn set_projection(self: Stage, mode: integer)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn projection(self: const Stage) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn sequence_count(self: const Stage) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn add_named_sequence(self: Stage, name: text, first: integer, count: integer,",
+              "doc": "Register a sequence under a NAME, so `face` and `set_action` can resolve it.\nThe convention is `<key>`, `<key>_<action>`, `<key>_<action>_<facing>`, and\nresolution walks it most-specific first."
+            },
+            {
+              "sig": "pub fn facing_name(angle: float) -> text",
+              "doc": "Which of the four compass facings an angle points at.\n\n⚠ SCREEN SPACE, Y DOWN: angle 0 is +x (east) and +pi/2 is +y (south), matching\n`pl_rot` and the shader.  The edges are HALF-OPEN, as A4's picking rects are —\n45 degrees belongs to south — so no angle is claimed by two facings."
+            },
+            {
+              "sig": "pub fn face(self: Stage, idx: integer, angle: float)",
+              "doc": "Point a node at `angle` radians.  Top-down turns it; side-on picks and flips."
+            },
+            {
+              "sig": "pub fn set_action(self: Stage, idx: integer, action: text)",
+              "doc": "What a node is doing — \"idle\", \"walk\", \"attack\".  Re-resolves, phase intact."
+            },
+            {
+              "sig": "pub fn facing_of(self: const Stage, idx: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn action_of(self: const Stage, idx: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn rotation_of(self: const Stage, idx: integer) -> float",
+              "doc": "The sprite's own rotation, which side-on leaves alone."
+            },
+            {
+              "sig": "pub fn mirrored(self: const Stage, idx: integer) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn view_count(self: const Stage) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn add_view(self: Stage, x: integer, y: integer, w: integer,",
+              "doc": "Add a view painting into the screen rect `(x, y, w, h)`.  A width of 0 or less\nmeans unbounded — the whole target, which is what view 0 starts as."
+            },
+            {
+              "sig": "pub fn set_view_rect(self: Stage, view: integer, x: integer, y: integer,",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn set_view_camera(self: Stage, view: integer, x: float, y: float)",
+              "doc": "Move one view's camera.  Like `set_camera`, it does not dirty the buffer."
+            },
+            {
+              "sig": "pub fn view_camera_x(self: const Stage, view: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn view_camera_y(self: const Stage, view: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn view_offset(self: const Stage, view: integer, layer: integer) -> P2",
+              "doc": "Where a layer's content lands on screen in this view: the camera un-applied by\nthe layer's parallax, then moved into the view's rect.\n\n⚠ THE VIEWPORT ORIGIN IS PART OF THE MAPPING, not decoration.  Leave it out and\nboth views draw on top of each other while every camera test still passes."
+            },
+            {
+              "sig": "pub fn sync_instances(self: Stage) -> boolean",
+              "doc": "Pack the instance buffer if the scene changed, and say whether it did.\n\nOne home for *when does the buffer get rewritten*, so the GL path and any\ncount of uploads cannot disagree about it — and so N views can be shown to\ncost ONE upload without a GL context to prove it in."
+            },
+            {
+              "sig": "pub fn pick_in(self: const Stage, view: integer, sx: float, sy: float) -> integer",
+              "doc": "The topmost node under a screen point AS THAT VIEW SEES IT, or -1.\n\n⚠ ONE SCREEN POINT IS A DIFFERENT WORLD POINT IN EACH VIEW — the same reason\nP2 un-applies the camera per LAYER.  A point outside the view's own rect is\nnot that view's to answer, whatever its camera would map it to."
+            },
+            {
+              "sig": "pub fn in_view_rect(self: const Stage, view: integer, sx: float, sy: float) -> boolean",
+              "doc": "Is this screen point inside the view's rect?  An unbounded view holds every\npoint, which is what keeps the unsplit stage a single code path."
+            },
+            {
+              "sig": "pub fn hits_in(self: const Stage, view: integer, idx: integer, sx: float,",
+              "doc": "Does this node cover the screen point, as `view` maps it?"
+            },
+            {
+              "sig": "pub fn add_light(self: Stage, x: float, y: float, radius: float, colour: integer,",
+              "doc": "Add a light.  Answers its index, for `move_light`."
+            },
+            {
+              "sig": "pub fn move_light(self: Stage, i: integer, x: float, y: float)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn light_count(self: const Stage) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn set_ambient(self: Stage, level: float)",
+              "doc": "How lit the world is before any light: 1.0 leaves the material untouched, so a\ngame that never asks for light cannot be dimmed by this existing.  Turn it\ndown and the scene goes dark except where a light reaches."
+            },
+            {
+              "sig": "pub fn ambient(self: const Stage) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn light_reach(l: const StageLight, px: float, py: float) -> float",
+              "doc": "What a light contributes at a point: linear in the radius, clamped at both ends.\n\n⚠ LINEAR, `1 - d/r`, and that is a design call.  This phase's gate is\nhand-computed values, and a curve nobody can hand-compute is a gate nobody\nmaintains.  L2 owns the prettier curve, and its own gate says how: expectations\nGENERATED from the same constants the shader uses, so retuning is one edit."
+            },
+            {
+              "sig": "pub fn lit_colour(self: const Stage, idx: integer) -> integer",
+              "doc": "The colour a node is actually drawn in: its material, multiplied by the light\nstanding on its footprint.\n\n⚠ ONE HOME.  Both render paths and the instance packer read this rather than\neach folding the light in themselves — the shape P6 shipped a defect through,\nwhere one fact derived per path was validated only where the derivations\nhappened to agree."
+            },
+            {
+              "sig": "pub struct Lit",
+              "doc": "A light level, per channel, 0..1."
+            },
+            {
+              "sig": "pub fn set_light_map(self: Stage, on: boolean)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn light_map(self: const Stage) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn set_hud_layer(self: Stage, n: integer)",
+              "doc": "Layers at or above `n` draw AFTER the composite and take no light."
+            },
+            {
+              "sig": "pub fn hud_layer(self: const Stage) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn light_rgb_at(self: const Stage, wx: float, wy: float) -> Lit",
+              "doc": "The light standing at a world point, per channel.\n\n⚠ THE ONE HOME both samplings read: L1 asks it at a sprite's origin, L2 asks\nit per pixel.  One curve, one floor, one clamp — so the per-sprite and the\nper-pixel answers cannot disagree about the same point."
+            },
+            {
+              "sig": "pub fn light_level_at(self: const Stage, wx: float, wy: float) -> float",
+              "doc": "The scalar level at a world point — the green channel of a white light, and\nthe number the monotonic-and-floored invariant is stated about."
+            },
+            {
+              "sig": "pub fn composite_light(self: const Stage, view: integer, cv: graphics::Canvas)",
+              "doc": "Multiply every pixel of the view's rect by the light standing there.\n\n⚠ THE SCREEN IS MAPPED TO THE WORLD THROUGH THE WORLD PLANE — layer 0, the\nplane lights live on.  A parallaxed background is therefore lit as though it\nstood on that plane, which is the honest simplification here: per-layer\natmosphere is L3's question, not this pass's."
+            },
+            {
+              "sig": "pub fn composite_shader_source() -> text",
+              "doc": "The composite's fragment shader.  Public so a test can check it reads the\nfalloff and the floor as UNIFORMS rather than carrying its own copy of them."
+            },
+            {
+              "sig": "pub fn set_layer_fog(self: Stage, layer: integer, colour: integer, density: float)",
+              "doc": "Fade this layer toward `colour`.  Density 0 is clear and changes nothing."
+            },
+            {
+              "sig": "pub fn layer_fog_colour(self: const Stage, layer: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn layer_fog_density(self: const Stage, layer: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn set_layer_blur(self: Stage, layer: integer, radius: integer)",
+              "doc": "Put this layer out of focus by `radius` pixels.  0 is sharp.\n\n⚠ THE BLUR RUNS WHEN THE LAYER FINISHES, so it softens everything drawn up to\nand including it and NOTHING above — which is what makes a sharp foreground\nover a hazy distance possible, and what a fullscreen blur cannot do.  Distant\nbands therefore blur together, which is what *distance is out of focus* means."
+            },
+            {
+              "sig": "pub fn layer_blur(self: const Stage, layer: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn blur_region(cv: graphics::Canvas, x0: integer, y0: integer, x1: integer,",
+              "doc": "Box-blur a rectangle of the canvas in place.\n\n⚠ SAMPLES ARE CLAMPED TO THE EDGE, never read as black.  Counting an\noff-image sample as black loses light everywhere the kernel overhangs, and it\nshows as a dark frame around the picture — the classic bug this phase gates\nagainst.  Clamping keeps a uniform field EXACTLY itself."
+            }
+          ],
+          "published": "2026-08-21T10:48:14Z"
+        }
+      }
+    },
+    "text2d": {
+      "description": "Text that always draws — a built-in face, a glyph atlas, measured metrics, wrapping and alignment, with no font file and no GL context",
+      "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/text2d",
+      "categories": [
+        "text",
+        "graphics"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.4.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/text2d-v0.4.0/text2d-0.4.0.tar.gz",
+          "sha256": "57d25adf319f08466a8f9f54d4c109d92a92094b2769d1364e351b4eb386afa7",
+          "size": 17948,
+          "loft": ">=2026.8.0",
+          "api_compatible_with": "0.4.0",
+          "data_compatible_with": "0.4.0",
+          "subpath": "text2d",
+          "deps": {
+            "graphics": ">=0.5.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn face_codes() -> vector<integer>",
+              "doc": "The codepoints, ascending — `face_row` bisects this."
+            },
+            {
+              "sig": "pub fn face_rows() -> vector<integer>",
+              "doc": "Seven rows per glyph, in the same order as `face_codes`."
+            },
+            {
+              "sig": "pub fn blit_glyph(cv: graphics::Canvas, code: integer, x: integer, y: integer,",
+              "doc": "Blit one codepoint's glyph with its top-left at (x, y).  Shared by the direct\nblitter and by the atlas, so the bit-walk has ONE home and the two can never\ndisagree about what a glyph looks like."
+            },
+            {
+              "sig": "pub fn text_width(s: text, scale: integer) -> integer",
+              "doc": "Width in pixels of `s` at scale 1, INCLUDING the single-pixel gap after every\nglyph but the last.  Exact — the caller can centre with it and be right."
+            },
+            {
+              "sig": "pub fn line_height(scale: integer) -> integer",
+              "doc": "Height of one line at `scale`."
+            },
+            {
+              "sig": "pub fn write_text(cv: graphics::Canvas, s: text, x: integer, y: integer,",
+              "doc": "⚠ NAMED `write_text`, NOT `draw_text`.  `graphics` already has `draw_text` as a\nMETHOD on `Canvas`, and a method spelling outranks a library's free function of\nthe same name (loft#940) — so a bare `draw_text(cv, …)` here resolves to the\nseven-parameter GL one and fails at the call site with an arity error that names\nneither library.  A distinct verb costs nothing and is reachable.\n\nDraw `s` with its top-left at (x, y).  Answers the width drawn, so a caller can\nlay out the next run without measuring twice.\n\n⚠ Iterates CHARACTERS, not bytes.  `len(text)` counts characters and an indexed\nread is bytes, so a byte loop truncates multi-byte text silently — the trap the\nstrict-index lint exists for.  A character with no glyph draws a blank of the\nsame width rather than being skipped, so a string never changes length because\none character was missing."
+            },
+            {
+              "sig": "pub fn write_centred(cv: graphics::Canvas, s: text, bx: integer, by: integer,",
+              "doc": "Draw `s` centred in the box (bx, by, bw, bh).  The commonest thing a HUD wants,\nand the commonest place an off-by-one lands."
+            },
+            {
+              "sig": "pub struct Atlas",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Quad",
+              "doc": "One glyph placed on a line: where it goes, and which cell it comes from."
+            },
+            {
+              "sig": "pub fn atlas_new(scale: integer, capacity: integer) -> Atlas",
+              "doc": "A sheet with room for `capacity` glyphs at `scale`.  Shelf-packed in a grid,\nwhich is enough for a fixed-width face — a proportional one would want a real\npacker, and would still not change what the caller sees."
+            },
+            {
+              "sig": "pub fn atlas_glyph_count(self: const Atlas) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn atlas_writes(self: const Atlas) -> integer",
+              "doc": "How many times the sheet has been WRITTEN.  A GL consumer uploads on exactly\nthese, so a caller can assert that a changing label costs no upload — which is\nthe property the whole arc exists for."
+            },
+            {
+              "sig": "pub fn atlas_cell(self: Atlas, code: integer) -> integer",
+              "doc": "The cell holding `code`, rasterising it on first use.  -1 when the sheet is full."
+            },
+            {
+              "sig": "pub fn layout(self: Atlas, s: text, x: integer, y: integer) -> vector<Quad>",
+              "doc": "Lay a string out over the sheet.  Answers one quad per character; NOTHING is\nwritten to the sheet unless a character is new to it."
+            },
+            {
+              "sig": "pub fn draw_quads(cv: graphics::Canvas, atlas: const Atlas, quads: const vector<Quad>,",
+              "doc": "Blit laid-out quads from the sheet onto a canvas."
+            },
+            {
+              "sig": "pub struct Metrics",
+              "doc": "What the consumer measured.\n\n⚠ `m_mono` IS A FACT ABOUT THE FACE THAT RESOLVED, not the one that was asked\nfor.  Requesting `DejaVuSansMono.ttf` gives a fixed-pitch face on the desktop\nand a PROPORTIONAL fallback in the browser, because the browser resolves the\nbase name to a CSS family it does not know.  Only a measurement can tell."
+            },
+            {
+              "sig": "pub fn metrics_measured(wide_run: float, narrow_run: float, n: integer,",
+              "doc": "Build metrics from two runs the consumer measured: `n` copies of a WIDE\ncharacter and `n` copies of a NARROW one.\n\n⚠ THE TWO RUNS ARE THE WHOLE INSTRUMENT, and one width cannot replace them.\nTen M's are ten M's in any font, so a single measurement gives the advance of\nan M and nothing about whether the face is fixed-pitch.  Two same-length,\nopposite-width strings answer it in one comparison.\n\nThe advance is taken from the WIDE run: under fixed pitch the two agree, and\nwhen they do not, the wider one is the safe basis for a fits-in-the-box\nquestion — it over-estimates rather than overflowing."
+            },
+            {
+              "sig": "pub fn metrics_builtin(scale: integer) -> Metrics",
+              "doc": "The built-in face's own metrics, so a layout written against this seam works\nwith no font file at all — the property `B0` exists for, carried forward."
+            },
+            {
+              "sig": "pub fn advance64(self: const Metrics) -> integer",
+              "doc": "The advance in 1/64 px, as measured."
+            },
+            {
+              "sig": "pub fn advance(self: const Metrics) -> integer",
+              "doc": "The advance in whole pixels, for a caller that wants to show it.\n\n⚠ DERIVED, NOT A SECOND FIELD.  One quantity stored twice is how two numbers\ndescribing one distance drift apart the moment either is edited."
+            },
+            {
+              "sig": "pub fn height(self: const Metrics) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn is_mono(self: const Metrics) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn width(self: const Metrics, s: text) -> integer",
+              "doc": "The ADVANCE width of `s` — what to reserve a box by.\n\n⚠ ROUNDED UP.  The residual is a fraction of a pixel per character, and the\nsafe direction to spend it is outwards: an over-estimate reserves a pixel too\nmany and the text still fits, an under-estimate spills out of a box that was\njust measured as fitting.  Exact under fixed pitch, an over-estimate\notherwise — the same reason the advance comes from the wide run.\n\nDistinct from `text_width`, which is the built-in face's INK extent: the two\ndiffer by the one trailing gap the ink extent leaves off, and they answer\ndifferent questions — centre by the ink, reserve by the advance."
+            },
+            {
+              "sig": "pub fn fits(self: const Metrics, s: text, px: integer) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn fit_text(self: const Metrics, s: text, px: integer) -> text",
+              "doc": "The longest prefix of `s` that fits in `px`, with \"..\" marking the cut.\n\n⚠ AN UNTOUCHED STRING COMES BACK UNTOUCHED, so a caller cannot tell \"fitted\"\nfrom \"never measured\" by looking for the marker — it appears only when\nsomething was actually removed.\n\n\"..\" rather than a single \"…\": the ellipsis is one code point but several\nbytes, and a marker whose own width is ambiguous is the wrong thing to measure\na truncation with.\n\n⚠ CUTS BY CHARACTERS.  This shipped in B1m as `s[0..keep]`, a BYTE range given\na character count — safe, because loft snaps a byte cut outward to a character\nboundary, but wrong: a non-ASCII label came back shorter than it needed to be.\nB2's `take_chars` is the cure and the trap is the same one wrapping has."
+            },
+            {
+              "sig": "pub fn take_chars(s: text, n: integer) -> text",
+              "doc": "The first `n` CHARACTERS of `s`.  The cure for the trap above, and public\nbecause every caller that slices text by a measured count needs it."
+            },
+            {
+              "sig": "pub fn wrap(self: const Metrics, s: text, px: integer) -> vector<text>",
+              "doc": "Break `s` into lines that each fit `px`, greedily, on measured advances.\n\n⚠ A LINE ALWAYS TAKES AT LEAST ONE CHARACTER.  In a box narrower than the\nnarrowest glyph the alternatives are an infinite loop or dropping the text,\nand a line that overflows and says so is better than either.\n\n⚠ AND THE RESULTING TABLE IS PER TARGET.  Native measures a real TTF, the\nbrowser measures whatever family resolved, so the same string breaks in\ndifferent places.  The invariant that travels is self-consistency: every line\nhere fits the box THESE metrics measured."
+            },
+            {
+              "sig": "pub fn align_x(self: const Metrics, line: text, bx: integer, bw: integer,",
+              "doc": "Where to start drawing `line` inside a box at `bx` of width `bw`.\n\n⚠ A LINE WIDER THAN ITS BOX STARTS AT THE BOX.  Centring or right-aligning it\narithmetically would push its beginning off the left edge, where it cannot be\nclipped back into view — overflow to the right is recoverable, overflow to the\nleft loses the start of the text."
+            }
+          ],
+          "published": "2026-08-21T10:48:17Z"
+        }
+      }
+    },
+    "tween": {
+      "description": "Property tweens in exact integer time — eleven easing curves, chains and groups",
+      "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/tween",
+      "categories": [
+        "animation",
+        "game"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/tween-v0.1.0/tween-0.1.0.tar.gz",
+          "sha256": "20bd9adb7264bddc2bba18b5b20bdcc20997dcd0df62b3a36e546559ef952bba",
+          "size": 16062,
+          "loft": ">=2026.8.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "tween",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub enum Curve",
+              "doc": "Which shape the curve has.\n\n⚠ `Back` and `Elastic` leave `[0, 1]` on purpose — they overshoot and come\nback — so a consumer clamping the RESULT of an ease is undoing the effect it\nasked for.  Every other curve stays inside."
+            },
+            {
+              "sig": "pub enum Shape",
+              "doc": "Which direction the curve runs: slow at the start, slow at the end, or both."
+            },
+            {
+              "sig": "pub fn ease(c: Curve, s: Shape, t: float) -> float",
+              "doc": "Ease `t` — the entry point, and the three reflections of the header's rule 2.\n\n⚠ There is no clamp HERE on purpose; every arm reads the curve through\n`curve_at`, which is where the endpoints are decided.  See the header for\nwhy in front of the reflections is the wrong side of them."
+            },
+            {
+              "sig": "pub fn curve_at(c: Curve, t: float) -> float",
+              "doc": "The curve, clamped — **the one place all thirty-three combinations get their\nendpoints from.**\n\n⚠ **Clamped, not trusted.**  `t <= 0` answers exactly 0.0 and `t >= 1`\nexactly 1.0 without consulting the curve, which is what makes the endpoints\nexact — including for the two curves whose textbook definitions miss them.\n\n⚠ A `null` progress (a NaN) is neither `<= 0.0` nor `>= 1.0`, so it reaches\nthe curve and comes back null.  That is deliberate: an unanswerable progress\nmust not silently read as \"finished\"."
+            },
+            {
+              "sig": "pub fn curve_in(c: Curve, t: float) -> float",
+              "doc": "The **In** direction of each curve, raw — the eleven definitions everything\nelse is reflected from.\n\n⚠ **Public so it can be gated, not because it is the door.**  It is NOT\nclamped: `curve_in(Sine, 1.0)` is `0.9999999999999999`, which is exactly the\nhole `ease` exists to close.  Reach for `ease`."
+            },
+            {
+              "sig": "pub fn lerp(a: float, b: float, t: float) -> float",
+              "doc": "A linear interpolation that lands EXACTLY on both endpoints.\n\n⚠ **`a·(1−t) + b·t`, and the other spelling is not equivalent** — see the\nheader: `a + (b−a)·t` answers 0.0 for `lerp(1e17, 1.0, 1.0)`.  Reach for\nthis one whenever an endpoint has to be hit rather than approached.\n\n`t` outside `[0, 1]` extrapolates, which is what makes the overshooting\ncurves (`Back`, `Elastic`) work."
+            },
+            {
+              "sig": "pub struct Tween",
+              "doc": "One value moving from `from` to `to` over `duration` base units.\n\n⚠ **`duration <= 0` means INSTANT, not unarmed** — it reads `to` and is\n`done` immediately.  That is the opposite of `fixstep`'s `Timer`, where a\nzero total means nothing is running, and it is deliberate: \"move there over\nno time\" is a step, and a chain built from one must pass straight through\nit rather than stall."
+            },
+            {
+              "sig": "pub fn tween_new(from: float, to: float, duration: integer,",
+              "doc": "A tween ready to run."
+            },
+            {
+              "sig": "pub fn delay(self: Tween, units: integer)",
+              "doc": "Wait `units` before starting.\n\n⚠ A door rather than a sixth parameter, for `fixstep`'s reason: a delay is a\ncase some callers have and most do not.  During the wait the tween reads\n`from` and is not `done`."
+            },
+            {
+              "sig": "pub fn advance(self: Tween, units: integer) -> integer",
+              "doc": "Spend `units` of time on it, and answer how many were LEFT OVER — the time\npast its end, which is what the next link of a chain must already have run\nfor.  Zero while it is still running.\n\n⚠ Non-positive time is dropped rather than owed (`fixstep`'s rule 2), so a\npaused consumer may call this every frame."
+            },
+            {
+              "sig": "pub fn progress(self: const Tween) -> float",
+              "doc": "How far through it is, before easing — the exact ratio `elapsed / duration`,\nin `[0, 1]`.\n\n⚠ **It reaches 1.0 and STAYS there**, which is the difference from\n`fixstep`'s `timer_fraction` (documented `[0, 1)`, and 0.0 again once the\ntimer fires — a tween built on one would snap back to its start the instant\nit finished)."
+            },
+            {
+              "sig": "pub fn value(self: const Tween) -> float",
+              "doc": "What it reads right now.\n\n⚠ Exactly `from` before it starts and exactly `to` once it has finished —\nsee the header for why that needs the interpolation to be written one way\nand not the other."
+            },
+            {
+              "sig": "pub fn done(self: const Tween) -> boolean",
+              "doc": "Has it finished?  A tween still waiting out its `delay` has not."
+            },
+            {
+              "sig": "pub fn rewind(self: Tween, lead: integer = 0)",
+              "doc": "Put it back at the start, delay and all — the same tween, run again."
+            },
+            {
+              "sig": "pub enum Play",
+              "doc": "How several tweens share one stream of time."
+            },
+            {
+              "sig": "pub struct Track",
+              "doc": "Several tweens driven together.\n\n⚠ **It is a rule about time, not a scheduler** — there is no queue, no\npriority and no callback.  `Chain` hands each link's leftover to the next,\nwhich is the entire reason `advance` answers one."
+            },
+            {
+              "sig": "pub fn track_new(mode: Play = Play.Chain) -> Track",
+              "doc": "An empty track."
+            },
+            {
+              "sig": "pub fn add(self: Track, tw: Tween)",
+              "doc": "Add a link.  For `Chain` the order of the calls is the order they run in."
+            },
+            {
+              "sig": "pub fn advance(self: Track, units: integer) -> integer",
+              "doc": "Spend `units` on the track, and answer the leftover — the same contract one\ntween has, so a track composes into a chain exactly like a tween does."
+            },
+            {
+              "sig": "pub fn done(self: const Track) -> boolean",
+              "doc": "Have all its links finished?"
+            },
+            {
+              "sig": "pub fn active(self: const Track) -> integer",
+              "doc": "Which link is running, for `Chain` — `len(steps)` once it has finished."
+            },
+            {
+              "sig": "pub fn value_at(self: const Track, i: integer) -> float",
+              "doc": "What the link at `i` reads right now.\n\n⚠ A door rather than making a consumer index `steps` itself, because an\nout-of-range index there reads `null` and this answers `0.0`."
+            },
+            {
+              "sig": "pub fn rewind(self: Track)",
+              "doc": "Put every link back at its start."
+            }
+          ],
+          "published": "2026-08-21T10:48:20Z"
         }
       }
     }
