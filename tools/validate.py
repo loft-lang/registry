@@ -8,7 +8,7 @@ Drop this file at `tools/validate.py` in the `loft-lang/registry`
 repo.  Wired in by `.github/workflows/pr-validate.yml` (also in this
 template directory).
 
-Three gates per PR:
+Four gates per PR:
 
 1. **Schema lint** — every package + version row has the required
    fields, types match, schema_version is unchanged; AND every package
@@ -24,6 +24,16 @@ Three gates per PR:
    run `loft package`, compare the produced sha256 to the PR's
    claim.  Caught: source repo's tag points at different bytes
    than the uploaded release tarball.
+   Also re-derives the `api` field from the cloned source and
+   rejects a pasted one that disagrees, so `loft search` can never
+   point at a function the source does not have.
+
+4. **Trigger uniqueness** — every Tier-1 `method:receiver` trigger
+   must be owned by at most one package across the whole registry.
+   A consumer auto-loads a library from a bare `obj.method()` call,
+   so two packages claiming `text.matches` would make the auto-load
+   ambiguous.  Caught: a new library claiming a method-on-type
+   trigger another package already owns.
 
 Exits 0 on all-pass; non-zero with line-prefixed errors on any
 failure.  The workflow surfaces those lines as PR comments.
@@ -267,7 +277,69 @@ def gate_reproducible_build(idx: dict, prev: dict) -> None:
                     f"    (a) the GitHub release tarball is stale — re-upload, OR\n"
                     f"    (b) the git tag was force-pushed — investigate.\n"
                 )
+            # S7-CI: re-derive the function-level `api` from the cloned source and
+            # reject a pasted field that disagrees, so `loft search`'s function
+            # discovery can never point at a function the source does not have.
+            # The `api` field is AUTO-DERIVED by `loft publish` — it must equal
+            # the source, never hand-edited.  (Only checkable where the source is
+            # cloned; a package without a GitHub homepage has its `api` trusted-
+            # as-pasted, exactly like its sha256.)
+            # ⚠ Derive from `pkg_dir`, NOT the clone root: in a multi-package
+            # chunk repo the package is at `<tmp>/<subpath>`, and deriving from
+            # the root answers for the wrong tree — which rejects every
+            # chunk-repo submission.
+            submitted_api = vobj.get("api")
+            if submitted_api is not None:
+                try:
+                    derived = json.loads(
+                        subprocess.check_output(
+                            ["loft", "api", "--json", str(pkg_dir)],
+                            stderr=subprocess.PIPE,
+                        )
+                    )
+                except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+                    fail(f"`{name}` v{ver}: `loft api --json` re-derive failed: {e}")
+                if derived != submitted_api:
+                    fail(
+                        f"`{name}` v{ver}: `api` MISMATCH — the pasted `api` field "
+                        f"does not match the source at {tag}.\n"
+                        f"  The `api` field is auto-derived; re-run `loft publish` "
+                        f"and paste the regenerated entry rather than hand-editing it."
+                    )
+                print(f"[verify] {name} v{ver} api ({len(derived)} fns) matches source")
             print(f"[repro] {name} v{ver} reproduces from source")
+
+
+def gate_trigger_uniqueness(idx: dict) -> None:
+    """Every `method:receiver` Tier-1 trigger must be owned by at most one
+    package across the whole registry.
+
+    A consumer auto-loads a library from a bare `obj.method()` call, so the
+    trigger that maps `matches` -> the providing package must be globally
+    unique; two packages claiming `text.matches` would make the auto-load
+    ambiguous.  A package re-declaring its own trigger across versions is fine
+    — only a *cross-package* collision is rejected.
+
+    Runs over the full index (not just new rows): `main` is assumed clean, so
+    any collision present here was introduced by this PR.
+    """
+    owner: dict[str, str] = {}
+    for name, pkg in idx.get("packages", {}).items():
+        for vobj in pkg.get("versions", {}).values():
+            for trig in vobj.get("triggers", []) or []:
+                if not trig:
+                    continue
+                prior = owner.get(trig)
+                if prior is not None and prior != name:
+                    fail(
+                        f"trigger `{trig}` is claimed by both `{prior}` and "
+                        f"`{name}`; a method-on-type trigger must be unique "
+                        f"across the registry — rename the method in `{name}` "
+                        f"or drop its `[triggers]` opt-in"
+                    )
+                owner.setdefault(trig, name)
+    print("[triggers] all method-on-type triggers are uniquely owned")
+
 
 
 def _new_entries(idx: dict, prev: dict) -> list[tuple[str, str, dict]]:
@@ -297,6 +369,8 @@ def main() -> None:
     else:
         print("[gate 3] reproducible-build re-check")
         gate_reproducible_build(idx, prev)
+    print("[gate 4] trigger uniqueness")
+    gate_trigger_uniqueness(idx)
     print("All gates passed.")
 
 
