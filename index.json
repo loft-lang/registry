@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-21T20:13:45Z",
+  "updated": "2026-08-22T16:53:16Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -12857,6 +12857,118 @@
           "subpath": "lib/lavition_ui",
           "deps": {},
           "published": "2026-08-21T11:18:22Z"
+        }
+      }
+    },
+    "assets": {
+      "description": "A game's content pack that IS a loft store — art, audio and the scenes that place them, range-read off a static file server.  No codec, no parse step, no server-side code.",
+      "homepage": "https://github.com/loft-lang/loft-libs-assets/tree/main/assets",
+      "categories": [
+        "game",
+        "asset-format"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/assets-v0.1.0/assets-0.1.0.tar.gz",
+          "sha256": "ff6d10b4e9dba580a738ee2dd3cccc8c0bb334f19145a407ae9c728390be95e0",
+          "size": 11729,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "assets",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub enum BlobKind",
+              "doc": "What a blob's bytes are, so a loader knows what to do with them without\nsniffing the content. `Rgba` is a texture page's own pixels — premultiplied,\nrow-major, four bytes per texel — already decoded by the packer, so the runtime\nnever learns how the art was made."
+            },
+            {
+              "sig": "pub enum DefKind",
+              "doc": "Whether a definition draws or lights. A light is a placed instance like any\nother, and this is what says which."
+            },
+            {
+              "sig": "pub struct Blob",
+              "doc": "Raw bytes under a key — a texture page's pixels, audio, a font, a source PNG.\n\nOne blob is the **paging unit**: `store_load_key_text` fetches the pages this\nrecord touches and nothing else. So size a blob like an atlas page rather than\nlike one sprite — a store's minimum image is 8 KiB, and a finer key fetches a\npage's worth either way."
+            },
+            {
+              "sig": "pub struct PageInfo",
+              "doc": "A texture page's SHAPE, and the blob key its pixels live under.\n\nThe dimensions are metadata and the pixels are bulk, so they live in different\nstores. A loader that needs to know a page is 64x32 — to build UVs, to size a GL\ntexture, to decide what to prefetch — gets that from the boot load without\nfetching a single texel."
+            },
+            {
+              "sig": "pub struct Cell",
+              "doc": "One sprite's rect within a page, plus the origin a stage places it by."
+            },
+            {
+              "sig": "pub struct Seq",
+              "doc": "An animation: a run of cells laid out in one page's grid. Mirrors `stage`'s\n`Sequence`, so a loader hands it straight over."
+            },
+            {
+              "sig": "pub struct Def",
+              "doc": "An object definition — GameMaker's *object*, the thing a room places.\n\nA walk cycle is asset data and not code, so the animation table hangs off the\ndefinition (see `anim_of`) rather than living in a game's source. A light\ncarries its radius, colour and power here and is placed exactly like a sprite."
+            },
+            {
+              "sig": "pub struct Anim",
+              "doc": "One row of a definition's animation table: `(action, facing) -> sequence`.\nBuild `an_key` as `\"{def}/{action}/{facing}\"`, which is what `anim_of` looks up."
+            },
+            {
+              "sig": "pub struct Scene",
+              "doc": "A room: a named space that placed instances live in."
+            },
+            {
+              "sig": "pub struct Placed",
+              "doc": "A placed instance — GameMaker's *room instance*.\n\nDefinitions plus these are what a scene IS; a flat node dump cannot say that two\ngoblins are the same goblin. The fields mirror `stage::Place`, so loading a scene\nis a copy rather than a translation."
+            },
+            {
+              "sig": "pub struct Pack",
+              "doc": "A pack's METADATA half — every collection a game reads at boot.\n\nBinding through this container is what puts all seven collections in one file: a\nkeyed field shares its container's store, so one persist call writes one file and\na reader that declares the same type gets all of it. Read it WHOLE; it is small,\nevery part is needed from the first frame, and being a wrapper struct it cannot be\npaged anyway. The bytes are the other store's job."
+            },
+            {
+              "sig": "pub fn new_pack() -> Pack",
+              "doc": "An empty pack — every collection present and none of them holding anything.\n\nBoth a packer and a loader start here: a loader declares the pack it is about to\nfill, then hands it to `pack_read`."
+            },
+            {
+              "sig": "pub fn meta_path(base: text) -> text",
+              "doc": "Where a pack's metadata half lives, given the name the pack is known by.\n\n`base` is a local path or an `http(s)://` URL — the two halves are named the same\nway either side of the wire, which is what lets a game develop against a file and\nship against a CDN with only the base changed."
+            },
+            {
+              "sig": "pub fn blobs_path(base: text) -> text",
+              "doc": "Where a pack's bulk half lives. Pass this to `prefetch` to page a blob out of it."
+            },
+            {
+              "sig": "pub fn blob_put(b: &hash<Blob[bl_key]>, key: text, kind: BlobKind,",
+              "doc": "Put a blob under its key, ready to be written.\n\nUse this rather than appending: `+=` on a `&hash` parameter retypes it to a\n`vector<Blob>` and the program stops compiling."
+            },
+            {
+              "sig": "pub fn pack_write(p: const Pack, blobs: const hash<Blob[bl_key]>,",
+              "doc": "Write both halves of a pack, answering whether both landed.\n\nA pack is final by the time it ships, so this copies rather than binds: a copied\nimage lays each collection out in its own order, which is what makes one keyed\nlookup one RUN of pages instead of a scatter — the difference between a range\nread that pays for a page and one that pays for the file. Writing needs a\ndesktop; a browser reads packs and does not build them."
+            },
+            {
+              "sig": "pub fn pack_read(p: Pack, base: text) -> boolean",
+              "doc": "Read a pack's metadata half in full, answering whether it arrived.\n\nGive it a pack from `new_pack`. `base` is a local path or an `http(s)://` /\n`file://` URL, and that is the only thing that changes between developing against\na file and shipping against a CDN. The bytes are NOT read here — ask for those by\nkey, through `prefetch`, at a load or level boundary.\n\nA URL is fetched from a source you TRUST: the image is structurally validated, so\na corrupt file is refused rather than adopted, but its contents are not\nauthenticated. Serve packs from your own origin, or verify the download yourself\nwith `store_load_url` before reading it."
+            },
+            {
+              "sig": "pub fn anim_of(p: const Pack, def: text, action: text, facing: integer) -> text",
+              "doc": "The sequence an action and a facing map to, or `\"\"` when the definition has none.\n\nThis is the animation table's whole point: `anim_of(pack, \"goblin\", \"walk\", 2)`\nanswers `\"goblin_walk_n\"` with nothing in a game's source holding the mapping, and\nan action the definition does not have answers empty rather than a plausible wrong\nsequence."
+            },
+            {
+              "sig": "pub fn keys_near(p: const Pack, scene: text, cx: float, cy: float,",
+              "doc": "Every blob key a scene's instances draw from within `radius` of `(cx, cy)`.\n\nAsk for this at a load or a level boundary, never inside a frame: a range read is\na round trip and a frame is 16 ms, so a frame that DISCOVERS it needs an asset\nstutters visibly. A negative `radius` means the whole scene — what a small room\nand a loading screen both want. Duplicates are dropped, because a page shared by\nforty instances is still one fetch."
+            },
+            {
+              "sig": "pub fn prefetch(into: hash<Blob[bl_key]>, source: text,",
+              "doc": "Pull `keys` into `into`, and answer how many actually COST something.\n\n`source` is `blobs_path(base)`. A key already resident is skipped, so the answer is\nthe number of round trips this call paid for: what a level boundary wants to log,\nand what a frame must be able to assert is zero. A key the pack does not hold is\nskipped too — an absent asset costs a lookup, not a record."
+            },
+            {
+              "sig": "pub fn layout_descriptor() -> text",
+              "doc": "The pack's own types, field by field, as the store records them.\n\nRead this when the fingerprints below disagree: it names the type and the field\nwhose position moved, which the single number cannot. Derived by reflection from\nthe schema itself, so it cannot drift from it."
+            },
+            {
+              "sig": "pub fn layout_fingerprint() -> integer",
+              "doc": "One number naming this build's pack layout — compare it across targets before a\npack is read.\n\nThe struct definition IS the file layout, so a field that sits four bytes further\nalong on one target reads a NEIGHBOUR's value on the other, silently, and the file\nlooks corrupt rather than the layout looking wrong. A game that reads packs built\nelsewhere should compare this once at boot and refuse rather than draw garbage.\n(A 32-bit FNV-1a over `layout_descriptor`, masked at every step because an\nunbounded multiply would reach loft's null.)"
+            }
+          ],
+          "published": "2026-08-22T16:53:16Z"
         }
       }
     }
