@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-22T16:53:16Z",
+  "updated": "2026-08-23T04:08:10Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -1145,6 +1145,83 @@
             }
           ],
           "published": "2026-08-18T05:46:26Z"
+        },
+        "0.5.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/shapes-v0.5.0/shapes-0.5.0.tar.gz",
+          "sha256": "205547c497ffc8f12aacf5f85def93d6a5da38b47a478a765588f9c8cbc8a448",
+          "size": 8369,
+          "loft": ">=2026.7.2",
+          "api_compatible_with": "0.3.0",
+          "data_compatible_with": "0.3.0",
+          "subpath": "shapes",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Rect",
+              "doc": "Axis-aligned bounding box for 2D collision."
+            },
+            {
+              "sig": "pub struct Circle",
+              "doc": "Circle shape for 2D collision."
+            },
+            {
+              "sig": "pub fn rects_overlap(a: const Rect, b: const Rect) -> boolean",
+              "doc": "Test whether two axis-aligned rectangles overlap.\nThe comparison is STRICT, so rectangles sharing an edge do NOT overlap.\nExample: @SHP-001 — touching is not overlapping, and what that buys: a row of\nabutting tiles is quiet, and a mover pushed out by exactly its penetration\ndepth is done."
+            },
+            {
+              "sig": "pub fn circles_overlap(a: const Circle, b: const Circle) -> boolean",
+              "doc": "Test whether two circles overlap.\nStrict, like `rects_overlap`: tangent circles do NOT overlap.\nExample: @SHP-001 — the shared strict boundary across all three predicates."
+            },
+            {
+              "sig": "pub fn rect_circle_overlap(r: const Rect, c: const Circle) -> boolean",
+              "doc": "Test whether a rectangle and a circle overlap.\nA true circle test — the circle's bounding box is NOT a substitute for it, and\na circle wholly inside the rectangle counts as overlapping.\nExample: @SHP-003 — where the box approximation disagrees (every corner), and\nwhy containment answers true."
+            },
+            {
+              "sig": "pub struct Overlap",
+              "doc": "Overlap depth between two rectangles on each axis."
+            },
+            {
+              "sig": "pub fn rect_overlap_depth(a: const Rect, b: const Rect) -> Overlap",
+              "doc": "Compute the overlap depth between two rectangles on each axis.\nBoth depths are UNSIGNED distances — the caller derives the direction from the\nrelative positions.  Returns (0.0, 0.0) when they don't overlap.\nUseful for bounce direction: if ox < oy → horizontal bounce.\nExample: @SHP-002 — the sign is the caller's to work out (applying it the wrong\nway pushes deeper), and the smaller axis is the minimal correction."
+            },
+            {
+              "sig": "pub fn aabb_overlap(ax: float, ay: float, aw: float, ah: float,",
+              "doc": "Test AABB overlap using raw coordinates (no struct allocation — safe in loops).\nSame strict boundary as `rects_overlap`.\nExample: @SHP-001 — touching is not overlapping, raw form included."
+            },
+            {
+              "sig": "pub fn aabb_depth_x(ax: float, ay: float, aw: float, ah: float,",
+              "doc": "Compute the AABB overlap depth on the X axis using raw coordinates —\n`aabb_depth_y` is the other half of the pair, and each call re-runs the overlap\ntest on its own.  Unsigned, like `rect_overlap_depth`.  `0.0` means the two do\nnot overlap AT ALL (a real overlap always penetrates by strictly more than\nzero), not \"they meet with no penetration on this axis\".\nSafe in loops (no struct allocation).\nExample: @SHP-002 — the depth pair, its 0.0 sentinel, and how a caller turns it\ninto a correction."
+            },
+            {
+              "sig": "pub fn aabb_depth_y(ax: float, ay: float, aw: float, ah: float,",
+              "doc": "Compute the AABB overlap depth on the Y axis using raw coordinates — the other\nhalf of the `aabb_depth_x` pair, with the same unsigned `0.0`-is-no-overlap\ncontract.  Safe in loops (no struct allocation).\nExample: @SHP-002 — the depth pair, its 0.0 sentinel, and how a caller turns it\ninto a correction."
+            },
+            {
+              "sig": "pub struct Proxy",
+              "doc": "A shape approximated by a SET of boxes rather than one.\n\nA sprite's silhouette is rarely a rectangle, and a single bounding box around\na diagonal or an L is mostly empty — a mover well clear of the art still reads\nas a hit.  A handful of boxes tracks the silhouette closely enough to fix that\nwhile staying axis-aligned, so every test below is still the cheap one.\n\nThe contract a producer owes is CONTAINMENT: every box together must cover\neverything solid, so substituting the proxy for the art can only ever over-\nreport a hit, never miss one. A system validated against the proxy therefore\nstays valid when the art changes. Containment alone is satisfied by a\nscreen-sized box, which is why a producer also bounds the OVERSHOOT — see\n`overshoot`.\n\nMeasured over a 36-sprite corpus (@PLN146 F7a): 16 boxes banded along the\ntighter axis beat a convex hull on mean, median and worst case, and need no\nshape kind this library does not already have."
+            },
+            {
+              "sig": "pub fn proxy_hits(self: const Proxy, r: const Rect) -> boolean",
+              "doc": "Does anything in the proxy overlap `r`?\n\nThe set test every consumer would otherwise write, with the same STRICT\nboundary as `rects_overlap` — a box sharing an edge does not overlap.  An\nEMPTY proxy answers false: nothing solid was derived, so nothing can be hit,\nwhich is the answer that keeps a sprite with no opaque texels from colliding\nwith the world."
+            },
+            {
+              "sig": "pub fn proxies_overlap(self: const Proxy, other: const Proxy) -> boolean",
+              "doc": "Do two proxies overlap anywhere?\n\nPairwise, because a proxy is small by construction — 16 boxes against 16 is\n256 rect tests in the worst case and stops at the first hit.  Cull with the\ncheap `bounds()` box first when both are large."
+            },
+            {
+              "sig": "pub fn bounds(self: const Proxy) -> Rect",
+              "doc": "The single box containing every box in the proxy — the AABB it replaces.\n\nUseful as a broad-phase cull before `proxies_overlap`, and as the denominator\nwhen judging whether the proxy earned its extra boxes.  An empty proxy answers\na zero-size box at the origin."
+            },
+            {
+              "sig": "pub fn area(self: const Proxy) -> float",
+              "doc": "Total area of the proxy's boxes.\n\nBands from one derivation do not overlap, so for a banded proxy this is the\ncovered area exactly.  A proxy whose boxes DO overlap counts the shared part\ntwice, which overstates the area and therefore the overshoot — the honest\ndirection for a bound."
+            },
+            {
+              "sig": "pub fn overshoot(self: const Proxy, solid: float) -> float",
+              "doc": "How much bigger the proxy is than the thing it stands for, as a fraction.\n\n`solid` is the area actually covered by art — the opaque texel count for a\nsprite. `0.0` is exact, `1.0` is twice the size. This is the number a packer\ngates on, and the reason containment alone is not the contract: a\nscreen-sized box contains everything and is useless.\n\nA `solid` of zero or less answers `0.0` rather than dividing: there is nothing\nto be a multiple OF, and a null here would propagate into a comparison that\nthen silently passes.\n\nThe trailing `?` is not redundant with that guard.  A divide types `float?`\nwhatever the code above it proves, so without the discharge this returns a\nnull into a non-null `float` — which is the very failure the guard is there to\nprevent, arriving by the other door."
+            }
+          ],
+          "published": "2026-08-23T04:08:10Z"
         }
       }
     },
@@ -5552,6 +5629,47 @@
             }
           ],
           "published": "2026-08-18T05:46:05Z"
+        },
+        "0.3.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.3.0/imaging-0.3.0.tar.gz",
+          "sha256": "4154d5c4db6d5a92862f56f67d73215b268ced39fade84301c8641ef125a0aac",
+          "size": 28816,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.3.0",
+          "data_compatible_with": "0.3.0",
+          "subpath": "imaging",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Pixel",
+              "doc": "Data per pixel of a PNG image.\nFields r, g, b hold red, green and blue intensity and `a` holds opacity, each\n0–255.  The channels are const, so a pixel is REPLACED (`img.data[i] =\nPixel{…}`), never edited in place, and `limit(0, 255)` is a range rather than a\nclamp — a value outside it stores 0.\n\n**`a` defaults to 255, and the default is load-bearing.** An omitted field takes\nits type's zero, and zero alpha is INVISIBLE — so without the declared default\nevery `Pixel{r, g, b}` ever written would silently become fully transparent\n(loft#914's `omitted-field-zero` in its purest form).  With it, code that\npredates alpha keeps meaning what it meant: opaque.\nExample: @IMG-003 — replacing a pixel, and why the local you read it into is a\nview of its slot rather than a snapshot.\nExample: @IMG-004 — the range is not a clamp: doubling a bright channel stores\n0, so brightening turns the brightest pixels black."
+            },
+            {
+              "sig": "pub fn value(self: Pixel) -> integer",
+              "doc": "Returns the pixel colour as a packed 24-bit integer (0xRRGGBB).\nUse for fast colour comparison or storage.  Alpha is NOT in it — this is the\npre-alpha contract and stays 24-bit, so a comparison written against it keeps\nanswering what it answered.  For opacity read `p.a`, or `rgba()` for the packed\n32-bit form."
+            },
+            {
+              "sig": "pub fn rgba(self: Pixel) -> integer",
+              "doc": "Returns the pixel as a packed 32-bit integer (0xAARRGGBB) — the byte order\n`graphics::Canvas` uses, so a decoded image can be handed to a canvas without a\nper-channel loop at the call site."
+            },
+            {
+              "sig": "pub fn opaque(self: Pixel, cutoff: integer = 128) -> boolean",
+              "doc": "Is this texel opaque enough to count as covered?\n\nA collision proxy, a trim box and a colour key all want the same question, and\nthey want it with a THRESHOLD rather than `a == 255`: antialiased art has a\nfringe of partly-transparent texels that belong to the silhouette.  Default 128\n— half opacity — which is the midpoint of that fringe."
+            },
+            {
+              "sig": "pub struct Image",
+              "doc": "Database structure with image data.\nThe actual data is in height rows of width length: `data` is one FLAT vector in\nrow-major order, so the pixel at (x, y) is `data[y * width + x]`, and\n`len(data) == width * height` always holds on an image `png()` handed back.\nExample: @IMG-001 — the addressing rule, and what the null check buys."
+            },
+            {
+              "sig": "pub fn save_png(self: const Image, path: text) -> boolean",
+              "doc": "Write this image to a PNG file. Returns true on success."
+            },
+            {
+              "sig": "pub fn png(self: File) -> Image",
+              "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
+            }
+          ],
+          "published": "2026-08-23T04:08:10Z"
         }
       }
     },
