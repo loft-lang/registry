@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-24T11:57:44Z",
+  "updated": "2026-08-28T17:27:39Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -12371,6 +12371,319 @@
             }
           ],
           "published": "2026-08-24T11:57:44Z"
+        },
+        "0.1.2": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_shape-v0.1.2/hex_shape-0.1.2.tar.gz",
+          "sha256": "48178c8fa71a403d25f543f9701c2665c801425b4c50206a50afc4b2d932261f",
+          "size": 46944,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_shape",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_grid": ">=0.1",
+            "hex_form": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub fn arc_fill(cq: integer, cr: integer, n24: integer, cells: HexSet) -> integer",
+              "doc": "Fill the disk of shell `n24` about (cq, cr): every cell whose 4·squared-distance is at most\n`n24`.  Entirely integer — the comparison that decides membership never touches a float.\n\n`n24` is a SHELL, not a radius.  Hand it a value no `(k,m)` realises and it draws the\nshell below without a word — `arc_shells_upto` is the grid to snap to first.\n\nExample: @HXS-001"
+            },
+            {
+              "sig": "pub fn arc_shell_max(cells: HexSet, cq: integer, cr: integer) -> integer",
+              "doc": "The outermost shell actually occupied, measured about (cq, cr).  This is the recoverable radius\nparameter — the largest `N` present, not the continuous radius that was authored.\n\nExample: @HXS-001"
+            },
+            {
+              "sig": "pub fn arc_is_disk(cells: HexSet, cq: integer, cr: integer) -> boolean",
+              "doc": "Is the set EXACTLY the disk of its own outermost shell about (cq, cr)?  A tower must be, and a\nblob will not be — this is what stops an arbitrary round-ish region being read as an arc.\n\nExample: @HXS-001\nExample: @HXS-009"
+            },
+            {
+              "sig": "pub fn arc_recover_centre(cells: HexSet) -> (integer, integer, boolean)",
+              "doc": "Recover the centre: the unique cell about which the set IS a disk.  Searched over the cells of\nthe set itself — a disk's centre is always one of its own cells — so this is O(cells²) and needs\nno guess.  Returns `found = false` when the region is not a disk about any of them, which is the\nR2 answer for a shape that is not an arc.\n\nExample: @HXS-001"
+            },
+            {
+              "sig": "pub fn arc_shells_upto(n24: integer) -> vector<integer>",
+              "doc": "The shells that actually exist out to `n24`, ascending — the admissible radius grid, i.e. `Sep`\nmade concrete.  A value of `N` that no `(k,m)` realises is not a shell and cannot be authored.\n\nExample: @HXS-001"
+            },
+            {
+              "sig": "pub fn arc_wedge_has(cq: integer, cr: integer, q: integer, r: integer,",
+              "doc": "Is cell (q,r) inside the angular wedge running CCW from ray `lo` up to ray `hi`, about centre\n(cq,cr)?  The wedge must span less than 180°, so `lo` and `hi` bound one contiguous arc.\n\nExample: @HXS-009"
+            },
+            {
+              "sig": "pub fn arc_door_wedge(cells: HexSet, edges: EdgeSet, cq: integer, cr: integer,",
+              "doc": "Place a door on the wall: re-material every boundary edge whose inside cell lies in the wedge to\n`mat`.  Annotation only — no cell or edge is removed — so the disk, and therefore the recovered\ncentre and shell, are untouched.  Returns the number of edges marked.  The arc analog of\n`place_opening`.\n\nExample: @HXS-009"
+            },
+            {
+              "sig": "pub fn arc_door_edges(cells: HexSet, edges: EdgeSet, mat: integer) -> integer",
+              "doc": "Recover the door: count the boundary edges carrying `mat`, each exactly once (only the inside\ncell of a boundary edge is in the set, so iterating inside cells visits every boundary edge\nonce).  This is the R1 read of the feature straight off storage.\n\nExample: @HXS-009"
+            },
+            {
+              "sig": "pub fn box_cos(n: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn box_sin(n: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn box_orbit(rot: integer) -> integer",
+              "doc": "Which of the two orbits `rot` belongs to: 0 = the EDGE family (`Plan`'s six),\n1 = the VERTEX family. Members of one orbit are exact lattice rotations of each other;\nmembers of different orbits are not related by any exact map.\n\nExample: @HXS-006"
+            },
+            {
+              "sig": "pub struct Box",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn box_new(cq: integer, cr: integer, wid: integer, dep: integer,",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn box_hw(b: Box) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn box_hd(b: Box) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn box_to_local(b: Box, px: float, py: float) -> (float, float)",
+              "doc": "World point -> the box's local frame. Same convention as `housedraw::plan_to_local`, so\nan even-rot Box and the Plan with rot/2 describe the SAME rectangle — which the gate\nchecks rather than assumes."
+            },
+            {
+              "sig": "pub fn box_fill(b: Box, cells: HexSet) -> integer",
+              "doc": "Example: @HXS-006"
+            },
+            {
+              "sig": "pub fn box_ring_out(cells: HexSet, ring: HexSet) -> integer",
+              "doc": "── THE THICK WALL — a castle, not a cottage ───────────────────────────────\n\nA cottage wall is an EDGE: it costs no floor, and 27 cells of house stay 27 cells of\nhouse. A castle wall is different in kind — it is GROUND, wide enough to stand and walk\non, with an inside and an outside. So it is a ring of whole CELLS, and the only question\nis which side of the selection it takes.\n\n`box_ring_out` puts it OUTSIDE: the user's selection is the courtyard, untouched, and the\nwall is the ring of cells around it. This is the one that matches the editor's gesture —\nwhat you select is what you get to keep.\n\nExample: @HXS-007"
+            },
+            {
+              "sig": "pub fn box_ring_in(cells: HexSet, ring: HexSet) -> integer",
+              "doc": "`box_ring_in` takes it from INSIDE instead: the outermost layer of the selection becomes\nwall and the courtyard shrinks. Same ring, opposite side — a town wall drawn to a\nsurveyed outer boundary wants this one.\n\nExample: @HXS-007"
+            },
+            {
+              "sig": "pub fn flood_outside(wall: HexSet, out: HexSet)",
+              "doc": "── DOES THE WALL HOLD? ────────────────────────────────────────────────────\n\nA ring that looks closed and is not is the exact defect `SPEC` I3's control names — \"2\ncomponents, 0 enclosed, yet still 12/12 equivariant\". For a thick wall the honest test is\nnot to count cells but to try to WALK IN: flood the outside and see whether it reaches the\ncourtyard. One hole and it does.\n\nRelaxation rather than a queue: the region is a box, so sweeping until nothing changes\nterminates in at most its perimeter in passes, and it needs no auxiliary storage.\n\nExample: @HXS-007"
+            },
+            {
+              "sig": "pub fn leak_count(inner: HexSet, out: HexSet) -> integer",
+              "doc": "How many cells of `inner` the outside flood reached. Zero means the wall holds.\n\nExample: @HXS-007"
+            },
+            {
+              "sig": "pub fn line_hexes(x0: float, y0: float, x1: float, y1: float, cells: HexSet) -> integer",
+              "doc": "── A THICK LINE — the town wall that is not a box ─────────────────────────\n\nSame wall, no enclosure: a run of cells one hex wide, for a curtain wall or a rampart.\nThe cells are those the segment passes THROUGH — a hex is on the line iff the segment\nenters it — so the chain is connected by construction and exactly one cell wide.\n\nStepping is by a third of a cell, which cannot skip one: consecutive samples are 0.577 wu\napart at most while a hex is 1.732 wu across, so every cell the segment crosses is\nsampled at least twice.\n\nExample: @HXS-007"
+            },
+            {
+              "sig": "pub fn set_connected(cells: HexSet) -> boolean",
+              "doc": "Is every cell of the set reachable from every other, stepping only within the set?\nA wall with a gap is not a wall; this is what makes \"one hex wide\" mean a CHAIN.\n\nCONNECTED IS NOT CLOSED.  A ring with one cell taken out is still one connected chain, so\nthis answers true on a wall you can walk straight through.  For an ENCLOSURE the verdict is\n`flood_outside` + `leak_count`; this one is the contract for an open run.\n\nExample: @HXS-007"
+            },
+            {
+              "sig": "pub struct Wall",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wall_step_k(d24: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wall_step_m(d24: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wall_is_exact(d24: integer) -> boolean",
+              "doc": "An even d24 is one of the 12 exact headings; an odd one is an in-between.\n\nExample: @HXS-002"
+            },
+            {
+              "sig": "pub fn wall_new(d24: integer, ox: float, oy: float, half: float, mat: integer) -> Wall",
+              "doc": "Example: @HXS-008"
+            },
+            {
+              "sig": "pub fn wall_angle_nominal(d24: integer) -> float",
+              "doc": "The nominal angle of `d24` in degrees, and the angle its step actually points at.  The two\nare EQUAL on every even d24 and differ by 1.1021 degrees on every odd one — the gate prints\nboth rather than hiding it.  (4.11 degrees was the pre-`N = 39` in-between; see the table.)"
+            },
+            {
+              "sig": "pub fn wall_angle_actual(d24: integer) -> float",
+              "doc": "Example: @HXS-002"
+            },
+            {
+              "sig": "pub fn wall_offset_signed(w: Wall, px: float, py: float) -> float",
+              "doc": "── writing into the foxel — ALONG the wall, not ACROSS it (OD-12) ─────────\n\nTHE FIRST TRY MARKED THE WRONG EDGES.  The band model asked \"does the wall's thin\nrectangle overlap this hex edge?\" — and the edges a thin band overlaps are the ones lying\nACROSS it, roughly perpendicular.  A due-east wall came out as a comb of vertical pickets\n(`X28`), because a hex has edges on only three lines (30/90/150) and none runs east, so a\nwall going east cannot BE a run of hex edges pointing east.\n\nTHE WALL IS A BOUNDARY, NOT A BAND.  A straight line divides the plane into two\nhalf-planes.  The hex edges that lie ALONG the line are exactly the ones that SEPARATE a\ncell on one side from a cell on the other — the boundary between the two half-planes, which\nfor any direction is a single connected chain, straight in the three edge directions and an\nalternating wobble otherwise.  This is `housedraw::draw_walls`' own rule (an edge between an\ninside cell and an outside one), applied to a half-plane instead of a filled region — so it\ninherits `I3`'s \"closed by construction, one wide\" for free.\n\nSigned perpendicular offset of a world point from the wall's centre line.  Positive on the\nside the normal (-dy, dx) points to; the sign is all that matters for separation."
+            },
+            {
+              "sig": "pub fn wall_separates(w: Wall, cx: float, cy: float, nx: float, ny: float) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn hex_corner_x(q: integer, r: integer, c: integer) -> float",
+              "doc": "── THE EDGE TABLE IS hex_grid's, NOT OURS ─────────────────────────────────\n\n`hex_grid` already owns the moros edge-wall model — it says so in the file: \"walls live\non hex edges, stored on 3 canonical edges per hex (dirs 0,1,2); dirs 3,4,5 belong to the\nneighbour\".  So `hex_edge_corners(dir)` IS the map from a neighbour direction to the two\ncorners bounding that edge, and `moros_render::emit_hex_walls` emits exactly those corner\npairs (N = 5->0, NE = 0->1, SE = 1->2) for the three stored slots.\n\nA PRIVATE CORNER CONVENTION IS A SILENT WRONG ANSWER.  This file first carried its own\ntable (corner 0 at 30 degrees) and paired edge `c` with `nb_q/nb_r(q, r, c)` — but\nhex_field's direction order is [E, W, SE, SW, NE, NW] and hex_grid's is\n[E, SE, SW, W, NW, NE], so five of the six edges were stored against the WRONG\nneighbour.  Every gate stayed green: a consistently wrong edge is still written once,\nstill idempotent, still non-empty.  Only measuring the marks back against the geometry\ncaught it, which is why `wall_edge_gap` below is a gate and not a comment.\n\nCorner `c` of the hex at (q,r), in world units — hex_grid's table, hex_grid's indices."
+            },
+            {
+              "sig": "pub fn hex_corner_y(q: integer, r: integer, c: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn cell_x_w(q: integer, r: integer) -> float",
+              "doc": "Cell centre in world units.  hex_field's exact lattice and hex_grid's float world agree\nterm for term — k*sqrt(3)/2 = sqrt(3)*(q + (r&1)/2) and m/2 = 1.5r — so this is the\ninteger spelling of `hex_to_px`, not a second convention."
+            },
+            {
+              "sig": "pub fn cell_y_w(q: integer, r: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wall_edge_gap(q: integer, r: integer, dir: integer) -> float",
+              "doc": "THE CHECK THAT WOULD HAVE CAUGHT IT: how far the midpoint of edge `dir` sits from the\nmidpoint between the two cell centres it is supposed to separate.  Zero for every\ndirection, or the edge table and the neighbour table disagree.\n\nExample: @HXS-004"
+            },
+            {
+              "sig": "pub fn hex_corner_tri_a(q: integer, r: integer, ci: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn hex_corner_tri_b(q: integer, r: integer, ci: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wall_write(w: Wall, edges: EdgeSet, q0: integer, r0: integer,",
+              "doc": "THE ROUTINE: draw the wall into the foxel's three wall slots per hex.\n\nAn edge is marked iff the wall's centre line SEPARATES its two owning cells, within the run.\n`edge_set_mat` stores an edge once, under whichever cell owns it, so writing from both sides\nis idempotent — which is what makes the three-slots-per-hex model hold."
+            },
+            {
+              "sig": "pub fn wall_along_max(w: Wall, edges: EdgeSet, q0: integer, r0: integer,",
+              "doc": "── READING THE CHAIN BACK: is it ALONG the wall, and is it ONE chain? ─────\n\nThese are the two properties that distinguish the fixed marking from the old picket comb,\nand neither is visible in the perpendicular STRAY (a comb and a zigzag both swing ~1 hex off\nthe line).  They are what `tests/wall.loft` §6 asserts.\n\nALONG-NESS.  For a marked edge between cells C and N, the vector C->N is PERPENDICULAR to the\nedge.  An edge lying ALONG the wall therefore has C->N pointing ACROSS the wall — a small\n`|C->N . wall_dir|`.  The old picket marked edges lying ACROSS the wall, whose C->N pointed\nALONG it — `|C->N . wall_dir| ~ 1`.\n\n⚠ THAT MAKES THE WORST `|dot|` A DISCRIMINATOR ON HALF THE DIRECTIONS ONLY.  On the twelve\nEXACT headings it tops out at 0.5 (N = 3) or 0.866 (N = 1), and nothing reaches 0.9.  On the\ntwelve IN-BETWEEN ones it reads **0.97** on completely correct output: a shallow line has to\ncross the vertical edge between two cells of the SAME row wherever it steps up, and that\nedge's dot is `cos(13.9 deg)`.  Measured, 3 of a 25-edge run are above 0.9.  So this number\ndescribes the WOBBLE; it does not deliver a verdict, and a gate that thresholds it flags a\ncorrect in-between wall.\n\nThe verdict is the CHAIN property below — two degree-1 vertices, no branches — which is exact\nand holds for all 24 directions.\n\nExample: @HXS-004"
+            },
+            {
+              "sig": "pub fn wall_chain_ends(edges: EdgeSet, q0: integer, r0: integer,",
+              "doc": "ONE CHAIN.  The marked edges form a connected path iff, keyed by their shared hex vertices\n(exact triangle-lattice integers), exactly two vertices have degree 1 (the ends) and none has\ndegree > 2.  A picket comb of k disjoint edges has 2k degree-1 vertices — so this separates a\nchain from a comb with no tolerance.  Returns the number of degree-1 vertices (2 for a single\nchain, 0 for empty, 4 after a break, 2k for a comb).\n\n⚠ TWO WALLS MEETING AT A CORNER USUALLY DO NOT FUSE, so this is 4 and not 2 for an L — each\nwall keeps its own two ends.  That is a fact about the marking and not a defect: a consumer\nreading it as *the marking is broken* will refuse a shape somebody drew on purpose.\n\nExample: @HXS-004"
+            },
+            {
+              "sig": "pub fn wall_chain_branches(edges: EdgeSet, q0: integer, r0: integer,",
+              "doc": "Any vertex where three or more marked edges meet — a branch, which a straight wall's boundary\nnever has.  Non-zero means the marking is not a simple path.\n\nExample: @HXS-004"
+            },
+            {
+              "sig": "pub struct WallChain",
+              "doc": "── THE CHAIN IN READING ORDER ─────────────────────────────────────────────\n\nThe two counters above answer *how many ends* and *how many branches* and throw the walk\nitself away, so a consumer holding a marking has the numbers and not the chain.  This\nreturns it: an unordered set of marked edges in, the vertices in the order a walk meets\nthem out — which is what `wall_read_run` and `surface_of` already consume, and what a scan\nof the store can never give, because a scan has no order at all.\n\nA CONSUMER WANTS THIS TO CUT A MARKING INTO RUNS.  `wall_read_run` reads a chain's two\nends and answers for one run; a marking with a CORNER in it has no such pair, and a closed\nroom has no free end at all.  With the chain ordered, the question becomes *where along it\ndoes one run stop and the next begin*, which is a decision about spans rather than a search\nover the plane.\n\n⚠ ONE CALL IS ONE CHAIN, AND A MARKING IS OFTEN SEVERAL.  Two walls meeting at a corner do\nnot necessarily fuse — an L has FOUR degree-1 vertices, so each wall keeps its own two ends\nand the marking is two chains.  `wc_n` is how many there are and `nth` picks one; a consumer\nthat walks one and stops describes half an L and calls the rest a residual.\n\n⚠ A CLOSED LOOP HAS NO CANONICAL START.  With no degree-1 vertex the seed is the first\nendpoint in scan order, which lands wherever the scan lands — so a room of four walls comes\nback as one chain that begins and ends in the middle of the same wall.  `wc_loop` says so;\nwhat to do about it belongs to the consumer, because only the consumer knows whether the\nfirst and last spans it cut are one run.\n\n⚠ AND AT A BRANCH THE ORDER IS ONE OF SEVERAL.  Where three or more marks meet, the walk\ncontinues along the first unused one in scan order — deterministic, and *a* traversal rather\nthan *the* traversal.  `wc_branch` counts the vertices this chain passes through where that\nchoice was made, so a consumer needing a simple path can refuse rather than believe."
+            },
+            {
+              "sig": "pub fn wall_chain_walk(edges: EdgeSet, q0: integer, r0: integer, wq: integer,",
+              "doc": "The `nth` chain of this marking, in the order a walk meets its vertices.  `nth = 0` is the\nfirst; `wc_n` is how many there are, and is filled in whether or not `nth` names one."
+            },
+            {
+              "sig": "pub fn tri_a(d24: integer) -> integer",
+              "doc": "The primitive triangle-lattice vector of direction `d24`."
+            },
+            {
+              "sig": "pub fn tri_b(d24: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn tri_n2(d24: integer) -> integer",
+              "doc": "N = |v|^2 / S^2 for direction `d24` — an exact integer, never a float comparison.\nThe direction's `N`.  Only THREE values occur over the 24 — measured, not assumed.\n\nExample: @HXS-002"
+            },
+            {
+              "sig": "pub fn is_square(n: integer) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn commensurable(n1: integer, n2: integer) -> boolean",
+              "doc": "Are the two directions' lattice-line spacings COMMENSURABLE — i.e. can integer counts of\nrows in each ever be exactly equal?  Only if sqrt(N2/N1) is rational, i.e. N1*N2 square.\nExample: @HXS-002"
+            },
+            {
+              "sig": "pub fn tri_class(a: integer, b: integer) -> integer",
+              "doc": "The class of a triangle-lattice point: 0 = hex centre, 1 and 2 = the two vertex classes.\nOnly meaningful once `tri_on_hex_scale` holds."
+            },
+            {
+              "sig": "pub fn tri_on_hex_scale(a: integer, b: integer) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn tri_is_vertex(a: integer, b: integer) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wall_end_a(d24: integer, a0: integer, p: integer) -> integer",
+              "doc": "The endpoint of a run of `p` periods of direction `d24` from (a0, b0).  One period is\nTHREE primitive steps — the smallest displacement that can reach a hex-scale point at all."
+            },
+            {
+              "sig": "pub fn wall_end_b(d24: integer, b0: integer, p: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wall_run_ok(d24: integer, a0: integer, b0: integer, p: integer) -> boolean",
+              "doc": "THE DOORSTEP ITSELF.  `p` periods of `d24` from (a0,b0): admissible or not.\n\nExample: @HXS-003"
+            },
+            {
+              "sig": "pub fn wall_min_p(d24: integer, a0: integer, b0: integer) -> integer",
+              "doc": "The smallest admissible run from this vertex in this direction — the editor's snap unit.\n-1 if the start is not a vertex at all.\nExample: @HXS-003"
+            },
+            {
+              "sig": "pub fn wall_snap_p(d24: integer, a0: integer, b0: integer, want: integer) -> integer",
+              "doc": "A REFUSAL NAMES ITS RESTRICTION (K-FIT): given a wanted length in periods, the nearest\nadmissible one, searching outward so ties go to the shorter run.  0 if none exists.\nExample: @HXS-003"
+            },
+            {
+              "sig": "pub fn tri_x(a: integer, _b: integer) -> float",
+              "doc": "World position of a triangle-lattice point, in world units."
+            },
+            {
+              "sig": "pub fn tri_y(a: integer, b: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn wall_run_len(d24: integer, p: integer) -> float",
+              "doc": "The world length of `p` periods of `d24`, in world units.\nExample: @HXS-003"
+            },
+            {
+              "sig": "pub fn wall_from_run(d24: integer, a0: integer, b0: integer, p: integer, mat: integer) -> Wall",
+              "doc": "Build a wall from an ADMISSIBLE run: anchor vertex (a0,b0) in triangle coords, `p` periods of\ndirection `d24`.  The principled constructor — endpoints are hex vertices and the run is legal\n(`wall_run_ok`), so the boundary chain terminates cleanly at both ends.  Defined here, below\n`tri_x`/`wall_end_a`, so their float returns are known at the call site (see the note by\n`wall_write`)."
+            },
+            {
+              "sig": "pub fn hex_scale_round(x: float, y: float) -> (integer, integer)",
+              "doc": "Nearest HEX-SCALE lattice point (vertex OR centre) to a world point, in triangle\ncoordinates.  The hex-scale lattice is spanned by e1 = (sqrt3/2, 1/2) and e2 = (0, 1),\nwhich is (a,b) = (3i, 3j) — a triangular lattice of spacing 1 wu.\n\nExample: @HXS-008"
+            },
+            {
+              "sig": "pub fn nearest_vertex(x: float, y: float) -> (integer, integer)",
+              "doc": "SNAP 1: the nearest HEX VERTEX to an arbitrary world point, in triangle coordinates.\nExample: @HXS-008"
+            },
+            {
+              "sig": "pub fn run_end_dist(d24: integer, a0: integer, b0: integer, p: integer,",
+              "doc": "How far the endpoint of `p` periods of `d24` from (a0,b0) lands from a target point."
+            },
+            {
+              "sig": "pub fn snap_run_d24(a0: integer, b0: integer, tx: float, ty: float) -> integer",
+              "doc": "SNAP 2, direction part: the direction whose best legal endpoint lands nearest the target.\nExample: @HXS-008"
+            },
+            {
+              "sig": "pub fn snap_run_p(d24: integer, a0: integer, b0: integer, tx: float, ty: float) -> integer",
+              "doc": "SNAP 2, length part: the legal period count in that direction nearest the target.\n0 when nothing legal was found, which the caller must treat as a refusal.\nExample: @HXS-008"
+            },
+            {
+              "sig": "pub fn wall_nearest_d24(deg: float) -> integer",
+              "doc": "The direction in `D` nearest a world angle in degrees.  The inverse of\n`wall_angle_actual`, and it must be asked of the ACTUAL angles rather than of the nominal\n15-degree multiples: half of `D` sits 1.1021 degrees off its nominal (@HXS-002), so the\nnearest-nominal answer and the nearest-actual answer differ on a band around every\nin-between.  Monotone and complete over a full turn — 24 boundaries, each +1.\n\nExample: @HXS-010"
+            },
+            {
+              "sig": "pub fn snap_run_from_heading(a0: integer, b0: integer, deg: float,",
+              "doc": "The run an author reaches by AIMING: from vertex (a0,b0), facing `deg`, wanting `dist`\nworld units.  Returns `(d24, p)` — the same pair the endpoint snap returns, so both\nidioms hand the rest of the library one shape of answer.\n\n`p = 0` is a REFUSAL and the caller must treat it as one: it means no legal run exists\nfrom that anchor in that direction near that length, which happens when (a0,b0) is not a\nvertex at all, or when `dist` is shorter than the smallest admissible run.\n\nExample: @HXS-010"
+            },
+            {
+              "sig": "pub fn wall_offset_of(w: Wall, px: float, py: float) -> float",
+              "doc": "── EVALUATING THE MARKS BACK TO THE MESH (crawler / moros' own rule) ───────\n\nThis is the second half of the round trip, and it is NOT ours to invent: moros already\nevaluates the three wall slots to geometry in `moros_render::emit_hex_walls`, and the\nrule is one line — a marked edge becomes the quad standing on the segment between its\ntwo corners.  `hex_edge_corners` is that segment, so the mesh a marked field produces is\nfully determined here with no renderer, no `Mesh`, no graphics import.\n\nWHAT THAT MESH IS.  It is the SAWTOOTH — the chain of hex edges the band crossed — not\nthe straight line we drew.  That is the honest state of the round trip: the foxel stores\nwhere the wall went, and recovering the straight line from it is `rebuild`'s job.  So\nthe measurement below is not \"does the mesh equal the wall\" (it cannot) but \"how far\ndoes the mesh stray from it\", which is the quantity the recovery has to undo.\n\nPerpendicular distance from (px,py) to the wall's infinite centre line."
+            },
+            {
+              "sig": "pub fn wall_mesh_stray(w: Wall, edges: EdgeSet, q0: integer, r0: integer,",
+              "doc": "The worst perpendicular stray of any emitted segment endpoint, over the marked field.\nOnly edges whose midpoint lies within the run are measured — past the ends there is no\nline to be near.\nExample: @HXS-008"
+            },
+            {
+              "sig": "pub fn wall_mesh_segments(edges: EdgeSet, q0: integer, r0: integer,",
+              "doc": "How many distinct segments the mesh emitter would produce for the marked field — the\nvertex count of moros' wall mesh divided by the per-edge quad, i.e. the segment count.\nExample: @HXS-005"
+            },
+            {
+              "sig": "pub fn wall_read_ends(edges: EdgeSet, q0: integer, r0: integer, wq: integer, hq: integer)",
+              "doc": "The two degree-1 vertices of the marked chain, in triangle coordinates.  `ok` is false unless\nthere are exactly two — a fragmented or branching marking is REFUSED, never averaged into an\nanswer.\n\nExample: @HXS-005"
+            },
+            {
+              "sig": "pub fn wall_read_run(edges: EdgeSet, q0: integer, r0: integer, wq: integer, hq: integer)",
+              "doc": "Recover the whole run: direction, anchor and period count, all exact integers.  One period of\n`d24` displaces a run by `3·tri(d24)`, so the endpoint displacement pins both `d24` and `p`; the\nanswer is canonicalised to the end that gives `p > 0`.  `ok` is false when the marking is not a\nsingle chain, or when no direction divides the displacement — an unreadable field is REFUSED, not\napproximated (law **P4**).\n\nWHAT IT CANNOT RECOVER IS THE ORIENTATION, because the field does not store one: A-to-B and\nB-to-A mark the identical edges.  The answer is canonicalised to `p > 0`, so the direction\ncomes back as `d24` OR as `d24 + 12` with the other endpoint as the anchor — both naming the\nsame wall.  `read.d == d` is therefore the wrong round-trip assertion; compare the ENDPOINTS.\n\nExample: @HXS-005"
+            }
+          ],
+          "published": "2026-08-28T17:26:43Z"
         }
       }
     },
