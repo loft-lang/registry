@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-29T18:45:34Z",
+  "updated": "2026-08-29T18:46:38Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -12097,6 +12097,47 @@
             }
           ],
           "published": "2026-07-21T06:35:56Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-docs/releases/download/markdown-v0.2.1/markdown-0.2.1.tar.gz",
+          "sha256": "2d98513752f15bcc554f8cb408c437cf8738f718068f8a24fe67716e403e0c38",
+          "size": 15181,
+          "loft": ">=2026.7.2",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "markdown",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn html_escape(s: text) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn render(source: text, base_dir: text, tag_url_prefix: text, image_url_prefix: text) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn slugify(heading: text) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn render_inline(src: text, base_dir: text, tag_url_prefix: text, image_url_prefix: text) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn rewrite_link(url: text, base_dir: text) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Heading",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn extract_headings(source: text) -> vector<Heading>",
+              "doc": "Extract every heading from `source` in source order — both\nATX (`# Title`) and setext (`Title\\n===` / `Title\\n---`).\nEach entry carries the level (1..6), the heading's plain\ntext (BEFORE inline rendering — the caller can pass it\nthrough render_inline if needed), and a GitHub-compatible\nslug (the same one the rendered headings get as `id=`).\n\nUseful for building an in-page table of contents: walk the\nreturned vector, indent by `level`, link each entry to\n`#<slug>`."
+            }
+          ],
+          "published": "2026-08-29T18:46:38Z"
         }
       }
     },
