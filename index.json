@@ -12759,7 +12759,10 @@
           "api_compatible_with": "0.1.0",
           "data_compatible_with": "0.1.0",
           "subpath": "hex_roof",
-          "deps": {},
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_way": ">=0.1"
+          },
           "api": [
             {
               "sig": "pub fn roof_cone(s: HexSet, f: Heights, cx: float, cy: float,",
@@ -12827,6 +12830,90 @@
             }
           ],
           "published": "2026-08-18T07:27:11Z"
+        },
+        "0.1.2": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_roof-v0.1.2/hex_roof-0.1.2.tar.gz",
+          "sha256": "d598f9218f471032f374944c88e9207e62a8dccdc9fdec0808f5bf39079011e7",
+          "size": 17040,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_roof",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_way": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub fn roof_cone(s: HexSet, f: Heights, cx: float, cy: float,",
+              "doc": "z = peak - slope*d about a point.  Clamping d at dmax is not a detail: it is what makes\nan eave LEVEL on a quantised footprint, where the boundary cells sit at a spread of true\nradii (rooftest measures the difference).\n\nAND THE CLAMP HAS ITS OWN COST, worth knowing before reaching for it: the cells it clamps\nbecome a flat plateau, and an interior cell inside that plateau PONDS.  On a quantised\nfootprint the boundary and the interior overlap in radius, so there is no `dmax` that\nlevels the eave and still drains — measured below.  `roof_hip` has neither problem,\nbecause it never measures a radius: the boundary is ring 0 by definition.\n\n`cx`/`cy` are WORLD coordinates, not cell indices.\n\nExample: @HXR-002\nExample: @HXR-003"
+            },
+            {
+              "sig": "pub fn roof_ridge(s: HexSet, f: Heights, t: Track,",
+              "doc": "The same profile about a ridge.  A full-length ridge gives a gable; shorten it and the\nends hip in, because track_distance clamps to the segment.\n\nExample: @HXR-001"
+            },
+            {
+              "sig": "pub fn vault_arc(s: HexSet, f: Heights, t: Track, spring: float, radius: float)",
+              "doc": "The SOFFIT of a barrel vault or an arch: spring + sqrt(R^2 - d^2), d measured from the\ncrown line.  Beyond the springing the opening has closed, so the soffit is the springing\nitself.  Pass a radius larger than the half-span for a segmental arch; equal to it for a\nsemicircular one."
+            },
+            {
+              "sig": "pub fn roof_hip(s: HexSet, f: Heights, eave: float, per_ring: float) -> integer",
+              "doc": "THE DISTANCE-TO-BOUNDARY ROOF — the one that actually matters on a quantised footprint.\n\nEvery cell rises at a constant slope from its NEAREST EAVE, which is the definition of a\nhip roof. On a circular footprint that is a cone; on an octagonal one a pyramid; on an\nL-shaped hall a properly mitred hip-and-valley. The FORM is entirely the footprint's\nshape — there is one function here, not a catalogue, and that is the whole reason \"roof\nforms\" stopped being a list.\n\nDriving it from the FOOTPRINT rather than from the ideal circle is also what makes the\neave level. Boundary cells are at ring 0 by definition, whatever their true radius. Drive\na cone from each cell's own radius instead and the eave inherits the footprint's\nroundness deviation, wobbling by slope x that spread — rooftest measures both, because\nthe failure is invisible until you look at the eave rather than the apex.\n\nMulti-source BFS inward from the boundary, on the pre-allocated array + index-write\nidiom (appending while a head pointer walks the same vector is the broken shape).\n\nExample: @HXR-002"
+            },
+            {
+              "sig": "pub fn dome(s: HexSet, f: Heights, cx: float, cy: float, base: float, radius: float)",
+              "doc": "A DOME — a point source with a CIRCULAR profile, where a cone is a point source with a\nlinear one.  That single swap is the whole difference, and it is also why a dome is the\nharder object: a cone's slope is constant, a dome's diverges at the springing\n(dz/dr = -r/sqrt(R^2-r^2)).  Past the 45-degree point r = R/sqrt(2) the surface is more\nwall than roof and a per-cell height stops being able to carry it — which is exactly why\nreal domes sit on a vertical DRUM and only the cap is vaulted.  vaulttest measures it."
+            },
+            {
+              "sig": "pub fn vault_groin(s: HexSet, f: Heights, t1: Track, t2: Track,",
+              "doc": "Example: @HXR-004"
+            },
+            {
+              "sig": "pub fn vault_cloister(s: HexSet, f: Heights, t1: Track, t2: Track,",
+              "doc": "Example: @HXR-004"
+            },
+            {
+              "sig": "pub fn clear_height(fl: Heights, so: Heights, q: integer, r: integer) -> float",
+              "doc": "What can pass here: the gap between floor and soffit."
+            },
+            {
+              "sig": "pub fn roof_ponds(s: HexSet, f: Heights) -> integer",
+              "doc": "PONDING — the roof's correctness invariant, and the analogue of a stair's monotonicity.\nAn INTERIOR cell (all six neighbours in the footprint) every one of whose neighbours is\nstrictly higher is a local minimum: water collects and never leaves. A roof that sheds\nhas none. Boundary cells are exempt — they drain off the eave, which is their job.\n\nA zero here is not \"no local minima\": a hollow on the BOUNDARY is not counted.\n\nExample: @HXR-005"
+            },
+            {
+              "sig": "pub fn eave_spread(s: HexSet, f: Heights) -> float",
+              "doc": "The spread of eave heights around a footprint's boundary — 0 for a level eave.\n\nTHE INSTRUMENT FOR THE FAILURE NOTHING ELSE SEES: a roof built from the wrong distance\nsource still has an apex, still is not flat and still sheds water.  This is the number\nthat moves.\n\nExample: @HXR-002\nExample: @HXR-003"
+            },
+            {
+              "sig": "pub struct RoofFit",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn roof_plane_fit(s: HexSet, f: Heights) -> RoofFit",
+              "doc": "Least squares z = a*x + b*y + c.  Covers flat and every shed/mono-pitch."
+            },
+            {
+              "sig": "pub fn roof_ridge_fit(s: HexSet, f: Heights) -> RoofFit",
+              "doc": "⚠ **SEEDED FROM THE CONE, BECAUSE A CONE IS A RIDGE WHOSE SEGMENT HAS ZERO LENGTH.**  That\ngives a centre already on the ridge line (the maximum is attained along the whole segment),\nso the search only has to grow the two ends outward — and it can never do worse than the\ncone it started from, which is what makes the extra kind safe to try.\n\n⚠ **EACH END IS CLIMBED IN THE EIGHT DIRECTIONS `roof_cone_fit` USES, ON THE SAME STEP\nSCHEDULE.**  A second search rule here would be a second opinion about how this family\nsearches."
+            },
+            {
+              "sig": "pub fn roof_cone_fit(s: HexSet, f: Heights) -> RoofFit",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn roof_dome_fit(s: HexSet, f: Heights) -> RoofFit",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn roof_match(s: HexSet, f: Heights, tol: float) -> RoofFit",
+              "doc": "Decide what the field IS.  A plane wins ties: it is the simpler statement, and a cone\nfitted to a flat roof would put its apex somewhere arbitrary.\n\nExample: @HXR-006\n⛔ **AND WHEN NOTHING FITS, IT SAYS SO — `ROOF_UNKNOWN`.**  This returned the least-bad of\nthe three with `rf_kind` naming a shape the field is NOT, and the residual was the only\nsignal that it was a fallback rather than a recovery.  Measured on fields THIS PACKAGE\nDRAWS: a `roof_ridge` gable comes back `ROOF_CONE` at residual **1.209**, with an apex of\n6.318 where the truth is 6.0 and a slope of 0.409 where it is 0.5; a `roof_hip` comes back\n`ROOF_CONE` at **0.615**.  `roof_eval` then evaluates that cone into a surface that is not\nthe roof.\n\n⚠ **THE BEST CANDIDATE'S PARAMETERS ARE KEPT**, because *which* shape came closest and by\nhow much is what a caller diagnoses with.  What changes is that `rf_kind` no longer CLAIMS\none — `roof_eval` draws nothing for `ROOF_UNKNOWN` — so a fallback can no longer be\nmistaken for a recovery by a caller that reads the kind and trusts it.\n\n⚠ **NO EXISTING RECOVERY CHANGES.**  A candidate within `tol` returns exactly as before;\nonly the path where all three were already wrong is affected, which is precisely the\npopulation that was being told the wrong thing.\n\n⚠ **AND THE MISSING KIND IS NAMED RATHER THAN GUESSED AT**: this package DRAWS a ridge, a\nhip and three vaults, and fits a plane, a cone and a dome.  A ridge is the cone's own\nprofile about a SEGMENT instead of a point, so `roof_ridge_fit` is a well-specified\naddition — until it exists, a gable is honestly unknown rather than dishonestly a cone."
+            },
+            {
+              "sig": "pub fn roof_eval(fit: RoofFit, x: float, y: float) -> float",
+              "doc": "The recovered ANALYTIC surface — what a renderer should draw, at any resolution, instead\nof the cells it came from.\n\nExample: @HXR-006"
+            }
+          ],
+          "published": "2026-08-29T16:31:08Z"
         }
       }
     },
