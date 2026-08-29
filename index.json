@@ -12878,6 +12878,174 @@
             "hex_recover": ">=0.1"
           },
           "published": "2026-07-24T20:56:38Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_fit-v0.1.1/hex_fit-0.1.1.tar.gz",
+          "sha256": "7947435671ef142962c0c577642a73ede8b99d05338f86d0776507a0c48dce82",
+          "size": 22961,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_fit",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_grid": ">=0.1",
+            "hex_form": ">=0.1",
+            "hex_shape": ">=0.1",
+            "hex_draw": ">=0.1",
+            "hex_recover": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct Draft",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn draft_new(f: Form, d: integer, a: integer, b: integer, p: integer) -> Draft",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn draft_has_run(s: Draft) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn draft_write(s: Draft, name: text) -> text",
+              "doc": "The text of a stencil: the form's spelling, then — if there is one — a single `wall` line.\nOne line, one record, same shape as `side`: the reader refuses anything else rather than\nrepairing it (`X39`).\n\n⚠ THIS IS NOT THE CANONICAL TEXT.  It writes the spelling it is GIVEN, and both the form's\nstart corner and the run's direction are choices the model does not fix — so two calls can\nspell one stencil two ways.  A round trip diffs against `draft_canon_text`.\n\nExample: @HXI-001"
+            },
+            {
+              "sig": "pub fn draft_read(t: text) -> Draft",
+              "doc": "Parse.  The `side` lines go to `form_read` unchanged; a trailing `wall` line is this layer's.\nA malformed record yields a stencil with an empty form — REFUSED, never repaired.\n\nTHAT WAS A CLAIM BEFORE IT WAS A TEST, and it was wrong the same way `hex_form`'s reader was\n(that one was measured first; this line inherited both the `word_int(…) ?? 0` helper and the\ngap).  A nineteen-cell acceptance matrix admitted ten texts `draft_write` cannot emit and\nre-wrote each of them differently: a trailing space, an extra field, `+3`, `003`, a `wall`\nline placed between two `side` lines — and, sharper than any spelling, a field that is not a\nnumber at all.  `wall d x a -6 b 9 p 1` became `d 0`: not a wall that is missing, A WALL\nPOINTING SOMEWHERE ELSE, admitted into the model without a word.  `a x` moved it instead.\n\nWhat pins it now is the same RE-SPELLING IDENTITY: a field is an integer only if printing the\nparse reproduces the original characters, a line is a record only if it carries exactly the\nfields the writer emits, and the `wall` line is LAST because that is where the writer puts it.\n\nExample: @HXI-003"
+            },
+            {
+              "sig": "pub fn draft_draw(s: Draft, cq: integer, cr: integer, cells: HexSet, edges: EdgeSet,",
+              "doc": "Draw the whole stencil into one field: the fill, its own boundary walls, and the embedded run as\nmaterial on INTERIOR edges only.  Returns the number of interior edges the run marked."
+            },
+            {
+              "sig": "pub fn draft_interior(cells: HexSet, edges: EdgeSet, embedmat: integer) -> EdgeSet",
+              "doc": "The INTERIOR edges carrying `embedmat`, isolated — what the run reader consumes.  Boundary edges\n(one cell out) are the stencil's own walls and are never part of a run."
+            },
+            {
+              "sig": "pub fn draft_rebuild_text(cells: HexSet, edges: EdgeSet, name: text, embedmat: integer) -> text",
+              "doc": "REBUILD, INCLUDING THE RUN.  The form comes from the cells (constructive recovery, `X45`); the\nrun comes from the interior edges (`wall_read_run`, `X60`) — two recoveries reading disjoint\nslots.  An unreadable run is REFUSED, so it is dropped loudly by a text diff rather than silently.\n\n⚠ DIFF THIS AGAINST `draft_canon_text`, NOT against `draft_write`.  What comes back is the\nspelling the FIELD answers with, and for the run half that is one of two — see the note there.\n\nExample: @HXI-002"
+            },
+            {
+              "sig": "pub fn draft_canon(s: Draft, cells: HexSet) -> Draft",
+              "doc": "── ONE MODEL, ONE TEXT — the canonical spelling ───────────────────────────\n\nThe format's premise is that a `diff` means *the model changed*, which needs every model to\nhave exactly ONE text.  The form half has that: a shape has n cyclic spellings and `form_canon`\npicks the smallest, which is why `rebuild_construct_text` and `form_canon_text` agree.\n\nTHE RUN HALF HAD NO SUCH RULE, and a run has exactly TWO spellings — `(d, A, p)` and\n`(d + 12, B, p)` — because A-to-B and B-to-A mark the identical edges and the field stores no\norientation (`wall_read_run`'s own note).  Measured over all 24 directions: the two spellings\ndraw fields that differ in ZERO edges, and **exactly one of them survives a text round trip**,\nnever both and never neither.  So an author who wrote the wall from the other end got *the\nmodel changed* out of a byte diff on a model that had not changed at all.\n\nThe canonical spelling is therefore READ OFF THE FIELD rather than chosen by a rule — the same\ndiscipline `hexfit`'s feature grid is built on (`SPEC` **L11**: consult the table that owns the\nanswer), and the only definition that cannot drift from what `draft_rebuild_text` will answer,\nsince it is that same reader.\n\nExample: @HXI-001"
+            },
+            {
+              "sig": "pub fn draft_canon_text(s: Draft, cells: HexSet, name: text) -> text",
+              "doc": "The one text a round trip can be diffed against.  A run that does not FIT is left as written —\nthe canon is a spelling rule, not a doorstep, and refusing here would hide which of the two is\nwrong.\n\nExample: @HXI-001"
+            },
+            {
+              "sig": "pub fn draft_fit_reason(code: integer) -> text",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn draft_fits(s: Draft, cells: HexSet) -> integer",
+              "doc": "THE DOORSTEP.  `cells` is the form's own footprint.  Returns a reason code — `FIT_OK` or the\nspecific restriction, never a bare false.\n\nExample: @HXI-004"
+            },
+            {
+              "sig": "pub fn draft_fit_p(s: Draft, cells: HexSet) -> integer",
+              "doc": "AND THE ALTERNATIVE THE REFUSAL OWES (`K-FIT`): the longest run from this anchor, in this\ndirection, that IS admissible and fits — searching downward so the offer is never longer than\nwhat was asked for.  0 when nothing fits, which is itself a usable answer: move the anchor.\n\nExample: @HXI-004"
+            },
+            {
+              "sig": "pub fn fit_reason(code: integer) -> text",
+              "doc": "One reason table for the whole doorstep — `hexdraft`'s codes and these."
+            },
+            {
+              "sig": "pub fn feature_grid(p: Plan, cells: HexSet, side: integer) -> vector<float>",
+              "doc": "The admissible positions on a side, in the order the run stores them — which is NOT t order\n(`A5`: index a feature by its exact `t`, never by its position in the `SideRun`).\n\nExample: @HXI-005"
+            },
+            {
+              "sig": "pub fn feature_fits(p: Plan, cells: HexSet, side: integer, t: float, nedges: integer) -> integer",
+              "doc": "THE DOORSTEP.  `t` must be exactly an edge centre of this side — no tolerance (`P4`), because in\nregime R1 an epsilon is a defect signal and not a knob.\n\nExample: @HXI-005"
+            },
+            {
+              "sig": "pub fn feature_fit_t(p: Plan, cells: HexSet, side: integer, t: float) -> float",
+              "doc": "AND THE ALTERNATIVE THE REFUSAL OWES: the nearest admissible `t`.  This is what an editor calls\nwith a raw mouse position — the snap is EXPLICIT and returns a value the author can see, rather\nthan happening silently inside `place_opening`."
+            },
+            {
+              "sig": "pub fn feature_fit_residual(p: Plan, cells: HexSet, side: integer, t: float) -> float",
+              "doc": "The residual the editor must SHOW (`K-FIT`): how far the offer is from what was asked."
+            },
+            {
+              "sig": "pub fn arc_is_shell(n24: integer) -> boolean",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn arc_fits(n24: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn arc_fit_n(n24: integer) -> integer",
+              "doc": "The nearest realisable shell — `K-FIT` says *nearest*, so this can offer a LARGER disk than the\nauthor asked for (N = 11 is offered 12, not 0).  That is deliberate and differs from what the\nunrefused value would have drawn: an off-grid N silently draws the shell BELOW it, so `arc_fill`\nwould have given 0.  Offering the nearest and showing the residual is the point — the author sees\nboth candidates' cost — `arc_snap_n` is the other one — instead of being quietly rounded down.\nTies go DOWN, to the smaller shell.\n\nExample: @HXI-006"
+            },
+            {
+              "sig": "pub fn arc_fit_residual(n24: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn arc_snap_n(n24: integer) -> integer",
+              "doc": "THE OTHER CANDIDATE, and the reason the comment above can say *both*.  This is the shell an\nUNREFUSED radius actually draws — the largest realisable one at or below `n24` — so an editor\ncan show the author what the silent snap would have cost beside what the offer costs.  The two\nare not close: `N = 35` is offered 36 at a residual of 1 and would have drawn **12**, an error\nof 23 in the same units, because 12 and 36 are neighbouring shells.  Verified against\n`arc_fill` over every radius 0..64 rather than against the formula it shares with `arc_fits`.\n\nExample: @HXI-006"
+            },
+            {
+              "sig": "pub fn arc_snap_residual(n24: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn level_fits(lv: integer) -> integer",
+              "doc": "── LEVELS — MEASURED TO HAVE NOTHING TO REFUSE ─────────────────────────────\n\nA level is the topological SHEET (`X58`), stored as an integer (`ha_cy` / `ck_cy`) and used as a\nFILTER BEFORE THE CUT.  There is no continuous parameter here, so `I-QUANT` has nothing to say:\nnothing exists *between* two levels to be snapped to one of them.  Measured over the full range\nan integer holds — the behaviour at ±10^6 is identical to the behaviour at 0.\n\nThis returns `FIT_OK` unconditionally, and that is a RESULT, not an omission.  `tests/fit.loft`\nkeeps it honest the only way an always-true predicate can be kept honest: by showing that the\nSAME doorstep refuses the other parameters, so \"accepts every level\" is not \"accepts everything\".\n\nExample: @HXI-008"
+            },
+            {
+              "sig": "pub fn mat_fits(m: integer) -> integer",
+              "doc": "⚠ NO OFFER, AND THAT IS THE POINT.  `K-FIT` says a refusal offers *the nearest fitting\nalternative* — which presumes an ORDINAL parameter, where \"nearest\" means \"almost what you\nasked for\".  A material id is NOMINAL: it is a name, not a magnitude.  The nearest admissible id\nto 256 is 255, and 255 is a *different material* — offering it would be worse than a blank no,\nbecause it looks like a small correction and is not.  So this refusal names its restriction and\nstops there.  The author must pick a material, not accept a rounding.\n\nExample: @HXI-007"
+            },
+            {
+              "sig": "pub fn height_units_at(z: float, scale: float) -> integer",
+              "doc": "The voxel's own value for a height, at a given quantum: what `h_height` would hold."
+            },
+            {
+              "sig": "pub fn height_from_units_at(u: integer, scale: float) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn seat_fits_at(z: float, scale: float) -> integer",
+              "doc": "THE DOORSTEP, at the caller's quantum.  A height must land exactly on the voxel's grid; off\nit, the store truncates and `X59`'s returned residual would be wrong by the truncation —\nwhich is the one thing `SPEC` **G5** says must never happen silently.\n\n⚠ **A NON-POSITIVE QUANTUM IS REFUSED BY NAME RATHER THAN DIVIDED BY.** loft's division by\nzero yields null and keeps running, so an unchecked `z / scale` would discharge to `0.0` and\nthis would answer *on the grid* for `z = 0` and *off it* for everything else — a wrong verdict\ndressed as a real one, which is exactly what a doorstep exists not to produce."
+            },
+            {
+              "sig": "pub fn seat_fit_z_at(z: float, scale: float) -> float",
+              "doc": "The offer, and the residual the editor must show — in world units."
+            },
+            {
+              "sig": "pub fn seat_fit_residual_at(z: float, scale: float) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn height_units(z: float) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn height_from_units(u: integer) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn seat_fits(z: float) -> integer",
+              "doc": "Example: @HXI-008"
+            },
+            {
+              "sig": "pub fn seat_fit_z(z: float) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn seat_fit_residual(z: float) -> float",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn seat_is_integral(z: float) -> boolean",
+              "doc": "Kept from before the fork closed, now meaning exactly \"on the voxel's grid\"."
+            }
+          ],
+          "published": "2026-08-29T15:27:39Z"
         }
       }
     },
