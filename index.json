@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-28T17:27:39Z",
+  "updated": "2026-08-29T18:26:46Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -9989,6 +9989,47 @@
             }
           ],
           "published": "2026-08-18T09:12:52Z"
+        },
+        "0.3.2": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.2/random-0.3.2.tar.gz",
+          "sha256": "ee05d12306bcbadc6d3054fe08ddca1081b67d2a391845395bc3332d52511ff5",
+          "size": 13902,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.3.0",
+          "data_compatible_with": "0.3.0",
+          "subpath": "random",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn rand(lo: integer, hi: integer) -> integer?",
+              "doc": "Returns a random integer in [lo, hi] (inclusive).\nReturns null when lo > hi or when either argument is null.\nDraws from the ONE hidden generator every call site shares — see `rand_seed`.\nExample: @RND-001 — why a seeded global sequence is not yours, and what a\nRandStream gives instead."
+            },
+            {
+              "sig": "pub fn rand_seed(seed: integer)",
+              "doc": "Seeds the thread-local random number generator with the given value.\nCall this before rand() or rand_indices() to get reproducible sequences — but\nnote that it fixes what the GENERATOR produces, not what you receive: it is\nshared, so one `rand()` from anywhere else shifts everything after it.  When\nreproducibility is a requirement rather than a convenience, own a stream.\nExample: @RND-001 — a foreign draw between two of yours, and the same\ninterruption against a RandStream."
+            },
+            {
+              "sig": "pub fn rand_indices(n: integer) -> vector<integer>",
+              "doc": "Returns a vector of n integers [0, 1, ..., n-1] in a random order.\nUseful for random iteration, shuffling, or sampling without replacement.\nReturns an empty vector when n is 0 or null.\nExample: @RND-001 — this draws from the shared global generator too."
+            },
+            {
+              "sig": "pub struct RandStream",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn seed_stream(seed: integer) -> RandStream",
+              "doc": "Seed an independent stream. Any integer seed is valid (negative and zero included);\nequal seeds give equal streams, different seeds give decorrelated streams.\nExample: @RND-001 — the reason to prefer this over `rand_seed`.\nExample: @RND-003 — equal seeds replay exactly, so a recorded seed is a\nrecorded run."
+            },
+            {
+              "sig": "pub fn get(self: RandStream, lo: integer, hi: integer) -> integer?",
+              "doc": "A random integer in [lo, hi] (inclusive) from THIS stream, advancing it.\nReturns null when lo > hi (the same contract as the global rand()).\nExample: @RND-002 — assigning a stream COPIES it, passing one to a function\nLINKS it, so a helper that draws spends the caller's sequence."
+            },
+            {
+              "sig": "pub fn indices(self: RandStream, n: integer) -> vector<integer>",
+              "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
+            }
+          ],
+          "published": "2026-08-29T18:26:46Z"
         }
       }
     },
