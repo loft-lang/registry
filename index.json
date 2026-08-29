@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-29T18:36:49Z",
+  "updated": "2026-08-29T18:45:34Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -11916,6 +11916,23 @@
           "subpath": "html",
           "deps": {},
           "published": "2026-06-14T14:42:35Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-docs/releases/download/html-v0.1.1/html-0.1.1.tar.gz",
+          "sha256": "437471689b6ccb84bdf9670ba482cdf98d6672697bb6d64c79a55bda1cafb7d5",
+          "size": 4183,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "html",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn escape_html(self: text) -> text",
+              "doc": "HTML-escape the standard five entities for safe interpolation\ninto HTML output:\n\n&  →  &amp;\n<  →  &lt;\n>  →  &gt;\n\"  →  &quot;\n'  →  &#x27;\n\nUse whenever user-supplied text gets dropped into an HTML\nelement body or attribute value.  Order matters — `&` is\nescaped first so the substituted entity strings don't\ndouble-escape.\n\nAdded in @PLAN37 phase 10.7 — closes a stdlib gap that\nevery loft program rendering HTML had to roll its own\nescape for (the @PLAN35 viewer's `escape(s)` helper)."
+            }
+          ],
+          "published": "2026-08-29T18:45:34Z"
         }
       }
     },
