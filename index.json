@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-29T18:29:00Z",
+  "updated": "2026-08-29T18:36:49Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -7379,6 +7379,47 @@
             }
           ],
           "published": "2026-08-29T18:28:02Z"
+        },
+        "0.3.2": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.3.2/imaging-0.3.2.tar.gz",
+          "sha256": "d4fe68080c570cfa22517c2e80ae9bc407dd417eef47375a2945150b15a0a60f",
+          "size": 31599,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.3.0",
+          "data_compatible_with": "0.3.0",
+          "subpath": "imaging",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Pixel",
+              "doc": "Data per pixel of a PNG image.\nFields r, g, b hold red, green and blue intensity and `a` holds opacity, each\n0–255.  The channels are const, so a pixel is REPLACED (`img.data[i] =\nPixel{…}`), never edited in place, and `limit(0, 255)` is a range rather than a\nclamp — a value outside it stores 0.\n\n**`a` defaults to 255, and the default is load-bearing.** An omitted field takes\nits type's zero, and zero alpha is INVISIBLE — so without the declared default\nevery `Pixel{r, g, b}` ever written would silently become fully transparent\n(loft#914's `omitted-field-zero` in its purest form).  With it, code that\npredates alpha keeps meaning what it meant: opaque.\nExample: @IMG-003 — replacing a pixel, and why the local you read it into is a\nview of its slot rather than a snapshot.\nExample: @IMG-004 — the range is not a clamp: doubling a bright channel stores\n0, so brightening turns the brightest pixels black."
+            },
+            {
+              "sig": "pub fn value(self: Pixel) -> integer",
+              "doc": "Returns the pixel colour as a packed 24-bit integer (0xRRGGBB).\nUse for fast colour comparison or storage.  Alpha is NOT in it — this is the\npre-alpha contract and stays 24-bit, so a comparison written against it keeps\nanswering what it answered.  For opacity read `p.a`, or `rgba()` for the packed\n32-bit form."
+            },
+            {
+              "sig": "pub fn rgba(self: Pixel) -> integer",
+              "doc": "Returns the pixel as a packed 32-bit integer (0xAARRGGBB) — the byte order\n`graphics::Canvas` uses, so a decoded image can be handed to a canvas without a\nper-channel loop at the call site."
+            },
+            {
+              "sig": "pub fn opaque(self: Pixel, cutoff: integer = 128) -> boolean",
+              "doc": "Is this texel opaque enough to count as covered?\n\nA collision proxy, a trim box and a colour key all want the same question, and\nthey want it with a THRESHOLD rather than `a == 255`: antialiased art has a\nfringe of partly-transparent texels that belong to the silhouette.  Default 128\n— half opacity — which is the midpoint of that fringe."
+            },
+            {
+              "sig": "pub struct Image",
+              "doc": "Database structure with image data.\nThe actual data is in height rows of width length: `data` is one FLAT vector in\nrow-major order, so the pixel at (x, y) is `data[y * width + x]`, and\n`len(data) == width * height` always holds on an image `png()` handed back.\nExample: @IMG-001 — the addressing rule, and what the null check buys."
+            },
+            {
+              "sig": "pub fn save_png(self: const Image, path: text) -> boolean",
+              "doc": "Write this image to a PNG file. Returns true on success."
+            },
+            {
+              "sig": "pub fn png(self: File) -> Image",
+              "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
+            }
+          ],
+          "published": "2026-08-29T18:36:49Z"
         }
       }
     },
