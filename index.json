@@ -18302,6 +18302,45 @@
           "published": "2026-08-29T21:22:06Z"
         }
       }
+    },
+    "loft": {
+      "description": "The loft toolchain: compiler, interpreter and standard library.",
+      "homepage": "https://github.com/loft-lang/loft",
+      "categories": [
+        "toolchain"
+      ],
+      "yanked": [],
+      "versions": {
+        "2026.8.0": {
+          "url": "https://github.com/loft-lang/loft/releases/download/v2026.8.0/loft-2026.8.0-src.zip",
+          "sha256": "ed10fc431f8dbd0e4728448cb8746ef4af054b8cb5bffc4c6a83c0cf777820fd",
+          "size": 18500877,
+          "loft": ">=0",
+          "published": "2026-08-01T18:50:19Z",
+          "binaries": {
+            "aarch64-apple-darwin": {
+              "url": "https://github.com/loft-lang/loft/releases/download/v2026.8.0/loft-2026.8.0-aarch64-apple-darwin.zip",
+              "sha256": "e552a99749c70760a9b41fab9d3314d9240251bac2a8e14ef6716dfb87390045",
+              "manifest_sha256": "a35efd1867cff4622ab04d1c6c1318c0f9ac0b6f0e058fdcb8906c30fee8242b"
+            },
+            "x86_64-apple-darwin": {
+              "url": "https://github.com/loft-lang/loft/releases/download/v2026.8.0/loft-2026.8.0-x86_64-apple-darwin.zip",
+              "sha256": "953fad1466781063c5423a4959ba17b255109f6c0ccc5b63d98b065e5439d2d3",
+              "manifest_sha256": "152b2befa340de72177432bda1b851707ba9df56c8ce135e516b11582d6988c5"
+            },
+            "x86_64-pc-windows-msvc": {
+              "url": "https://github.com/loft-lang/loft/releases/download/v2026.8.0/loft-2026.8.0-x86_64-pc-windows-msvc.zip",
+              "sha256": "f2fe2c8d93dbb56495163d958045e477dd8863c7e2f72e42a8ef1ba8c5ab3619",
+              "manifest_sha256": "9f7aebda57bf2f0559aadb598397d15d6b6d6356ec670b061b61112b1ad98fa4"
+            },
+            "x86_64-unknown-linux-musl": {
+              "url": "https://github.com/loft-lang/loft/releases/download/v2026.8.0/loft-2026.8.0-x86_64-unknown-linux-musl.zip",
+              "sha256": "a189fc6cbd8dd1c459123ca40e0e74b79129bf6538f6fa163fe1ebb37864c4f8",
+              "manifest_sha256": "841c3f0b776c0c4be4ee49762ee9daef13a2f08e5b70240acadf83da69a3de7f"
+            }
+          }
+        }
+      }
     }
   }
 }
