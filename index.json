@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-02T23:53:00Z",
+  "updated": "2026-09-02T23:54:14Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -15343,6 +15343,170 @@
             "hex_form": ">=0.1"
           },
           "published": "2026-07-24T20:56:38Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_recover-v0.1.1/hex_recover-0.1.1.tar.gz",
+          "sha256": "b7f7d849969fe63bc253814345e5474936f2024b9f08bb8189fc07c3ea53eef7",
+          "size": 23502,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.1",
+          "data_compatible_with": "0.1.1",
+          "subpath": "hex_recover",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_form": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub fn orient_k(k: integer, m: integer, o: integer) -> integer",
+              "doc": "── the 12 orientations, exactly ───────────────────────────────────────────\n\n`o` is `flip * 6 + rot`: reflect first (`X2`, `k -> -k`), then rotate `rot` times by 60 degrees\n(`X1`, `k' = (k-m)/2, m' = (3k+m)/2`). Both are exact integer maps on the doubled lattice — the\nreason a stencil rotates and reflects with no resampling and no drift."
+            },
+            {
+              "sig": "pub fn orient_m(k: integer, m: integer, o: integer) -> integer",
+              "doc": "The `m` of a step under orientation `o` — the companion of `orient_k`.  Walking both is\nhow a shape is compared against all 12 orientations without rebuilding it."
+            },
+            {
+              "sig": "pub fn field_digest(cells: HexSet) -> vector<integer>",
+              "doc": "THE DIGEST: the lexicographically smallest of the 12 oriented, translated, sorted key vectors.\nTwo cell sets have the same digest **iff** one is an orientation-image of the other — which is\nexactly \"the same stencil\", and makes law I visible from the census side.\nExample: @HXV-001"
+            },
+            {
+              "sig": "pub fn digest_eq(a: vector<integer>, b: vector<integer>) -> boolean",
+              "doc": "Are two digests the same?  Compares the shape rather than its spelling, which is what\nmakes a digest usable as an identity."
+            },
+            {
+              "sig": "pub fn digest_text(d: vector<integer>) -> text",
+              "doc": "A digest as text, for a key, a log line or a diff.  The rendering is stable, so two runs\nthat found the same shape write the same string."
+            },
+            {
+              "sig": "pub fn form_key(f: Form) -> text",
+              "doc": "── the form's own identity, and the DEGRADED key the control needs ────────\n\nA collision is two forms with DIFFERENT identities that draw the SAME field. The identity is the\nform as written; `form_key_noturn` drops the turn sequence from it, which is the control\n`DESIGN.md` §9 names — a key that cannot see corners makes distinct shapes look like one form."
+            },
+            {
+              "sig": "pub fn form_key_noturn(f: Form) -> text",
+              "doc": "Example: @HXV-002"
+            },
+            {
+              "sig": "pub fn count_digest(cells: HexSet) -> integer",
+              "doc": "The DEGRADED digest for the second control: cell COUNT alone. A census keyed on a summary\ninstead of the shape collides immediately — both level-1 triangle classes have 3 cells — which\nis what proves the real digest is carrying the weight.\nExample: @HXV-002"
+            },
+            {
+              "sig": "pub fn turns_cyclic_eq(a: vector<integer>, b: vector<integer>) -> boolean",
+              "doc": "Are two turn sequences the SAME CLOSED CYCLE, written from a different corner?\n\nA cycle has no distinguished first corner: `[2,5,5]`, `[5,5,2]` and `[5,2,5]` are one shape\nwalked from three different starting points.  The enumeration cannot know that — it sweeps\n(h0, turns) — so the census MUST, or it reports a stencil as several and its collisions as law F\nfailures.  This is the census discovering a requirement on the canonical text (S6): fixing the\nwinding (C3) is not enough, the starting CORNER has to be fixed too.\nExample: @HXV-006"
+            },
+            {
+              "sig": "pub fn field_exact(cells: HexSet) -> vector<integer>",
+              "doc": "── THE FAITHFUL DIGEST — a different question, and it must be a different function ─\n\n`field_digest` above quotients by orientation, because the CENSUS asks \"how many distinct\nSHAPES does this level hold?\" and an orientation-image is the same stencil (law I).\n\nLAW F ASKS SOMETHING ELSE: is `draw` injective — do two distinct models produce two distinct\nFIELDS? That is about the cells actually written, not about the shape class. A stencil at h0=0\nand the same stencil at h0=6 draw genuinely different cells; the shape digest calls them equal,\nand law F would look violated when nothing is wrong.\n\nSo the corpus `.f` uses THIS one: the field exactly as drawn, no orientation quotient and no\ntranslation quotient (every entry is drawn at the same anchor, so position is part of the\nanswer). Using the census digest here reported 17 false law F failures on a 10-entry corpus\nbefore the distinction was drawn.\nExample: @HXV-001"
+            },
+            {
+              "sig": "pub fn field_exact_text(cells: HexSet) -> text",
+              "doc": "The cell set's EXACT digest as text: this shape at this position and orientation.\nUse it when position matters — two placements of one shape differ here."
+            },
+            {
+              "sig": "pub fn field_norm(cells: HexSet) -> vector<integer>",
+              "doc": "The TRANSLATION-normalised, orientation-SENSITIVE digest — orientation 0 only.\n\nThis is the one `rebuild` matches on: a recovered stencil must be the same shape at the same\nheading (h0 is authored, X39), but WHERE it was drawn is placement's business, so position is\nquotiented and orientation is not. Three digests now, three questions:\n\nfield_digest   quotient orientation + translation   \"how many SHAPES?\"        (census, law I)\nfield_exact    quotient nothing                     \"is draw INJECTIVE?\"      (corpus, law F)\nfield_norm     quotient translation only            \"which STENCIL is this?\"  (rebuild, R1)\nExample: @HXV-001"
+            },
+            {
+              "sig": "pub fn field_norm_text(cells: HexSet) -> text",
+              "doc": "The cell set's NORMALISED digest as text: the same shape wherever it sits and however it\nis turned.  Use it to recognise a shape you have seen before."
+            },
+            {
+              "sig": "pub fn form_maxlen(f: Form) -> integer",
+              "doc": "── THE LEVEL LADDER — the enumeration, parameterised ──────────────────────\n\nA1 fixed every side at length 1.  A2 grows `len` on the same shape, and asks the question the\nrung ladder poses: **does length alone ever collide?**  The enumeration is otherwise identical —\n3 sides, all 12 starting headings, every turn triple summing to 12, filtered by law J — so the\nlevels nest: `forms_upto(1)` is a subset of `forms_upto(2)`.\n\nA form's LEVEL is its longest side, so level `n` is exactly what `forms_upto(n)` adds to\n`forms_upto(n-1)`.  That keeps `corpus/a1` untouched forever (the never-regenerate rule) while\n`corpus/a2` holds only what is new."
+            },
+            {
+              "sig": "pub fn forms_upto(maxlen: integer) -> vector<Form>",
+              "doc": "Every admitted 3-sided form with all side lengths in 1..maxlen, canonicalised and deduplicated.\nExample: @HXV-009"
+            },
+            {
+              "sig": "pub fn forms_at_level(n: integer) -> vector<Form>",
+              "doc": "Only the forms NEW at this level — longest side exactly `n`.\nExample: @HXV-009"
+            },
+            {
+              "sig": "pub fn turns_reverse_eq(a: vector<integer>, b: vector<integer>) -> boolean",
+              "doc": "Is `b` a cyclic shift of `a` REVERSED — the signature of a MIRROR pair?\n\nThe flip is one of the 12 orientations (`O` = 6 rotations x {id, flip}), and mirroring a turtle\nwalk reverses its turn sequence.  At level 1 this never shows: every admitted form has equal\nsides, so it is achiral and its mirror is just a rotation.  Unequal sides make a form and its\nmirror genuinely different texts — `turn 3,5,4` against `turn 3,4,5` — that draw mirror-image\nfields and therefore share a SHAPE digest.  That is law **I**, not a law F failure.\nExample: @HXV-007"
+            },
+            {
+              "sig": "pub fn forms_sides(sides: integer, maxlen: integer) -> vector<Form>",
+              "doc": "Every form with this many sides up to this side length — the candidate set a recovery\nsearches.  Generated rather than stored, so a bigger search is a bigger argument."
+            },
+            {
+              "sig": "pub fn forms_a3() -> vector<Form>",
+              "doc": "The A3 set: side counts 4..6 at unit length — the rung's own axis, held at `len 1` so it stays\northogonal to A2's.  Growing BOTH at once is what does not fit (§10.20)."
+            },
+            {
+              "sig": "pub fn fit_chunk(f: Form) -> HexSet",
+              "doc": "Example: @HXV-003"
+            },
+            {
+              "sig": "pub struct Rebuilt",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn candidate_forms() -> vector<Form>",
+              "doc": "The candidate space: A1/A2 (3 sides, len <= LEVEL) plus A3 (side counts 4..6 at len 1).\n\nENUMERATING THIS IS THE EXPENSIVE PART, so callers that recover many fields must build it ONCE\nand pass it to `rebuild_with`. `rebuild` re-enumerates on every call, which is fine for a single\nlookup and quadratic waste over a corpus.\nExample: @HXV-004"
+            },
+            {
+              "sig": "pub fn level1_forms() -> vector<Form>",
+              "doc": "Retained for the A1 gates: the level-1 enumeration on its own."
+            },
+            {
+              "sig": "pub fn rebuild(cells: HexSet) -> Rebuilt",
+              "doc": "THE ROUTINE. Match the field against every admitted form, translation-normalised — WHERE it was\ndrawn is placement's business (the `place` element), not the stencil's.\nExample: @HXV-005"
+            },
+            {
+              "sig": "pub fn rebuild_with(cand: vector<Form>, cells: HexSet) -> Rebuilt",
+              "doc": "The core, with the candidate set supplied — build it once per gate run, not once per lookup."
+            },
+            {
+              "sig": "pub fn rebuild_text_with(cand: vector<Form>, cells: HexSet, name: text) -> text",
+              "doc": "The round trip in one call: field -> model -> canonical text. Empty when recovery is not R1,\nso a caller cannot accidentally spell an R2 guess as if it were an authored stencil."
+            },
+            {
+              "sig": "pub fn rebuild_text(cells: HexSet, name: text) -> text",
+              "doc": "Recover a form from cells and write it as canonical text, or \"\" when the cells are not a\nsingle clean form.  The empty answer is the refusal — check it before using the text."
+            },
+            {
+              "sig": "pub struct IdxEntry",
+              "doc": "── INDEXED RECOVERY — draw the candidates ONCE, then look up ──────────────\n\n`rebuild_with` re-DRAWS every candidate on every lookup: O(N) fills per field, O(N^2) over a\ncorpus — 14161 fills for the 119 entries we hold. Nothing about that is necessary. A candidate's\nfield never changes, so its digest can be computed once and put in a map keyed by the digest.\nRecovery then becomes a single probe.\n\nWHAT THIS DOES AND DOES NOT BUY, stated plainly because the A3 write-up overstated it:\n\nIT FIXES   the per-lookup cost — O(N) fills to build the index, O(1) per recovery afterwards.\nIT DOES NOT FIX   the cost of ENUMERATING the candidate space. Building the index still walks\nevery admissible form once, so the 4-sided house's class (~1.2M proposals,\n`X43`) is exactly as far out of reach as before. Reaching THAT needs\nCONSTRUCTIVE recovery — reading (h0, lens, turns) off the field's own\ngeometry — which is a different piece of work, not a faster table.\n\nLAW F IS CHECKED AT BUILD TIME, ONCE, INSTEAD OF ASSUMED PER LOOKUP. Two candidates sharing a\ndigest would silently overwrite each other in the map, so the build COUNTS such clashes and the\ngate asserts zero. That is strictly better than the old per-lookup `rb_matches` count: it is\nchecked once, over the whole space, rather than only where a corpus entry happened to look."
+            },
+            {
+              "sig": "pub struct RecoveryIndex",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn index_build(cand: vector<Form>) -> RecoveryIndex",
+              "doc": "Example: @HXV-002"
+            },
+            {
+              "sig": "pub fn rebuild_indexed(idx: RecoveryIndex, cand: vector<Form>, cells: HexSet) -> Rebuilt",
+              "doc": "THE FAST PATH: one probe. A hit is an exact R1 answer — the digest IS the field, compared in\nfull, so this is the same exactness the scan gave, not a heuristic narrowing.\n\nA MISS falls back to the scan, and only then, purely to compute the R2 residual. R2 is the\nexceptional path (content no grammar form draws), so paying O(N) there costs nothing in\npractice and keeps `rho > 0` a real measurement rather than a placeholder.\nExample: @HXV-008"
+            },
+            {
+              "sig": "pub fn rebuild_indexed_text(idx: RecoveryIndex, cand: vector<Form>,",
+              "doc": "The same, searching a prepared index and candidate set instead of enumerating: the shape\nto use when many cells sets are recovered against one library."
+            },
+            {
+              "sig": "pub fn hull_keys(cells: HexSet) -> vector<integer>",
+              "doc": "The convex hull of the filled cells, CCW, corners only — monotone chain in exact integers.\nCollinear points are dropped (`<= 0` pops them), which is what makes long sides come back as one\nside instead of a run of tiny ones."
+            },
+            {
+              "sig": "pub fn side_heading(dk: integer, dm: integer) -> integer",
+              "doc": "Which heading, and how many steps, is the vector (dk, dm)?  Tries all 12 — a constant — because\nthe heading table's steps are not primitive vectors and a gcd reduction would miss them.\nReturns the heading, or -1 when the vector is not a whole number of steps in any heading."
+            },
+            {
+              "sig": "pub fn side_len(dk: integer, dm: integer, h: integer) -> integer",
+              "doc": "How many steps of heading `h` the offset (dk, dm) covers.  The measurement a rebuild\nmakes at every corner to turn geometry back into a side length."
+            },
+            {
+              "sig": "pub fn rebuild_construct(cells: HexSet) -> Rebuilt",
+              "doc": "THE ROUTINE: recover the form from the field, then verify by re-drawing it.\nExample: @HXV-003\nExample: @HXV-004"
+            },
+            {
+              "sig": "pub fn rebuild_construct_text(cells: HexSet, name: text) -> text",
+              "doc": "Recover by CONSTRUCTION rather than by search, as text.  Answers \"\" on refusal like its\nsiblings, so all three recovery routes are read the same way."
+            }
+          ],
+          "published": "2026-09-02T23:54:14Z"
         }
       }
     },
