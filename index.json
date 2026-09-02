@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-29T22:22:51Z",
+  "updated": "2026-09-02T23:44:59Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -13789,6 +13789,387 @@
           "subpath": "hex_field",
           "deps": {},
           "published": "2026-07-24T20:56:38Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_field-v0.1.1/hex_field-0.1.1.tar.gz",
+          "sha256": "5f32d16f39bb18061df555b163ebde5e95c6e80085b50899cd880fe677ecd75a",
+          "size": 46799,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.1",
+          "data_compatible_with": "0.1.1",
+          "subpath": "hex_field",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct HexSet",
+              "doc": "Occupancy over a BOUNDED CHUNK of hex coords: q in [hs_q0 .. hs_q0+hs_w),\nr in [hs_r0 .. hs_r0+hs_h).  Deliberately a chunk, not a global graph — every\nroutine here is O(chunk) and never walks an unbounded neighbourhood, so the same\ncode serves a 32x32 world chunk (plan #2) as serves a one-off tower window.\nAnything spanning chunks is traced per chunk (with a halo) and stitched; nothing\nhere assumes the form is centred, or that the world is reachable."
+            },
+            {
+              "sig": "pub struct VecMap",
+              "doc": "A vector map: loops concatenated, loop i occupying [vm_start[i], vm_start[i+1])."
+            },
+            {
+              "sig": "pub fn hexset_chunk(q0: integer, r0: integer, w: integer, h: integer) -> HexSet",
+              "doc": "A chunk anchored at (q0,r0), w x h cells.  THE primitive — everything else builds\non it, so no routine can accidentally depend on a global frame."
+            },
+            {
+              "sig": "pub fn hexset_new(w: integer) -> HexSet",
+              "doc": "Convenience: a window centred on the origin, radius `w`."
+            },
+            {
+              "sig": "pub fn hexset_q0(s: HexSet) -> integer",
+              "doc": "Step 1's window, read back.  A consumer that did not build the chunk asks it where it\nstarts and how far it runs, rather than carrying those four numbers alongside it."
+            },
+            {
+              "sig": "pub fn hexset_r0(s: HexSet) -> integer",
+              "doc": "The window's first `r`."
+            },
+            {
+              "sig": "pub fn hexset_w(s: HexSet) -> integer",
+              "doc": "How many `q` columns the window spans."
+            },
+            {
+              "sig": "pub fn hexset_h(s: HexSet) -> integer",
+              "doc": "How many `r` rows the window spans."
+            },
+            {
+              "sig": "pub fn hexset_get(s: HexSet, q: integer, r: integer) -> boolean",
+              "doc": "Step 2 read: is this cell filled?  Outside the window is `false`, not an error — a\ncaller may probe a neighbour that lies past the edge without guarding every call."
+            },
+            {
+              "sig": "pub fn hexset_set(s: HexSet, q: integer, r: integer, on: boolean)",
+              "doc": "Step 2 write: fill or clear one cell.  Clearing an interior cell is how a hole is made,\nand `trace` will emit it as its own negative loop.  Outside the window it does nothing."
+            },
+            {
+              "sig": "pub fn hexset_count(s: HexSet) -> integer",
+              "doc": "How many cells are filled.  The cheap half of the area round-trip: `12 * hexset_count`\nis what the traced outline must shoelace to, so this is the number a check compares."
+            },
+            {
+              "sig": "pub fn lattice_k(q: integer, r: integer) -> integer",
+              "doc": "Hex (q,r) -> exact integer lattice centre.  Matches hex_grid::hex_to_px scaled by\n(sqrt(3)/2, 1/2) — verified against the library before porting."
+            },
+            {
+              "sig": "pub fn lattice_m(_q: integer, r: integer) -> integer",
+              "doc": "The lattice `m` of hex (q,r) — the y half of the pair `lattice_k` gives the x of."
+            },
+            {
+              "sig": "pub fn nb_q(q: integer, r: integer, d: integer) -> integer",
+              "doc": "Neighbour (q,r) in direction d, odd-r offset.  Same SET as hex_grid::hex_neighbor."
+            },
+            {
+              "sig": "pub fn nb_r(_q: integer, r: integer, d: integer) -> integer",
+              "doc": "The neighbour's `r`, the companion of `nb_q`.  Walk both to step across the field."
+            },
+            {
+              "sig": "pub struct Heights",
+              "doc": "── HEIGHTS ─────────────────────────────────────────────────────────────────\n\nA per-CELL height, chunk-indexed exactly like a HexSet.  Everything before stairs got by\nwith height on the material (how tall a wall is); a staircase is the first thing that\nneeds the GROUND itself to have a z, because each step is a different floor.\n\nIt is deliberately a separate structure rather than a field on HexSet: most of the world\nis flat and should not pay for a height it never reads, and a height field is derived\n(from a way, a contour, a terrace) exactly as the edge field is."
+            },
+            {
+              "sig": "pub fn heights_new(q0: integer, r0: integer, w: integer, h: integer) -> Heights",
+              "doc": "A height per cell over the same window shape a HexSet uses, so the two index alike.\nAttach one when the field needs elevation as well as occupancy; every cell starts 0.0."
+            },
+            {
+              "sig": "pub fn height_set(f: Heights, q: integer, r: integer, z: float)",
+              "doc": "Set one cell's height.  Outside the window it does nothing, matching `hexset_set`."
+            },
+            {
+              "sig": "pub fn height_get(f: Heights, q: integer, r: integer) -> float",
+              "doc": "One cell's height, or 0.0 outside the window — probe a neighbour without guarding."
+            },
+            {
+              "sig": "pub struct Labels",
+              "doc": "── LABELS ──────────────────────────────────────────────────────────────────\n\nA per-CELL integer, chunk-indexed exactly like Heights.  Heights answers \"how high is\nthis cell\"; Labels answers \"whose is it\".  Plan #9 (canopy-first trees) needs the second\nbecause a canopy is a PARTITION under competition rather than a stamped footprint — the\nassignment is the output, not a tie-break.\n\n-1 means unowned, which is a real state: a cell no crown reaches belongs to nobody."
+            },
+            {
+              "sig": "pub fn labels_new(q0: integer, r0: integer, w: integer, h: integer) -> Labels",
+              "doc": "An integer label per cell over a HexSet-shaped window: region ids, materials, owners.\nUnset cells read -1, which is why -1 is not a usable label."
+            },
+            {
+              "sig": "pub fn label_set(f: Labels, q: integer, r: integer, v: integer)",
+              "doc": "Label one cell.  Outside the window it does nothing."
+            },
+            {
+              "sig": "pub fn label_get(f: Labels, q: integer, r: integer) -> integer",
+              "doc": "One cell's label, or -1 when unset or outside the window."
+            },
+            {
+              "sig": "pub fn hex_at(px: float, py: float) -> (integer, integer)",
+              "doc": "World point -> the cell that contains it.  The exact inverse of the centre map\n(lattice_k / lattice_m), by the standard axial-fractional + cube-round route.  Gated two\nways in sighttest: it must round-trip every cell of a chunk, and it must agree cell for\ncell with hex_grid::px_to_hex, which is the canonical convention this whole plan follows.\nExample: @HXL-006"
+            },
+            {
+              "sig": "pub fn corner_k(i: integer) -> integer",
+              "doc": "Corner i of a cell, as an offset from its lattice centre.  Ordered so consecutive\ncorners bound one edge; index matches the Python CORNER table exactly.\nCANONICAL corner order — this is hex_grid::hex_corner_offset / worldmesh.loft's\nhex_lat_offset (the watertight instanced floor depends on it), in exact lattice\nunits.  Do NOT invent another ordering: downstream code reads corner i by index."
+            },
+            {
+              "sig": "pub fn corner_m(i: integer) -> integer",
+              "doc": "Corner i's lattice `m` offset from the centre — the companion of `corner_k`.  Together\nthey are the six offsets every traced vertex is built from, in the order `trace` emits."
+            },
+            {
+              "sig": "pub fn form_hexdisk(w: integer, n: integer) -> HexSet",
+              "doc": "Steps 1 and 2 in one call: a window of radius `w` holding a disc of radius `n`.  The\nquickest way to get something traceable when the shape itself is not the point."
+            },
+            {
+              "sig": "pub fn hexdisk_into(s: HexSet, cq: integer, cr: integer, n: integer)",
+              "doc": "Fill a hex-distance disk centred anywhere INTO an existing chunk.  Cells outside the\nchunk are simply not written — the caller decides the halo.  This is the chunk-local\nform of form_hexdisk and the one a world chunk actually uses."
+            },
+            {
+              "sig": "pub fn hex_dist(q1: integer, r1: integer, q2: integer, r2: integer) -> integer",
+              "doc": "Hex distance on odd-r offset, via cube coords."
+            },
+            {
+              "sig": "pub fn form_circle(w: integer, radius: float) -> HexSet",
+              "doc": "Euclidean disk: the hex CENTRE must lie within `radius` world units of the origin.\nCompared in squared lattice units to keep it integer until the final test.\n\n⚠ `radius` IS NOT IN HEX STEPS.  A world unit here is the one the lattice defines —\nx = k·√3/2, y = m/2 — in which a hex has CIRCUMRADIUS 1 and two neighbouring centres\nare √3 ≈ 1.732 apart.  So `form_circle(w, 3.0)` is 13 cells while `form_hexdisk(w, 3)`\nis 37: the same 3, two units, a factor of √3 between them.  To ask for n hex steps,\npass `n * 1.7320508075688772` — `form_circle(w, 2·√3)` and `form_hexdisk(w, 2)` are\nthe same 19 cells.\nExample: @HXL-005"
+            },
+            {
+              "sig": "pub fn form_octagon(w: integer, apothem: float) -> HexSet",
+              "doc": "Regular octagon, apothem `a`, one flat side on the world x-axis (canonical\norientation — an octagon is 8-fold symmetric and the grid is 6-fold, so the\norientation is FROZEN, not free).\n\n`apothem` is in the same lattice world units as `form_circle`'s radius — hex\ncircumradius 1, so a hex STEP is √3 — not in hex steps.\nExample: @HXL-005"
+            },
+            {
+              "sig": "pub fn wall_count(s: HexSet) -> integer",
+              "doc": "How many filled cells touch an empty one or the window edge — the form's perimeter in\ncells.  Useful before tracing, when a cost or a bound depends on the boundary size."
+            },
+            {
+              "sig": "pub fn trace(s: HexSet) -> VecMap",
+              "doc": "Trace the boundary into ordered closed loops.  Each boundary edge is emitted directed\ncorner_i -> corner_i+1, which gives every loop a consistent orientation (outer one\nway, enclosed holes the other) — what a fill rule and a triangulator both need.\nExample: @HXL-001"
+            },
+            {
+              "sig": "pub fn shoelace2(v: VecMap, i: integer) -> integer",
+              "doc": "Twice the signed area of loop i, in integer lattice units.  Exact."
+            },
+            {
+              "sig": "pub fn outline_count(v: VecMap) -> integer",
+              "doc": "How many loops enclose area — one per connected component of the cell set.  Exposed\nbecause `validate` deliberately no longer insists on exactly one (see there): a caller\nthat knows its form is a single piece can still assert `outline_count(v) == 1`, and a\ncaller tracing a world chunk can ask how many pieces landed in it.\nExample: @HXL-003"
+            },
+            {
+              "sig": "pub fn shoelace_total(v: VecMap) -> integer",
+              "doc": "Example: @HXL-002"
+            },
+            {
+              "sig": "pub fn validate(v: VecMap, cells: integer) -> integer",
+              "doc": "Returns 0 when the vector map is safe to consume; otherwise a failure code:\n1 no loops   2 degenerate loop   3 segment is not a hex edge\n4 area round-trip failed         5 no outer loop at all\n6 a vertex repeats (the outline touches itself)\nExample: @HXL-003\nExample: @HXL-004"
+            },
+            {
+              "sig": "pub struct HexDoc",
+              "doc": "What a load produced.  `doc_code` is the refusal code; the field members are\nmeaningful only when it is HXF_OK."
+            },
+            {
+              "sig": "pub fn doc_write(",
+              "doc": "Write a field.  `heights` / `labels` are optional: pass has_h/has_l false to\nleave the section out entirely rather than writing a zero-filled one, so a\nstencil that only carries occupancy costs only occupancy."
+            },
+            {
+              "sig": "pub fn doc_write_edges(",
+              "doc": "As doc_write, plus the wall layer.  The EDGE payload is the halo grid — gw*gh*3\nslots — because an edge on the chunk boundary belongs to a cell outside it, and\ndropping those would silently open the walls of every stamped building's rim.\nExample: @HXL-012"
+            },
+            {
+              "sig": "pub fn doc_write_all(",
+              "doc": "The full form: cells, optional heights/labels/edges, and any number of NAMED\ninteger layers."
+            },
+            {
+              "sig": "pub fn doc_read(path: text) -> HexDoc",
+              "doc": "Example: @HXL-010\nExample: @HXL-011"
+            },
+            {
+              "sig": "pub fn lattice_to_cell(k: integer, m: integer) -> (integer, integer)",
+              "doc": "Inverse of (lattice_k, lattice_m).  m is always 3r and k − (r&1) always even,\nso both divisions are exact rather than truncating."
+            },
+            {
+              "sig": "pub fn lattice_rot60(k: integer, m: integer) -> (integer, integer)",
+              "doc": "One 60° step counter-clockwise about the lattice origin."
+            },
+            {
+              "sig": "pub fn cell_rot(q: integer, r: integer, n: integer) -> (integer, integer)",
+              "doc": "Rotate a cell n × 60° about cell (0,0).  n may be any integer; six steps are\nthe identity, so it wraps."
+            },
+            {
+              "sig": "pub fn cell_mirror(q: integer, r: integer) -> (integer, integer)",
+              "doc": "Reflect a cell in the vertical axis (k → −k).  With the six rotations this\ngives the 12 orientations handed content needs — an L-shaped house, a stair."
+            },
+            {
+              "sig": "pub struct Stencil",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn stencil_from(s: HexSet, hz: Heights, lb: Labels, has_h: boolean, has_l: boolean) -> Stencil",
+              "doc": "Build the field FIRST, then construct the stencil: these take their arguments\nby value, so cells set on the HexSet afterwards do not reach the stencil.  The\nfailure is quiet — the stencil reports the right layer count and extent, and\nonly the contents are missing."
+            },
+            {
+              "sig": "pub fn stencil_with_edges(s: HexSet, hz: Heights, lb: Labels, eg: EdgeSet,",
+              "doc": "A stencil that carries walls.  Separate constructor so the common case — a\nfootprint with no walls — does not allocate an edge layer it never reads."
+            },
+            {
+              "sig": "pub fn stencil_rotate(st: Stencil, n: integer) -> Stencil",
+              "doc": "Rotate a whole stencil n × 60° about its own (0,0), re-fitting the extent to\nwhatever the rotated cells need.\nExample: @HXL-007"
+            },
+            {
+              "sig": "pub fn stencil_mirror(st: Stencil) -> Stencil",
+              "doc": "Reflect a whole stencil (k -> -k).  With the six rotations this is the other\nhalf of the TWELVE orientations: six placements, and the remaining six reached\nby flipping.  Handed content — an L-shaped house, a staircase — needs it, and\nit is exact for the same reason the rotation is.\nExample: @HXL-007"
+            },
+            {
+              "sig": "pub fn stencil_rotate_deg(st: Stencil, deg: integer) -> Stencil",
+              "doc": "Degrees, refused rather than rounded when they are not a multiple of 60.\nA rotation that silently rounds is how an exact lattice quietly becomes an\napproximate one, so this returns an EMPTY stencil carrying ROT_NOT_MULTIPLE."
+            },
+            {
+              "sig": "pub fn stencil_stamp(",
+              "doc": "Stamp `st` so its (0,0) lands on target cell (aq, ar).  Occupied stencil\ncells win; everything else in the target is untouched, which is what makes\ntwo stamps at different places order-free."
+            },
+            {
+              "sig": "pub fn stencil_stamp_layers(",
+              "doc": "Stamp the named layers too.  Separate from stencil_stamp so a consumer that\nuses no layers pays nothing for them."
+            },
+            {
+              "sig": "pub fn stencil_stamp_all(",
+              "doc": "Everything at once: cells, heights, labels, named layers and walls.  Exists so\na consumer does not stamp cells three times by calling the three narrower\nforms, and so there is ONE place that knows the full payload."
+            },
+            {
+              "sig": "pub fn stencil_stamp_edges(",
+              "doc": "Stamp including the wall layer.  Edges translate the same way cells do — in\nlattice space — so a wall stamped on an odd row stays on the edge it was\nauthored on."
+            },
+            {
+              "sig": "pub fn stencil_unstamp(",
+              "doc": "Clear the cells, heights and labels a `stencil_stamp` wrote."
+            },
+            {
+              "sig": "pub fn stencil_unstamp_layers(",
+              "doc": "Clear the named layers too — the inverse of `stencil_stamp_layers`.\n\nThe layer NAMES the stamp added to the target stay: a name is a property of\nthe field, not of one placement, and a second placement of the same part\nwould only add it back.  Only the VALUES under this footprint are cleared."
+            },
+            {
+              "sig": "pub fn stencil_unstamp_all(",
+              "doc": "Everything at once — the inverse of `stencil_stamp_all`, and the form a\nconsumer should use, so one place knows the full payload in BOTH directions.\n\nEdges walk the same halo the stamp did, and clear only the slots the stencil\nitself carried a material for.  Iterating the occupied cells instead would\nleave the rim walls behind — the same blindness that once turned 18 edge\nslots into 10 with every cell count still agreeing."
+            },
+            {
+              "sig": "pub struct EdgeSet",
+              "doc": "TWO SLOTS, TWO OWNERS.  `eg_mat` is the PHYSICS of an edge — what it is made of — and\nis authored: a stencil carries materials, a document round-trips them.  `eg_surf` is the\nGEOMETRY — WHICH exact surface blocks here — and is derived at build time.\n\nThe surface slot exists because a hex edge has only 6 possible normals, and measured\nagainst the true wall normal across 24 headings, using the edge's own normal is wrong by\nup to 90 degrees: a bounce that sends you sideways.  So the edge stores an id and the\nsurface carries the exact geometry.  That makes the grid a SPATIAL INDEX — it says THAT\nyou hit something and WHICH thing — while the normal stays exact and mesh-free.\n\n`eg_surf` is DELIBERATELY NOT SERIALIZED by the document format, and that is not an\nomission to fix later: a surface id points into a `Surfaces` table this library does not\nown, so writing ids to a file would persist dangling references.  Materials are ids into\na closed enumeration of mechanisms and travel fine; surfaces are not.  The TAG_EDGE\nsection stays exactly `(w+2)*(h+2)*3` material bytes, so existing documents keep loading."
+            },
+            {
+              "sig": "pub fn edgeset_new(q0: integer, r0: integer, w: integer, h: integer) -> EdgeSet",
+              "doc": "Example: @HXL-008"
+            },
+            {
+              "sig": "pub fn edge_key(qa: integer, ra: integer, qb: integer, rb: integer) -> (integer, integer)",
+              "doc": "The doubled midpoint — an edge's identity, independent of which cell names it.\nExample: @HXL-008"
+            },
+            {
+              "sig": "pub fn edge_set_mat(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer, mat: integer)",
+              "doc": "The storage slot for an edge, or -1.  PUBLIC because a consumer building its\nown accessors on this layer cannot address storage it cannot index — crawler's\napply_features and its junction arbitration write by index.  Exposing the slot\nis cheaper than exporting a get/set pair for every access pattern they have.\nUnconditional write — the last writer wins.  The write POLICY is deliberately the\ncaller's: first-writer-wins is `if edge_mat(...) == 0 { edge_set_mat(...) }` at the call\nsite, where the reader can see which rule is in force.\nExample: @HXL-009"
+            },
+            {
+              "sig": "pub fn edgeset_refused(e: EdgeSet) -> integer",
+              "doc": "Writes this layer refused because the material was outside 0..EDGE_MAT_MAX.  Non-zero\nmeans a wall a caller asked for is absent — check it wherever material ids are derived\nrather than written as literals.\nExample: @HXL-009"
+            },
+            {
+              "sig": "pub fn edge_mat(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer) -> integer",
+              "doc": "The material on the edge between two neighbouring cells, or 0 when there is none.\nEdges carry what cells cannot: a wall belongs BETWEEN two hexes, not inside one."
+            },
+            {
+              "sig": "pub fn edge_set_surf(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer,",
+              "doc": "Write the surface blocking this edge, maintaining the blocked count exactly.\nUnconditional — the WRITE POLICY belongs to the caller, because there is more than one:\ncrawler's collision layer wants first-writer-wins for plain construction and\nnearest-surface arbitration where two parts meet.  A policy baked in here would silently\ndecide which surface owns a junction, which is a physics question, not a storage one."
+            },
+            {
+              "sig": "pub fn edge_surf(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer) -> integer",
+              "doc": "The surface on that same edge — the finish, where `edge_mat` is the substance."
+            },
+            {
+              "sig": "pub fn edge_set_both(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer,",
+              "doc": "Both halves of an edge in one call, so a caller cannot set geometry and forget physics."
+            },
+            {
+              "sig": "pub fn edgeset_surf_count(e: EdgeSet) -> integer",
+              "doc": "Blocked edges, O(1).  `edgeset_count` walks the grid and counts MATERIALS; this is the\nderived-geometry count and is maintained on write, so it is free to call every frame."
+            },
+            {
+              "sig": "pub fn edgeset_equal(a: EdgeSet, b: EdgeSet) -> boolean",
+              "doc": "Exact element-wise equality over BOTH slots and the whole grid, halo included.\n\nExists because the obvious consumer test — \"is the cached layer identical to a freshly\nderived one?\" — otherwise has to read the vectors directly, which would make the field\nlayout contract.  Compares the halo too: `edgeset_count` walks only in-chunk cells, so a\ncorruption in the 74-of-75 halo slots of a small layer round-trips faithfully and no\nassertion sees it.  That is not hypothetical here — it is how a negative control in this\npackage failed to fail."
+            },
+            {
+              "sig": "pub fn edgeset_digest(e: EdgeSet) -> integer",
+              "doc": "An order-sensitive checksum of the whole layer — the cheap \"did anything change at all?\"\nfor a test that operates on a layer and asserts it was left alone.  Use `edgeset_equal`\nwhen the answer must be exact; a digest can collide, and for a correctness gate that\nmatters."
+            },
+            {
+              "sig": "pub fn edgeset_bytes(e: EdgeSet) -> integer",
+              "doc": "Actual bytes held, so a consumer can GATE the footprint instead of reasoning about it.\nAn edge layer is a per-region cache in at least one consumer, which makes its size a\nreal cost; `size` reports what is truly allocated, so an assertion on it is what stops\nthe structure quietly growing back.  Exposed as a function rather than leaving consumers\nto read the vectors, which would make the field layout contract."
+            },
+            {
+              "sig": "pub fn edgeset_q0(e: EdgeSet) -> integer",
+              "doc": "The edge layer's window, read back, exactly as `hexset_q0` reads a cell layer's."
+            },
+            {
+              "sig": "pub fn edgeset_r0(e: EdgeSet) -> integer",
+              "doc": "The edge layer's first `r`."
+            },
+            {
+              "sig": "pub fn edgeset_w(e: EdgeSet) -> integer",
+              "doc": "How many `q` columns the edge layer spans."
+            },
+            {
+              "sig": "pub fn edgeset_h(e: EdgeSet) -> integer",
+              "doc": "How many `r` rows the edge layer spans."
+            },
+            {
+              "sig": "pub fn edgeset_count_all(e: EdgeSet) -> integer",
+              "doc": "Every non-zero slot in the layer, INCLUDING the halo.  edgeset_count walks\nonly in-chunk cells, which leaves the halo — 74 of a 3x3 layer's 75 slots —\nunverified: a corruption there round-trips faithfully and no assertion sees\nit.  Found by a negative control that failed to fail."
+            },
+            {
+              "sig": "pub fn edgeset_count(e: EdgeSet) -> integer",
+              "doc": "How many edges carry a material.  Walks the canonical slots only, so each\nedge is counted once however many cells touch it."
+            },
+            {
+              "sig": "pub struct Layers",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn layers_new(q0: integer, r0: integer, w: integer, h: integer) -> Layers",
+              "doc": "Several named integer layers over one window, added as they are needed.  Reach for it\ninstead of many `Labels` when the set of layers is the consumer's to decide."
+            },
+            {
+              "sig": "pub fn layer_count(ls: Layers) -> integer",
+              "doc": "How many layers exist, and the name of layer i — enough to walk them without knowing\nwhich names a consumer chose."
+            },
+            {
+              "sig": "pub fn layer_name(ls: Layers, i: integer) -> text",
+              "doc": "Layer i's name, or \"\" — walk `0..layer_count` to list them."
+            },
+            {
+              "sig": "pub fn layers_q0(ls: Layers) -> integer",
+              "doc": "The layer stack's window, read back, as `hexset_q0` reads a cell layer's."
+            },
+            {
+              "sig": "pub fn layers_r0(ls: Layers) -> integer",
+              "doc": "The layer stack's first `r`."
+            },
+            {
+              "sig": "pub fn layers_w(ls: Layers) -> integer",
+              "doc": "How many `q` columns the layer stack spans."
+            },
+            {
+              "sig": "pub fn layers_h(ls: Layers) -> integer",
+              "doc": "How many `r` rows the layer stack spans."
+            },
+            {
+              "sig": "pub fn layer_index(ls: Layers, name: text) -> integer",
+              "doc": "Index of a named layer, or -1.  Names are the consumer's vocabulary; the\nlibrary never interprets them."
+            },
+            {
+              "sig": "pub fn layer_add(ls: Layers, name: text) -> integer",
+              "doc": "Add a layer, zero-filled.  Adding one that exists is a no-op, so a consumer\ncan call it defensively without checking first."
+            },
+            {
+              "sig": "pub fn layer_set(ls: Layers, name: text, q: integer, r: integer, v: integer)",
+              "doc": "Write one cell of a named layer.  An unknown name does nothing rather than creating a\nlayer, so a typo loses the write instead of silently growing the stack."
+            },
+            {
+              "sig": "pub fn layer_get(ls: Layers, name: text, q: integer, r: integer) -> integer",
+              "doc": "Read one cell of a named layer; 0 when the name or the cell is not there."
+            },
+            {
+              "sig": "pub fn layer_get_at(ls: Layers, li: integer, q: integer, r: integer) -> integer",
+              "doc": "By index, for the writer and for iterating without knowing the names."
+            },
+            {
+              "sig": "pub fn layer_set_at(ls: Layers, li: integer, q: integer, r: integer, v: integer)",
+              "doc": "Write by layer INDEX, for a loop that resolved the name once with `layer_index`."
+            }
+          ],
+          "published": "2026-09-02T23:44:59Z"
         }
       }
     },
