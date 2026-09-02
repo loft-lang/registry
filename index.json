@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-02T23:44:59Z",
+  "updated": "2026-09-02T23:51:47Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -14191,6 +14191,197 @@
             "hex_field": ">=0.1"
           },
           "published": "2026-07-24T20:56:38Z"
+        },
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_edge-v0.2.0/hex_edge-0.2.0.tar.gz",
+          "sha256": "5400cbbbf1c1a30f52615a1bc89635a6739a7122c6ebbfb41a5f92bcbf9f453d",
+          "size": 24300,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.2.0",
+          "data_compatible_with": "0.2.0",
+          "subpath": "hex_edge",
+          "deps": {
+            "hex_field": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct Surfaces",
+              "doc": "The surfaces a collision can reference.  Small and flat on purpose: a normal must be\ncheap to evaluate at contact time."
+            },
+            {
+              "sig": "pub fn surfaces_new() -> Surfaces",
+              "doc": "Example: @HXE-001"
+            },
+            {
+              "sig": "pub fn surf_straight(s: Surfaces, nx: float, ny: float, c: float) -> integer",
+              "doc": "A straight wall with unit normal (nx,ny) at offset c.  Normal is constant -> exact for\nevery one of the 24 headings, and for anything between them.\nExample: @HXE-001"
+            },
+            {
+              "sig": "pub fn surf_arc(s: Surfaces, cx: float, cy: float, r: float) -> integer",
+              "doc": "An arc / round tower / tree trunk: the normal is radial, so it is exact everywhere\nalong the curve — no faceting, no mesh."
+            },
+            {
+              "sig": "pub fn surf_distance(s: Surfaces, id: integer, px: float, py: float) -> float",
+              "doc": "Distance from a world point to surface `id` — the ARBITRATION metric (P3)."
+            },
+            {
+              "sig": "pub fn surf_normal(s: Surfaces, id: integer, px: float, py: float) -> (float, float)",
+              "doc": "The outward normal of surface `id` at world point (px,py)."
+            },
+            {
+              "sig": "pub struct Materials",
+              "doc": "MATERIALS — the PHYSICS half of an edge.  Kept separate from Surfaces (the geometry\nhalf) because they vary independently: a stone wall and a hedge on the SAME arc share a\nsurface and differ entirely in material; a wall and a tower of the same stone share a\nmaterial and differ entirely in surface.\n\nThe consumers do not all want \"blocked\".  A low wall blocks movement but not sight; a\nhedge muffles sound without stopping it; water runs along a wall it cannot cross.  So a\nmaterial carries a small vector of transmission terms rather than one flag."
+            },
+            {
+              "sig": "pub fn materials_new() -> Materials",
+              "doc": "An empty palette.  Id 0 is reserved for \"nothing there\", so the first `material_add`\nreturns 1 and an unmarked edge never looks like a real material."
+            },
+            {
+              "sig": "pub fn material_add(m: Materials, solid: boolean, height: float, opacity: float,",
+              "doc": "Add a material and get its id.  One call fixes everything the simulation asks later —\nwhether it blocks, how tall, how opaque, how loud, how permeable, how bouncy."
+            },
+            {
+              "sig": "pub fn material_set_solid(m: Materials, id: integer, solid: boolean)",
+              "doc": "A DYNAMIC material — a level-crossing barrier, a door, a portcullis.  Flipping the\ntable entry retargets every edge already carrying this id, so the geometry layer is not\ntouched at all: no edge writes, no surface change, and therefore NO L2 cache\ninvalidation (P6 keys the cache on the world version, which a material toggle does not\nbump).  That is the whole reason material is a separate axis from surface.\nExample: @HXE-010"
+            },
+            {
+              "sig": "pub fn mat_solid(m: Materials, id: integer) -> boolean",
+              "doc": "The per-consumer accessors.  Each reads ONE property of the same edge."
+            },
+            {
+              "sig": "pub fn mat_height(m: Materials, id: integer) -> float",
+              "doc": "How tall this material stands.  0.0 for id 0 or an unknown id, so an unmarked edge\nanswers \"nothing there\" rather than faulting."
+            },
+            {
+              "sig": "pub fn mat_opacity(m: Materials, id: integer) -> float",
+              "doc": "How much it blocks sight, 0.0 when there is nothing there."
+            },
+            {
+              "sig": "pub fn mat_sound(m: Materials, id: integer) -> float",
+              "doc": "How much it deadens sound, in dB, 0.0 when there is nothing there."
+            },
+            {
+              "sig": "pub fn mat_perm(m: Materials, id: integer) -> float",
+              "doc": "How freely air or fluid passes.  Note the neutral value is 1.0, not 0.0: nothing there\nmeans fully permeable, where nothing there means zero height."
+            },
+            {
+              "sig": "pub fn mat_bounce(m: Materials, id: integer) -> float",
+              "doc": "How much it rebounds, 0.0 when there is nothing there."
+            },
+            {
+              "sig": "pub fn edge_k(qa: integer, ra: integer, qb: integer, rb: integer) -> integer",
+              "doc": "The canonical edge key: doubled midpoint of the two cell centres.  Kept as two integer\naccessors rather than the library's tuple-shaped `edge_key`, because `edge_point` wants\nthe halves separately and a tuple destructure per edge is a hot-path cost for no gain."
+            },
+            {
+              "sig": "pub fn edge_m(qa: integer, ra: integer, qb: integer, rb: integer) -> integer",
+              "doc": "The edge's `m` key — the companion of `edge_k`.  The pair names the edge between two\ncells the same way from either side, which is what stops one wall becoming two."
+            },
+            {
+              "sig": "pub fn edge_block_surf(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer,",
+              "doc": "Block an edge, recording WHICH surface blocks it (surf 0 = a bare blocker with no\nrecoverable normal — allowed, but it cannot be bounced off correctly).\n\nFIRST-WRITER-WINS, and that is load-bearing rather than incidental: plain construction\nstamps parts in an arbitrary order, and without the guard the LAST part to touch a\nshared edge would own it. `edge_block_arb` is the version that resolves the contest on\ngeometry instead of order; this is the cheap one for edges only one part can claim.\nExample: @HXE-006"
+            },
+            {
+              "sig": "pub fn edge_point(qa: integer, ra: integer, qb: integer, rb: integer) -> (float, float)",
+              "doc": "The world point where the two cells' shared edge sits (its midpoint) — the contact\npoint a normal is evaluated at."
+            },
+            {
+              "sig": "pub fn edge_block_arb(e: EdgeSet, sf: Surfaces, qa: integer, ra: integer,",
+              "doc": "── P3: JUNCTION ARBITRATION ─────────────────────────────────────────────────\n\nWhen two parts meet, one edge is claimed by two surfaces. First-writer-wins made that\norder-dependent — stamp the wall then the tower and you got a different world than the\nother way round, which is exactly the class of bug that never shows up in a unit test.\n\nTHE RULE: the surface whose geometry is NEAREST the edge's contact point wins; ties\nbreak to the LOWER surface id. Both halves matter — nearest is what a ball should\nactually bounce off, and the tie-break is what makes it deterministic.\nExample: @HXE-006"
+            },
+            {
+              "sig": "pub struct Junctions",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn junctions_new() -> Junctions",
+              "doc": "An empty set of junctions: where walls meet, for consumers that draw a corner post or\nneed to know a wall's ends rather than just its middle."
+            },
+            {
+              "sig": "pub fn junction_add(j: Junctions, sa: integer, sb: integer, kind: integer,",
+              "doc": "Record that two surfaces meet here, of this kind, at this world point."
+            },
+            {
+              "sig": "pub fn junction_ok(j: Junctions, i: integer, sf: Surfaces) -> boolean",
+              "doc": "Does the junction honour what was intended?  G0 is exact by construction (both\nsurfaces pass through the seam point); this checks the TANGENT.\nExample: @HXE-011"
+            },
+            {
+              "sig": "pub fn junction_g0(j: Junctions, i: integer, sf: Surfaces, tol: float) -> boolean",
+              "doc": "G0: both surfaces must actually pass through the seam point.\nExample: @HXE-011"
+            },
+            {
+              "sig": "pub struct Features",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn features_new() -> Features",
+              "doc": "An empty set of features: doors, windows and openings placed ALONG a surface rather\nthan replacing it, so the wall stays one wall with holes in it."
+            },
+            {
+              "sig": "pub fn feature_add(f: Features, surf: integer, s0: float, s1: float,",
+              "doc": "Place a feature on a surface, between two positions along it and two heights up it, so a\ndoor or a window is a hole IN a wall rather than a break in it."
+            },
+            {
+              "sig": "pub fn surf_param(s: Surfaces, id: integer, px: float, py: float) -> float",
+              "doc": "Where along surface `id` does this point sit?  Straight: distance along its direction.\nArc: arc length from angle 0.  This is the parameter a feature interval is stated in."
+            },
+            {
+              "sig": "pub fn apply_features(e: EdgeSet, sf: Surfaces, f: Features,",
+              "doc": "Apply every feature to the edge layer: an edge whose contact point falls inside a\nfeature's interval takes that feature's material.  The SURFACE is untouched — which is\nwhy the body never fragments and the matcher still sees one wall.\nExample: @HXE-008"
+            },
+            {
+              "sig": "pub fn edge_block_full(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer,",
+              "doc": "Record BOTH halves: which surface (geometry) and which material (physics).  The surface\nkeeps first-writer-wins; the material does NOT, because a feature (a door, a window)\nlegitimately retargets the material of an edge whose surface is already settled."
+            },
+            {
+              "sig": "pub fn edge_block(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer)",
+              "doc": "Example: @HXE-007"
+            },
+            {
+              "sig": "pub fn edge_blocked(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer) -> boolean",
+              "doc": "Can a mover cross this edge?  THE collision question, and the reason the edge layer\nexists — asked from either side with the same answer."
+            },
+            {
+              "sig": "pub fn collide(e: EdgeSet, s: Surfaces,",
+              "doc": "THE COLLISION RESPONSE QUERY: blocked?, and the EXACT outward normal to bounce off.\nExample: @HXE-007"
+            },
+            {
+              "sig": "pub fn passable(e: EdgeSet, qa: integer, ra: integer, qb: integer, rb: integer) -> boolean",
+              "doc": "THE collision query.  Everything else is construction.\nExample: @HXE-010"
+            },
+            {
+              "sig": "pub fn sweep_path(e: EdgeSet, x0: float, y0: float, x1: float, y1: float)",
+              "doc": "── SWEPT MOVEMENT (plan #11 P2b — invariant I-CROSS) ────────────────────────\n\n`passable` answers about one edge; this answers about a PATH. Walk the segment\n(x0,y0) -> (x1,y1) across the lattice one edge at a time and stop at the first edge\nthe field blocks.\n\nThere is no step size anywhere, which is the whole point. A point's cell is its\nNEAREST CENTRE, so a crossing is exactly where the segment meets the bisector between\nthe current centre and a neighbour's — one linear solve per neighbour:\n\n|P(t) - C|² = |P(t) - N|²   ⟺   P(t)·(N-C) = midpoint·(N-C)\n⟹  t = ((M - P0)·D) / (V·D)     with D = N-C, and only when V·D > 0\n\nSo the answer is a function of the SEGMENT, not of how many frames it was cut into:\ndropping frames or falling fast cannot step over a wall. Centres come from the exact\ninteger lattice (`lattice_k`/`lattice_m`), so the geometry carries no accumulated error.\n\nReturns the fraction of the segment that may be travelled (1.0 = all of it), the cell\nit stopped in, and the DIRECTION of the blocking edge — `dir < 0` meaning nothing\nblocked. The signal is the direction and never a coordinate: hex coordinates are\nsigned, so a -1 sentinel in q or r collides with real cells in any chunk that spans\nthe origin. (It did: the first version reported \"no hit\" for every wall at q = -1.)\nFeed (q, r, dir) to `nb_q`/`nb_r` and `collide` for the exact bounce normal.\n\nEXTRACTION: this belongs with `passable`/`collide` and travels with them when hexedge\nis packaged — every consumer that moves a body over the field needs it.\nExample: @HXE-002\nExample: @HXE-004\nExample: @HXE-005"
+            },
+            {
+              "sig": "pub fn sweep_path_from(e: EdgeSet, sq: integer, sr: integer,",
+              "doc": "THE SAME SWEEP, TOLD WHICH CELL IT STARTS IN — and the one to call in a movement loop.\n\n`sweep_path` derives the starting cell with `hex_at`, and that is exactly what a caller\ncannot afford on the step AFTER a stop. Stopping at a wall leaves the position exactly ON\nthe bisector between two cells (the comment in the loop below says so: it is the normal\nstate, not an edge case), and `hex_at` on a bisector does not toss a coin — measured over\nall six directions, it answers the FAR cell every time. So the next call starts past the\nwall with the wall behind it, sees nothing, and reports the whole segment clear. The\nsymptom is \"collision does not work\"; the truth is that it worked for exactly one step.\n\nThe cure is not a tolerance. The previous call already RETURNED the cell you are resting\nin, so hand it back: `(t, cq, cr, d) = sweep_path_from(e, cq, cr, …)`, threading `cq, cr`\nfrom one step to the next. Pressing on into the wall then answers `t = 0` in the cell you\nare in, which is the honest answer, and sliding along the wall works from the same call.\n\nWHY NOT A SKIN. The consumer-side workaround is to come to rest a small distance short\n(moros#10 used 1 cm at its scale), and it does work — but the smallest distance that works\nis not a constant. Measured: 1e-15 at the origin, 1e-11 about 1.7e3 world units out,\n1e-9 about 1.7e6 out. It is a float-resolution floor, not a geometric clearance, so a\nconstant chosen at one extent is silently wrong at another and the library has no better\nidea of the right value than the caller does. Threading the cell needs no such number.\n\nTHE FAR-FIELD LIMIT, which no cure removes: past roughly 5e6 cells from the origin a\ndouble position can no longer hold \"on the bisector\" to better than this code's 1e-9\ntolerance (measured: the recoverable offset from an absolute position loses 2.9e-10 at\n3e6 cells and 6.4e-10 at 1e7). At that point the position itself is the limit, not the\nsweep, and the fix is to recentre the world rather than the arithmetic.\n\nExample: @HXE-002\nExample: @HXE-003"
+            },
+            {
+              "sig": "pub fn edges_cut(s: HexSet, e: EdgeSet)",
+              "doc": "A THIN wall: the cut between the cells of `s` and everything else.  One edge thick,\nand it separates by construction — in every one of the 24 headings.\nExample: @HXE-009"
+            },
+            {
+              "sig": "pub fn edges_solid(s: HexSet, e: EdgeSet)",
+              "doc": "A SOLID body: every edge incident to an occupied cell, so the cells cannot be entered\nat all.  This is the cell model expressed in the edge primitive — which is the point:\none collision layer serves both.\nExample: @HXE-009"
+            },
+            {
+              "sig": "pub fn edges_halfplane_surf(e: EdgeSet, q0: integer, r0: integer, w: integer, h: integer,",
+              "doc": "Block every edge a straight line crosses: the wall runs along `n·p = c` in world\nunits, with n the unit normal.  A thin wall in ANY heading, one edge thick."
+            },
+            {
+              "sig": "pub fn edges_halfplane(e: EdgeSet, q0: integer, r0: integer, w: integer, h: integer,",
+              "doc": "Back-compat: a halfplane wall with no surface recorded.\nExample: @HXE-009"
+            },
+            {
+              "sig": "pub fn sight_clear(e: EdgeSet, m: Materials, x0: float, y0: float, z0: float,",
+              "doc": "── SIGHT ───────────────────────────────────────────────────────────────────\n\nIs there a clear line of sight from an eye to a target?\n\nSight is blocked by OPACITY, not by solidity.  A chain-link fence is solid and\ntransparent; a hedge is permeable and opaque.  This is the first consumer to read one\nmaterial axis while deliberately ignoring another, and it is the whole reason a material\ncarries a vector of transmission terms rather than a single flag.\n\nHeight matters as much as opacity: the sight line rises from eye to target, so an\nobstruction blocks only while the line is still below its top.  A near wall hides what\nthe identical wall further along does not — which is exactly the railway sighting\nproblem, and it falls out of the geometry rather than being special-cased.\n\nThe walk steps at 0.2 world units.  A hex inradius is sqrt(3)/2 = 0.866, so consecutive\nsamples cannot skip a cell: every cell change is a step to a NEIGHBOUR, and the edge\nbetween them is exactly the one to test.\nExample: @HXE-010"
+            },
+            {
+              "sig": "pub fn surf_point(s: Surfaces, id: integer, t: float) -> (float, float)",
+              "doc": "The inverse of surf_param: where along a surface does this parameter land?\n\nsurf_param answers \"where is this point on that surface\"; derived placement needs the\nother direction — a Feature states an INTERVAL in surface parameters (plan #5 P5), and\nputting a door there means turning that interval back into a position. Without this the\nonly way to place a door on an existing opening is to search for it.\nExample: @HXE-008"
+            }
+          ],
+          "published": "2026-09-02T23:51:47Z"
         }
       }
     },
