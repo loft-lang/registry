@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-02T23:54:14Z",
+  "updated": "2026-09-02T23:55:09Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -13453,6 +13453,47 @@
             }
           ],
           "published": "2026-08-29T18:46:38Z"
+        },
+        "0.2.2": {
+          "url": "https://github.com/loft-lang/loft-libs-docs/releases/download/markdown-v0.2.2/markdown-0.2.2.tar.gz",
+          "sha256": "7b51757a901b0d55a9ac05f3639c58ffd1895676e976beeb3a832885669081bf",
+          "size": 16197,
+          "loft": ">=2026.7.2",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "markdown",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn html_escape(s: text) -> text",
+              "doc": "Make text safe to put inside markup: `&`, `<`, `>` and `\"` become entities.\n\n⚠ `'` IS NOT ESCAPED, so the result is safe in a double-quoted attribute and\nin element text, but not in a single-quoted one.  Quote attributes with `\"`."
+            },
+            {
+              "sig": "pub fn render(source: text, base_dir: text, tag_url_prefix: text, image_url_prefix: text) -> text",
+              "doc": "Render markdown to HTML — the entry point, and the only one most callers need.\nThe three prefixes each switch off with `\"\"`, so the plainest possible call is\n`render(src, \"\", \"\", \"\")`; see the header for what each one turns on."
+            },
+            {
+              "sig": "pub fn slugify(heading: text) -> text",
+              "doc": "A heading's anchor id, by GitHub's rules — lower-cased, spaces to hyphens,\npunctuation dropped.  `render` puts this on every heading, so a caller\nbuilding its own table of contents uses this to get links that match."
+            },
+            {
+              "sig": "pub fn render_inline(src: text, base_dir: text, tag_url_prefix: text, image_url_prefix: text) -> text",
+              "doc": "Render only the INLINE constructs — bold, code, links, images — with no\nparagraph or block wrapper.  What a title, a table cell or a tooltip wants,\nwhere `render` would wrap the result in `<p>`."
+            },
+            {
+              "sig": "pub fn rewrite_link(url: text, base_dir: text) -> text",
+              "doc": "Resolve one relative URL the way a link in the body would be: joined onto\n`base_dir` and routed through `/file/`.  Absolute URLs and anchors are left\nalone — a scheme, an anchor, and a root-relative `/...` are all already\nabsolute.  For a caller that builds its own navigation and needs it to agree\nwith the links inside the rendered page."
+            },
+            {
+              "sig": "pub struct Heading",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn extract_headings(source: text) -> vector<Heading>",
+              "doc": "Extract every heading from `source` in source order — both\nATX (`# Title`) and setext (`Title\\n===` / `Title\\n---`).\nEach entry carries the level (1..6), the heading's plain\ntext (BEFORE inline rendering — the caller can pass it\nthrough render_inline if needed), and a GitHub-compatible\nslug (the same one the rendered headings get as `id=`).\n\nUseful for building an in-page table of contents: walk the\nreturned vector, indent by `level`, link each entry to\n`#<slug>`."
+            }
+          ],
+          "published": "2026-09-02T23:55:09Z"
         }
       }
     },
