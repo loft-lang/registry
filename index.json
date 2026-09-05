@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-02T23:55:09Z",
+  "updated": "2026-09-04T23:56:26Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -19354,6 +19354,35 @@
               "url": "https://github.com/loft-lang/loft/releases/download/v2026.8.0/loft-2026.8.0-x86_64-unknown-linux-musl.zip",
               "sha256": "a189fc6cbd8dd1c459123ca40e0e74b79129bf6538f6fa163fe1ebb37864c4f8",
               "manifest_sha256": "841c3f0b776c0c4be4ee49762ee9daef13a2f08e5b70240acadf83da69a3de7f"
+            }
+          }
+        },
+        "2026.9.0": {
+          "url": "https://github.com/loft-lang/loft/releases/download/v2026.9.0/loft-2026.9.0-src.zip",
+          "sha256": "4da69ac08ad714d7dc847424a5c88e1cce5de64d0a7c322884213f740c3a77d5",
+          "size": 29001898,
+          "loft": ">=0",
+          "published": "2026-09-04T23:56:26Z",
+          "binaries": {
+            "aarch64-apple-darwin": {
+              "url": "https://github.com/loft-lang/loft/releases/download/v2026.9.0/loft-2026.9.0-aarch64-apple-darwin.zip",
+              "sha256": "ce634e79c3ba123b4c9d328247aad68388960b7984f162d9716d51126cd69b89",
+              "manifest_sha256": "3e69b66e5ef6167c3e896daa16999f3fc4a1d33e8e02d8c1ea59cc7316463224"
+            },
+            "x86_64-apple-darwin": {
+              "url": "https://github.com/loft-lang/loft/releases/download/v2026.9.0/loft-2026.9.0-x86_64-apple-darwin.zip",
+              "sha256": "c64cdacc3aeab665c8c18da0e7df2ba3f8974223624e3465816efc0d75be034c",
+              "manifest_sha256": "6448558679244010cd40cc2f18cbcc169f670ffd0e4e48e823b9e39df8ac7759"
+            },
+            "x86_64-pc-windows-msvc": {
+              "url": "https://github.com/loft-lang/loft/releases/download/v2026.9.0/loft-2026.9.0-x86_64-pc-windows-msvc.zip",
+              "sha256": "f6ff2e5aeb8df100681aef2c0fd19e2d19919de94ad3a97bb975a57c6f98b12c",
+              "manifest_sha256": "97e35d45b261b329de17efcf3aa789e60b76db14729f7d924465cd26621fd8dc"
+            },
+            "x86_64-unknown-linux-musl": {
+              "url": "https://github.com/loft-lang/loft/releases/download/v2026.9.0/loft-2026.9.0-x86_64-unknown-linux-musl.zip",
+              "sha256": "59d915cd924407747a97ca2542e32ac278a4e3a53717dbf258e4bd5960bed69a",
+              "manifest_sha256": "ced71a0f26f54620ce70df9a8c168bbded647ddeace2f7a9290696011ed4970a"
             }
           }
         }
