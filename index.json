@@ -8346,7 +8346,9 @@
       "categories": [
         "graphics"
       ],
-      "yanked": [],
+      "yanked": [
+        "0.1.0"
+      ],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.1.0/imaging-0.1.0.tar.gz",
