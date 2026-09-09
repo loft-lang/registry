@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-09T20:37:31Z",
+  "updated": "2026-09-09T21:16:19Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -12035,6 +12035,54 @@
             }
           ],
           "published": "2026-08-18T09:12:55Z"
+        },
+        "0.3.1": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.1/regex-0.3.1.tar.gz",
+          "sha256": "eae4ccc0c1ddf484aea1b45c0ad22bc356d94e1d845bbd13d15435230b62b8cf",
+          "size": 13816,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.2.1",
+          "data_compatible_with": "0.2.1",
+          "subpath": "regex",
+          "deps": {},
+          "triggers": [
+            "search:text",
+            "matches:text",
+            "split_on:text",
+            "regex_find:text",
+            "regex_split:text"
+          ],
+          "api": [
+            {
+              "sig": "pub fn search(self: text, pattern: text) -> integer",
+              "doc": "Byte offset of the first match of `pattern` in the text, or null when there\nis no match (or the pattern is invalid).  The conventional regex-search verb\n— named `search`, not `find`, because bare `find` on text is the stdlib's\nliteral substring search.  Call as  line.search(\"[0-9]+\").\nExample: @RGX-001 — why this is `search` and not `find`, and what a bare\n`find(pattern, input)` answers instead.\nExample: @RGX-002 — the answer is a BYTE offset (slice with it, compare it to\n`size()` not `len()`), and a miss is null despite the `integer` return type."
+            },
+            {
+              "sig": "pub fn matches(both: text, pattern: text) -> boolean",
+              "doc": "True if `pattern` matches anywhere in the text.  `both` registers this as\nBOTH a method (`line.matches(p)`) and a free function (`matches(line, p)`).\nCollision-free on `text` (the stdlib has `contains`, not `matches`).\nExample: @RGX-003 — a pattern that never compiled answers false, exactly like\ntext that simply did not match."
+            },
+            {
+              "sig": "pub fn split_on(self: text, pattern: text) -> iterator<text>",
+              "doc": "Split the text on matches of `pattern`, yielding each piece lazily through\nan `iterator<text>` (reuses loft's coroutine channel — nothing is\nmaterialised).  Named `split_on`, not `split`, because bare `split` on text\nis the stdlib character-separator split.  Call as\nfor piece in line.split_on(\"[,;]\") { }.\nExample: @RGX-004 — it yields the gaps between matches, so a separator at\neither end leaves an empty piece and unmatched text comes back as ONE piece."
+            },
+            {
+              "sig": "pub fn find(pattern: text, input: text) -> integer",
+              "doc": "Example: @RGX-001 — reachable only as `regex::find`; the bare spelling\nresolves the stdlib `text` method and answers something else entirely."
+            },
+            {
+              "sig": "pub fn split(pattern: text, input: text) -> iterator<text>",
+              "doc": "Example: @RGX-001 — same shadow as `find`: bare `split` is the stdlib's\ncharacter split, not this one."
+            },
+            {
+              "sig": "pub fn regex_find(self: text, pattern: text) -> integer",
+              "doc": "`find` as a METHOD on the text, for a caller that prefers `s.regex_find(p)`.\nSuperseded by the stdlib's `search`, which is the same operation without an\nimport — the prefix exists only because a bare `find` resolves to the\nstdlib's method first."
+            },
+            {
+              "sig": "pub fn regex_split(self: text, pattern: text) -> iterator<text>",
+              "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
+            }
+          ],
+          "published": "2026-09-09T21:16:19Z"
         }
       }
     },
