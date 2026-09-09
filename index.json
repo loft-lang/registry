@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-09T23:06:32Z",
+  "updated": "2026-09-09T23:07:55Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -20172,6 +20172,566 @@
             }
           ],
           "published": "2026-09-09T19:54:21Z"
+        },
+        "0.18.3": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/stage-v0.18.3/stage-0.18.3.tar.gz",
+          "sha256": "a0f35ce3c7e1da9329cbf01844b71d49bc7b207a37a5afc89454979e7117debd",
+          "size": 97522,
+          "loft": ">=2026.8.0",
+          "api_compatible_with": "0.18.1",
+          "data_compatible_with": "0.18.1",
+          "subpath": "stage",
+          "deps": {
+            "graphics": ">=0.5.0",
+            "tween": ">=0.1.0"
+          },
+          "api": [
+            {
+              "sig": "pub struct StageNode",
+              "doc": "A node's local placement, plus the world affine `compose` derives for it.\n\n⚠ NAMED `StageNode` AND NOT `Node`, because a type name is GLOBAL across the\ndependency graph and `mesh3d` — which `graphics` pulls in — already publishes a\n`Node` for its 3-D scene.  The compiler refuses the collision outright rather\nthan resolving it silently, which is the good outcome; the cost of finding it\nafter publishing would have been a rename nobody can make.\n\nThe affine is 2x3 and is applied as\nx' = a*lx + c*ly + tx\ny' = b*lx + d*ly + ty\nwhich is the layout the instanced draw path consumes unchanged."
+            },
+            {
+              "sig": "pub struct Layer",
+              "doc": "Everything one ordering band carries: how much of the camera it feels, what\natmosphere stands in front of it, and how far out of focus it is.\n\n⚠ ONE RECORD, NOT THREE PARALLEL VECTORS.  Parallax lived in a bare\n`vector<float>` and fog and blur were about to join it as siblings — which is\nexactly the shape that put a sequence's name on another sequence's cells in\nP5: every list stays well-formed on its own and only the correspondence goes\nwrong, silently.  A layer's facts travel together."
+            },
+            {
+              "sig": "pub struct View",
+              "doc": "A way of LOOKING at the stage: a camera and the screen rect it paints into.\n\n⚠ A VIEW IS PRESENTATION, NEVER WORLD.  The scene cannot tell how many are\nlooking at it — which is the split this phase exists to enforce: the world is\ndeterministic and shared, the presentation is local and free.  Window size,\ncamera and ambient motion may differ per viewer and must be allowed to."
+            },
+            {
+              "sig": "pub struct StageLight",
+              "doc": "A point light: where it stands, how far it reaches, and what colour it casts.\n\n⚠ IT LIVES IN WORLD SPACE, like everything else the app places.  A light is\nnot attached to a node, so moving a torch-bearer means moving the light too —\ndeliberate, because a light parented to a sprite would inherit that sprite's\nrotation and scale, and neither means anything to a point light.\n⚠ `StageLight`, not `Light`: a TYPE name is global across every package in the\nbuild, and `mesh3d` — pulled in by `graphics` — already publishes a `Light`.\nThe compiler refusing is the good outcome; after publishing, this rename is one\nnobody can make.  Same reason the node is `StageNode`."
+            },
+            {
+              "sig": "pub struct Stage",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Sequence",
+              "doc": "A run of atlas cells played at a rate.\n\n⚠ THE NAME LIVES HERE, not in a list beside `st_seqs`.  A parallel vector that\nonly the naming registrar appended to drifted the moment a caller mixed\n`add_sequence` with `add_named_sequence`, and every later name then pointed at\nsomebody else's cells — silently, because both lists were individually\nwell-formed.  One home per fact; the test that caught it is kept."
+            },
+            {
+              "sig": "pub struct Mask",
+              "doc": "An alpha mask: per-texel coverage, row-major, 0..255.\n\nA sprite is mostly holes, so a rect test answers the wrong question — you can\nSEE through a tree, therefore you must be able to CLICK through it.  A node\nwithout a mask is solid, which is the right default for a panel or a tile."
+            },
+            {
+              "sig": "pub struct Place",
+              "doc": "Where to put a node, and how.  A struct rather than nine parameters because the\ncompiler said so — `too-many-parameters` fires at eight, and a caller's burden\nis fixed by a struct where a reader's is fixed by an extracted function.\n\n⚠ THE DEFAULTS ARE THE POINT, not convenience.  Scale defaults to 1.0 and not to\nthe zero an omitted field would otherwise take: a scale of 0 is a *meaningful*\nvalue of the field's domain — it collapses the node to nothing — so an author\nwho writes `Place { pl_x: 10.0, pl_y: 20.0 }` and gets an invisible node has\nbeen handed a legal answer to a question they did not ask.  That is exactly the\ncase `omitted-field-zero` exists to warn about, answered here at the declaration."
+            },
+            {
+              "sig": "pub struct Bounds",
+              "doc": "A point, so a caller can ask where something ended up without unpacking six\nfloats.  `world_point` is the only honest way to check a transform: a matrix\nmeans nothing except through what it does to a point."
+            },
+            {
+              "sig": "pub struct P2",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn stage_new() -> Stage",
+              "doc": "An empty stage: no nodes, one view, the camera at the origin and ambient\nlight full.  Everything else here is a mutation of this."
+            },
+            {
+              "sig": "pub fn node_count(self: const Stage) -> integer",
+              "doc": "How many nodes the tree holds.  Every index this library hands out is below\nit, so it is also the bound for a walk over the scene."
+            },
+            {
+              "sig": "pub fn node_add(self: Stage, parent: integer, p: const Place) -> integer",
+              "doc": "Add a node and answer its index.  `parent` is -1 for a root.\n\n⚠ Refuses a forward parent reference by answering -1.  `compose` is a single\nforward pass, so a child placed before its parent would read an unwritten world\ntransform — silently, and the frame would look almost right.\nExample: @STG-002 — the tree is a flat array and a forward parent reference is\nrefused, because `compose` is a single forward pass that would otherwise read an\nunwritten parent and answer plausibly."
+            },
+            {
+              "sig": "pub fn compose(self: Stage)",
+              "doc": "Derive every node's world affine in one forward pass.\n\nA node's local transform is  T(x, y) . R(rot) . S(sx, sy) . T(-ox, -oy), which\nis what makes the ORIGIN the anchor: the local point (ox, oy) maps exactly to\n(x, y), so a sprite whose origin sits at its feet stands up from where it is\nplaced.  World = parent's world composed with that.\nExample: @STG-003 — deriving is the caller's to trigger; skipping it renders the\nprevious state, which reads as input lag rather than as a missing call."
+            },
+            {
+              "sig": "pub fn depth_cue(self: Stage, near: float, far: float, far_scale: float,",
+              "doc": "Turn the depth cue on.  `near` and `far` are depths; a node at `far` is drawn at\n`far_scale` of its size and hazed `far_haze` toward `haze_colour`, and one at\n`near` is untouched.  Off by default, and off means an identical picture.\n\nThis is the 2.5-D FEEL: distance reads as smaller and less distinct, which is\nwhat separates a mob standing behind a wall from one standing in front of it\neven when neither overlaps the other.  Real blur belongs to the per-layer pass;\na haze toward the fog colour costs one lerp and carries most of the effect."
+            },
+            {
+              "sig": "pub fn cue_of(self: const Stage, depth: float) -> float",
+              "doc": "How far through the cue a depth sits: 0 at the near plane, 1 at the far one,\nclamped outside them so a stray depth cannot invert the effect."
+            },
+            {
+              "sig": "pub fn haze_of(self: const Stage, idx: integer) -> float",
+              "doc": "How hazed node `idx` is, 0..1 — what a renderer fades toward the haze colour."
+            },
+            {
+              "sig": "pub fn order(self: const Stage) -> vector<integer>",
+              "doc": "The draw order, derived by `compose`: indices, back to front."
+            },
+            {
+              "sig": "pub fn bounds_of(self: const Stage, idx: integer) -> Bounds",
+              "doc": "A node's axis-aligned bounds in world space.\nExample: @STG-007 — a clip inherits, intersects, and is axis-aligned.\n\n⚠ AXIS-ALIGNED, so a ROTATED clipper clips to its bounding box rather than to\nits turned rectangle.  A scissor is axis-aligned in hardware and there is no\nhonest way to make it otherwise; a rotated clip needs a stencil, which this arc\ndoes not have.  Stated rather than discovered."
+            },
+            {
+              "sig": "pub fn world_point(self: const Stage, idx: integer, lx: float, ly: float) -> P2",
+              "doc": "Where a point in node `idx`'s own space lands in world space.  Valid after\n`compose`; answers (0, 0) for an index that is not a node."
+            },
+            {
+              "sig": "pub fn world_origin(self: const Stage, idx: integer) -> P2",
+              "doc": "Where the node's ORIGIN is — the point A7's depth key sorts on.\nExample: @STG-001 — a node is anchored by its origin, so a sprite whose origin\nsits at its feet stands up from where it was placed."
+            },
+            {
+              "sig": "pub struct UiRect",
+              "doc": "── A2: the draw list ────────────────────────────────────────────────────────\n\n⚠ THESE THREE TYPES ARE NOT NEW.  Their field names and types are copied\nEXACTLY from `lavition_ui`, which produces `vector<DrawRect>` from\n`panel_draw_list` today and is proven by a 12 k-line editor.  Matching a working\ncommand shape rather than minting a rival one is the whole point: a game's UI\nand an editor's UI have to reach the GPU by one path, or the batcher sees two.\n\n⚠ AND THEY NEED ONE HOME, WHICH THEY DO NOT YET HAVE.  `lavition_ui` is\nunpublished, so its `DrawRect` and this one are two nominal types with one\nshape.  Until it is published (@PLN145 `D0`) the types cannot literally be\nshared, and one of the two must eventually give — see the plan."
+            },
+            {
+              "sig": "pub struct DrawRect",
+              "doc": "A packed 0xRRGGBB colour, as `lavition_ui` carries it."
+            },
+            {
+              "sig": "pub struct DrawText",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn draw_list(self: const Stage) -> vector<DrawRect>",
+              "doc": "Emit the scene as a flat command list, in index order.\n\nIndex order IS the draw order for now: `A4` gives depth its own key, and doing\nit here would be a second ordering rule to keep in step with that one.  A node\nwith no area emits nothing — a zero size is how a pure transform parent says it\nis scaffolding rather than a thing to look at."
+            },
+            {
+              "sig": "pub fn render(list: const vector<DrawRect>, cv: graphics::Canvas)",
+              "doc": "Paint a command list onto a software canvas.\n\n⚠ THE ALPHA BYTE IS ADDED HERE, and it has to be.  A `DrawRect` carries\n0xRRGGBB — `lavition_ui` says so, and keeps it a plain integer so it needs no\ngraphics dependency — while `graphics::Canvas` reads 0xAARRGGBB and treats a\nmissing top byte as FULLY TRANSPARENT.  That is graphics' own trap: the colour\nlooks right in the source and paints nothing.  One `| 0xff000000` at the\nboundary is the whole fix, and it belongs at the boundary rather than in every\ncaller.\n\nExample: @GFX-001"
+            },
+            {
+              "sig": "pub fn opaque(colour: integer) -> integer",
+              "doc": "0xRRGGBB -> 0xAARRGGBB, leaving an already-opaque colour alone."
+            },
+            {
+              "sig": "pub struct Batch",
+              "doc": "One run of consecutive instances that share an atlas."
+            },
+            {
+              "sig": "pub fn batches(self: const Stage) -> vector<Batch>",
+              "doc": "Split the visible nodes into runs, in scene order.\nExample: @STG-004 — adjacent runs only, never sorted, and what the interleave\ncosts: four sprites across two atlases are four draws, cured by packing."
+            },
+            {
+              "sig": "pub fn pack_instances(self: const Stage) -> vector<single>",
+              "doc": "Pack every visible node into one instance buffer, in the same order `batches`\ncounted.  The two walk the scene by the same rule, so a batch's `b_first` and\n`b_count` index this buffer directly."
+            },
+            {
+              "sig": "pub struct Painter",
+              "doc": "The GL objects a stage needs, built once."
+            },
+            {
+              "sig": "pub fn painter_new() -> Painter",
+              "doc": "Compile the shader and upload the unit quad.  Call once, after a window exists."
+            },
+            {
+              "sig": "pub fn gl_render(self: Stage, p: Painter, screen_w: float, screen_h: float) -> integer",
+              "doc": "Draw the scene, one instanced call per run.  Answers the number of draw calls\nissued, which is the half of the gate that pixels cannot see: a batch that fell\nback to one draw per sprite would look identical and cost N."
+            },
+            {
+              "sig": "pub fn scissor_of(self: const Stage, view: integer, b: const Batch, coff: const P2) -> Bounds",
+              "doc": "The screen rect a run may paint in: the view's own rect, intersected with the\nbatch's clip once that clip is moved by the same offset as its content.\n\nAn unbounded rect is spelled as the whole target rather than as a flag, so the\nintersection is arithmetic in every case and the unsplit stage is the\ndegenerate cell rather than a second path."
+            },
+            {
+              "sig": "pub fn add_mask(self: Stage, w: integer, h: integer, alpha: const vector<integer>) -> integer",
+              "doc": "Register an alpha mask and answer its index, for `Place.pl_mask`."
+            },
+            {
+              "sig": "pub fn to_local(self: const Stage, idx: integer, sx: float, sy: float) -> P2",
+              "doc": "Take a screen point into node `idx`'s own space.\n\nThe world affine is 2x2 plus a translation, so the inverse is closed form —\n`det = a*d - c*b`, and no general 4x4 inversion is involved.  A degenerate node\n(zero scale) has no inverse and answers its own origin rather than an infinity."
+            },
+            {
+              "sig": "pub fn hits(self: const Stage, idx: integer, sx: float, sy: float) -> boolean",
+              "doc": "Is this screen point ON node `idx` — inside its rect AND, where it has a mask,\non a texel that is not a hole?"
+            },
+            {
+              "sig": "pub fn pick(self: const Stage, sx: float, sy: float) -> integer",
+              "doc": "The topmost node under this screen point, or -1.\nExample: @STG-006 — picking samples alpha, so a click falls through a hole.\n\nWalks the draw order BACKWARDS, so the node drawn last — the one on top — is\ntested first, and insertion order breaks a tie the same way it does when\ndrawing.  One order, two consumers: a pick that disagreed with the picture\nwould be worse than no pick at all."
+            },
+            {
+              "sig": "pub fn press(self: Stage, sx: float, sy: float) -> integer",
+              "doc": "A press picks, and REMEMBERS."
+            },
+            {
+              "sig": "pub fn release(self: Stage, sx: float, sy: float) -> integer",
+              "doc": "A release answers the node that took the PRESS, wherever the pointer is now.\nExample: @STG-005 — why a hit test alone is not input routing.\n\n⚠ THE CAPTURE IS THE POINT, and it is the half everyone forgets.  Without it a\nbutton fires when you press it and slide away, and never fires when you press it\nand drift a pixel — both of which feel broken and neither of which a rect test\ncan explain.  A release with nothing captured answers -1."
+            },
+            {
+              "sig": "pub fn released_on(self: const Stage, idx: integer, sx: float, sy: float) -> boolean",
+              "doc": "Did the release land on the node that was pressed?  A button fires only when\nthis is true; `release` still reports the captured node either way."
+            },
+            {
+              "sig": "pub fn capture(self: const Stage) -> integer",
+              "doc": "The node `press` is holding, or -1.  A drag reads this to know what it is\ndragging — the capture survives the pointer leaving the node, which is what\nmakes dragging off a button and back onto it work."
+            },
+            {
+              "sig": "pub enum UiState",
+              "doc": "The four states a widget node can be in.\n\n⚠ `Disabled` outranks the other three: a node that cannot be used must not\nlook pressable even while the pointer is on it."
+            },
+            {
+              "sig": "pub fn set_pointer(self: Stage, kind: integer)",
+              "doc": "Say whether the pointer is a mouse or a finger.  Mouse is the default."
+            },
+            {
+              "sig": "pub fn pointer(self: const Stage) -> integer",
+              "doc": "Which kind is in force.  `ui_state` reads it to decide whether `Over` is a\nstate this device can show at all — a finger is never merely hovering."
+            },
+            {
+              "sig": "pub fn pointer_move(self: Stage, sx: float, sy: float)",
+              "doc": "The pointer moved without a button.  A touch stream never sends this."
+            },
+            {
+              "sig": "pub fn hovered(self: const Stage) -> integer",
+              "doc": "The node the pointer is over, or -1.  Answers even under touch, where it is\nthe node the finger is ON — `ui_state` is what declines to call that `Over`."
+            },
+            {
+              "sig": "pub fn set_enabled(self: Stage, idx: integer, on: boolean)",
+              "doc": "Take a node out of use, or put it back."
+            },
+            {
+              "sig": "pub fn enabled(self: const Stage, idx: integer) -> boolean",
+              "doc": "Is this node in use?  False for an index out of range too, so a stale index\nreads as unusable rather than as a live widget."
+            },
+            {
+              "sig": "pub fn ui_state(self: const Stage, idx: integer) -> UiState",
+              "doc": "What this node looks like right now."
+            },
+            {
+              "sig": "pub fn click(self: Stage, sx: float, sy: float) -> integer",
+              "doc": "The release door for a widget: answers the node that FIRES, or -1.\n\n⚠ **Use this OR `release`, not both** — either ends the press.  `release`\nanswers *who took the press* and leaves the fired/not decision to the caller;\nthis answers the question a button actually asks.  It exists because combining\n`release` with `released_on` by hand is where press-then-leave-then-release\ngoes wrong, and that is a mistake a library can simply not offer."
+            },
+            {
+              "sig": "pub fn focusable(self: const Stage, idx: integer) -> boolean",
+              "doc": "Can this node hold the keyboard?"
+            },
+            {
+              "sig": "pub fn set_focusable(self: Stage, idx: integer, on: boolean)",
+              "doc": "Put a node into the tab order, or take it out.  `focus_next` / `focus_prev`\nwalk exactly the nodes this says yes to, in declaration order."
+            },
+            {
+              "sig": "pub fn focused(self: const Stage) -> integer",
+              "doc": "Which node has the keyboard, or -1."
+            },
+            {
+              "sig": "pub fn set_focus(self: Stage, idx: integer)",
+              "doc": "Give it the keyboard.  A node that cannot take it clears the focus instead, so\nthis never leaves the keyboard somewhere unreachable."
+            },
+            {
+              "sig": "pub fn focus_next(self: Stage)",
+              "doc": "⚠ TAB ORDER IS THE DECLARED ORDER — the order the nodes were added, which is\nthe order a reader of the building code sees.  A separate `tab_index` would be\na second ordering to keep in step with the first, and the two disagree the\nmoment someone inserts a node."
+            },
+            {
+              "sig": "pub fn focus_prev(self: Stage)",
+              "doc": "One step back through that same order — the same walk reversed, so the two\ndirections cannot disagree about what is focusable."
+            },
+            {
+              "sig": "pub fn set_field(self: Stage, idx: integer, s: text)",
+              "doc": "Make this node an editable field holding `s`, and give it the tab order."
+            },
+            {
+              "sig": "pub fn is_field(self: const Stage, idx: integer) -> boolean",
+              "doc": "Does this node carry an editable text field?  Every `field_*` reader answers\na harmless default where this is false, so asking first is optional."
+            },
+            {
+              "sig": "pub fn field_text(self: const Stage, idx: integer) -> text",
+              "doc": "What the field holds right now.  The buffer is the truth; the caret and the\nmark are positions into it, counted in CHARACTERS."
+            },
+            {
+              "sig": "pub fn field_caret(self: const Stage, idx: integer) -> integer",
+              "doc": "Where the caret is, counted in CHARACTERS."
+            },
+            {
+              "sig": "pub fn field_mark(self: const Stage, idx: integer) -> integer",
+              "doc": "The selection anchor.  Equal to the caret when nothing is selected."
+            },
+            {
+              "sig": "pub fn field_selection(self: const Stage, idx: integer) -> text",
+              "doc": "The selected text, or \"\" when the caret is a point."
+            },
+            {
+              "sig": "pub fn field_place_caret(self: Stage, idx: integer, at_char: integer, extend: boolean)",
+              "doc": "Put the caret at a CHARACTER index — what a click resolves to once whoever\ndraws the text has turned an x-coordinate into a count."
+            },
+            {
+              "sig": "pub fn clipboard(self: const Stage) -> text",
+              "doc": "Our own clipboard — see the header."
+            },
+            {
+              "sig": "pub fn set_clipboard(self: Stage, s: text)",
+              "doc": "Fill it — how the host's clipboard reaches a paste."
+            },
+            {
+              "sig": "pub fn text_event(self: Stage, s: text)",
+              "doc": "Commit text into the focused field, replacing any selection.\n\n⚠ This is where IME text arrives: `EV_TEXT` delivers a whole COMMITTED string,\nwhich may be several characters and is very often not ASCII."
+            },
+            {
+              "sig": "pub fn key_event(self: Stage, key: integer, mods: integer)",
+              "doc": "A key, with the modifiers that arrived WITH it.  Tab moves the focus; every\nother key goes to the focused field."
+            },
+            {
+              "sig": "pub fn render_stage(self: const Stage, cv: graphics::Canvas)",
+              "doc": "Paint the scene onto a software canvas, honouring each node's alpha and tint.\n\n`render(list, canvas)` stays the path for a `lavition_ui` command list, which\ncarries 0xRRGGBB and no alpha by design.  This is the stage's own path, where a\nnode has an alpha to respect — and the two must agree wherever alpha is 1."
+            },
+            {
+              "sig": "pub fn render_view(self: const Stage, view: integer, cv: graphics::Canvas)",
+              "doc": "Paint one VIEW of the scene: the same nodes, through that view's camera, and\nconfined to its own screen rect.\n\n⚠ THE VIEWPORT NARROWS THE SPAN, it does not test each pixel — the same\ntechnique A6's clip uses, so the boundary falls where the arithmetic puts it\nrather than where a per-pixel predicate rounds it, and the two cannot disagree\nabout a shared edge."
+            },
+            {
+              "sig": "pub fn set_camera(self: Stage, x: float, y: float)",
+              "doc": "Move the camera.  Does NOT dirty the instance buffer — that is the point.\n\nAn unsplit stage IS a one-view stage, so this is view 0's camera rather than a\nsecond place a camera can live — the same move P2 made with parallax, where\nflat scrolling is every factor at 1.0 instead of a separate path."
+            },
+            {
+              "sig": "pub fn camera_x(self: const Stage) -> float",
+              "doc": "Where the camera stands.  An unsplit stage IS a one-view stage, so this is\nview 0 rather than a second place a camera can live."
+            },
+            {
+              "sig": "pub fn camera_y(self: const Stage) -> float",
+              "doc": "The other half of the same pair."
+            },
+            {
+              "sig": "pub fn set_parallax(self: Stage, layer: integer, factor: float)",
+              "doc": "How much of the camera a layer feels.  1.0 is the world; below that is a\nbackground that lags; above it a foreground that leads.  Flat scrolling is every\nfactor at 1.0, which is the degenerate case rather than a second code path."
+            },
+            {
+              "sig": "pub fn parallax_of(self: const Stage, layer: integer) -> float",
+              "doc": "What a layer's factor is now.  A layer nobody configured reads 1.0 — the\nworld's own rate — so asking about one is always safe."
+            },
+            {
+              "sig": "pub fn cam_offset(self: const Stage, layer: integer) -> P2",
+              "doc": "The screen-space offset a layer's content is drawn at, in view 0."
+            },
+            {
+              "sig": "pub fn uploads(self: const Stage) -> integer",
+              "doc": "How many times the instance buffer has been written.  A pure camera move must\nnot move this — the property the whole design turns on."
+            },
+            {
+              "sig": "pub fn set_time(self: Stage, t: float)",
+              "doc": "Example: @STG-008 — ambient motion is free, out of step, and visual only.\nAdvance the ambient clock.  Does NOT dirty the instance buffer — that is the\nwhole point of deriving the phase rather than stepping it."
+            },
+            {
+              "sig": "pub fn time_of(self: const Stage) -> float",
+              "doc": "The ambient clock, which is the `t` every sway phase is derived from."
+            },
+            {
+              "sig": "pub fn sway_of(self: const Stage, idx: integer) -> float",
+              "doc": "How far node `idx` is displaced right now, in pixels.  Bounded by its amplitude\nby construction, since it is an amplitude times a sine."
+            },
+            {
+              "sig": "pub fn add_sequence(self: Stage, first: integer, count: integer, fps: float,",
+              "doc": "Register a sequence and answer its index, for `Place.pl_seq`."
+            },
+            {
+              "sig": "pub fn advance(self: Stage, dt_us: integer)",
+              "doc": "Step every animated node by `dt_us` MICROSECONDS — the simulation's own delta,\nnot a clock this library reads.\n\n⚠ Dirties the instance buffer, unlike the camera and the ambient clock — an\nanimated sprite genuinely changes one number per frame.  That number is a FRAME\nINDEX and not a uv rect, so it is one float and not four."
+            },
+            {
+              "sig": "pub fn frame_of(self: const Stage, idx: integer) -> integer",
+              "doc": "Which cell node `idx` shows right now."
+            },
+            {
+              "sig": "pub fn restart(self: Stage, idx: integer)",
+              "doc": "Reset a node to the start of its sequence."
+            },
+            {
+              "sig": "pub enum Prop",
+              "doc": "Which of a node's numbers a tween drives.\n\n⚠ Every one is a `float` the node already stores.  Colour, atlas and the\nsequence are not here on purpose: they are not numbers you can be *half way*\nbetween, and interpolating them would produce values the node never holds."
+            },
+            {
+              "sig": "pub fn prop_of(self: const Stage, idx: integer, p: Prop) -> float",
+              "doc": "What that property reads right now."
+            },
+            {
+              "sig": "pub fn set_prop(self: Stage, idx: integer, p: Prop, v: float)",
+              "doc": "Write it now.  The immediate door — the tween door writes through the same\nswitch, one frame at a time."
+            },
+            {
+              "sig": "pub fn tween_prop(self: Stage, idx: integer, p: Prop, to: float, dur_us: integer,",
+              "doc": "Move `p` from where it is now to `to`, over `dur_us` microseconds.\n\n⚠ `from` is read at THIS moment, so a tween started mid-flight carries on from\nwhere the last one had got to rather than snapping back to a remembered start.\nReplaces any tween already on this (node, property)."
+            },
+            {
+              "sig": "pub fn prop_tweening(self: const Stage, idx: integer, p: Prop) -> boolean",
+              "doc": "Is that property still moving?"
+            },
+            {
+              "sig": "pub fn cancel_prop_tween(self: Stage, idx: integer, p: Prop)",
+              "doc": "Stop it wherever it has got to.  The property keeps its current value."
+            },
+            {
+              "sig": "pub fn cancel_node_tweens(self: Stage, idx: integer)",
+              "doc": "Drop every tween on a node."
+            },
+            {
+              "sig": "pub fn tween_count(self: const Stage) -> integer",
+              "doc": "How many property tweens the stage is holding — the gate reads this."
+            },
+            {
+              "sig": "pub fn set_projection(self: Stage, mode: integer)",
+              "doc": "Pick `TOP_DOWN` or `SIDE_ON`.  It decides what `face` does with an angle:\nrotate the one sprite, or resolve a sequence and mirror it."
+            },
+            {
+              "sig": "pub fn projection(self: const Stage) -> integer",
+              "doc": "Which of the two models is in force."
+            },
+            {
+              "sig": "pub fn sequence_count(self: const Stage) -> integer",
+              "doc": "How many sequences are registered; also the bound on a `pl_seq` index."
+            },
+            {
+              "sig": "pub fn add_named_sequence(self: Stage, name: text, first: integer, count: integer,",
+              "doc": "Register a sequence under a NAME, so `face` and `set_action` can resolve it.\nThe convention is `<key>`, `<key>_<action>`, `<key>_<action>_<facing>`, and\nresolution walks it most-specific first."
+            },
+            {
+              "sig": "pub fn facing_name(angle: float) -> text",
+              "doc": "Which of the four compass facings an angle points at.\n\n⚠ SCREEN SPACE, Y DOWN: angle 0 is +x (east) and +pi/2 is +y (south), matching\n`pl_rot` and the shader.  The edges are HALF-OPEN, as A4's picking rects are —\n45 degrees belongs to south — so no angle is claimed by two facings."
+            },
+            {
+              "sig": "pub fn face(self: Stage, idx: integer, angle: float)",
+              "doc": "Point a node at `angle` radians.  Top-down turns it; side-on picks and flips."
+            },
+            {
+              "sig": "pub fn set_action(self: Stage, idx: integer, action: text)",
+              "doc": "What a node is doing — \"idle\", \"walk\", \"attack\".  Re-resolves, phase intact."
+            },
+            {
+              "sig": "pub fn facing_of(self: const Stage, idx: integer) -> float",
+              "doc": "Where the node points, in radians.  Kept in BOTH models — side-on holds the\nangle even though what it draws for it is a chosen sequence and a flip."
+            },
+            {
+              "sig": "pub fn action_of(self: const Stage, idx: integer) -> text",
+              "doc": "What the node is doing, as `set_action` last left it.  Name resolution reads\nthis together with the key and the facing."
+            },
+            {
+              "sig": "pub fn rotation_of(self: const Stage, idx: integer) -> float",
+              "doc": "The sprite's own rotation, which side-on leaves alone."
+            },
+            {
+              "sig": "pub fn mirrored(self: const Stage, idx: integer) -> boolean",
+              "doc": "Is this node drawn flipped?  Only side-on ever sets it: mirroring is how the\nother half of the facings exists without another atlas cell."
+            },
+            {
+              "sig": "pub fn view_count(self: const Stage) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn add_view(self: Stage, x: integer, y: integer, w: integer,",
+              "doc": "Add a view painting into the screen rect `(x, y, w, h)`.  A width of 0 or less\nmeans unbounded — the whole target, which is what view 0 starts as."
+            },
+            {
+              "sig": "pub fn set_view_rect(self: Stage, view: integer, x: integer, y: integer,",
+              "doc": "Move or resize a view's rectangle on screen.  The camera it carries is left\nalone, so a split-screen resize does not move what either half is looking at."
+            },
+            {
+              "sig": "pub fn set_view_camera(self: Stage, view: integer, x: float, y: float)",
+              "doc": "Move one view's camera.  Like `set_camera`, it does not dirty the buffer."
+            },
+            {
+              "sig": "pub fn view_camera_x(self: const Stage, view: integer) -> float",
+              "doc": "Where this view's camera stands.  A view out of range answers 0.0 rather than\nfailing, which is `view_at`'s verdict and not a second rule."
+            },
+            {
+              "sig": "pub fn view_camera_y(self: const Stage, view: integer) -> float",
+              "doc": "The other half of the same pair."
+            },
+            {
+              "sig": "pub fn view_offset(self: const Stage, view: integer, layer: integer) -> P2",
+              "doc": "Where a layer's content lands on screen in this view: the camera un-applied by\nthe layer's parallax, then moved into the view's rect.\n\n⚠ THE VIEWPORT ORIGIN IS PART OF THE MAPPING, not decoration.  Leave it out and\nboth views draw on top of each other while every camera test still passes."
+            },
+            {
+              "sig": "pub fn sync_instances(self: Stage) -> boolean",
+              "doc": "Pack the instance buffer if the scene changed, and say whether it did.\n\nOne home for *when does the buffer get rewritten*, so the GL path and any\ncount of uploads cannot disagree about it — and so N views can be shown to\ncost ONE upload without a GL context to prove it in."
+            },
+            {
+              "sig": "pub fn pick_in(self: const Stage, view: integer, sx: float, sy: float) -> integer",
+              "doc": "The topmost node under a screen point AS THAT VIEW SEES IT, or -1.\n\n⚠ ONE SCREEN POINT IS A DIFFERENT WORLD POINT IN EACH VIEW — the same reason\nP2 un-applies the camera per LAYER.  A point outside the view's own rect is\nnot that view's to answer, whatever its camera would map it to."
+            },
+            {
+              "sig": "pub fn in_view_rect(self: const Stage, view: integer, sx: float, sy: float) -> boolean",
+              "doc": "Is this screen point inside the view's rect?  An unbounded view holds every\npoint, which is what keeps the unsplit stage a single code path."
+            },
+            {
+              "sig": "pub fn hits_in(self: const Stage, view: integer, idx: integer, sx: float,",
+              "doc": "Does this node cover the screen point, as `view` maps it?"
+            },
+            {
+              "sig": "pub fn add_light(self: Stage, x: float, y: float, radius: float, colour: integer,",
+              "doc": "Add a light.  Answers its index, for `move_light`."
+            },
+            {
+              "sig": "pub fn move_light(self: Stage, i: integer, x: float, y: float)",
+              "doc": "Carry a light to a new place.  DIRTIES the buffer, exactly as adding one does\n— a moving torch therefore re-packs every frame, which is the cost L2's\ncomposite pass exists to take off the per-sprite path."
+            },
+            {
+              "sig": "pub fn light_count(self: const Stage) -> integer",
+              "doc": "How many lights the scene holds; the bound for `move_light`."
+            },
+            {
+              "sig": "pub fn set_ambient(self: Stage, level: float)",
+              "doc": "How lit the world is before any light: 1.0 leaves the material untouched, so a\ngame that never asks for light cannot be dimmed by this existing.  Turn it\ndown and the scene goes dark except where a light reaches."
+            },
+            {
+              "sig": "pub fn ambient(self: const Stage) -> float",
+              "doc": "The level `set_ambient` left."
+            },
+            {
+              "sig": "pub fn light_reach(l: const StageLight, px: float, py: float) -> float",
+              "doc": "What a light contributes at a point: linear in the radius, clamped at both ends.\n\n⚠ LINEAR, `1 - d/r`, and that is a design call.  This phase's gate is\nhand-computed values, and a curve nobody can hand-compute is a gate nobody\nmaintains.  L2 owns the prettier curve, and its own gate says how: expectations\nGENERATED from the same constants the shader uses, so retuning is one edit."
+            },
+            {
+              "sig": "pub fn lit_colour(self: const Stage, idx: integer) -> integer",
+              "doc": "The colour a node is actually drawn in: its material, multiplied by the light\nstanding on its footprint.\n\n⚠ ONE HOME.  Both render paths and the instance packer read this rather than\neach folding the light in themselves — the shape P6 shipped a defect through,\nwhere one fact derived per path was validated only where the derivations\nhappened to agree."
+            },
+            {
+              "sig": "pub struct Lit",
+              "doc": "A light level, per channel, 0..1."
+            },
+            {
+              "sig": "pub fn set_light_map(self: Stage, on: boolean)",
+              "doc": "Switch the composite pass on.  Off, light is L1's per-sprite tint, which is\none colour for a whole sprite; on, it is resolved per pixel."
+            },
+            {
+              "sig": "pub fn light_map(self: const Stage) -> boolean",
+              "doc": "Is the composite pass on?"
+            },
+            {
+              "sig": "pub fn set_hud_layer(self: Stage, n: integer)",
+              "doc": "Layers at or above `n` draw AFTER the composite and take no light."
+            },
+            {
+              "sig": "pub fn hud_layer(self: const Stage) -> integer",
+              "doc": "The first layer that draws after the composite, or `HUD_NONE`."
+            },
+            {
+              "sig": "pub fn light_rgb_at(self: const Stage, wx: float, wy: float) -> Lit",
+              "doc": "The light standing at a world point, per channel.\n\n⚠ THE ONE HOME both samplings read: L1 asks it at a sprite's origin, L2 asks\nit per pixel.  One curve, one floor, one clamp — so the per-sprite and the\nper-pixel answers cannot disagree about the same point."
+            },
+            {
+              "sig": "pub fn light_level_at(self: const Stage, wx: float, wy: float) -> float",
+              "doc": "The scalar level at a world point — the green channel of a white light, and\nthe number the monotonic-and-floored invariant is stated about."
+            },
+            {
+              "sig": "pub fn composite_light(self: const Stage, view: integer, cv: graphics::Canvas)",
+              "doc": "Multiply every pixel of the view's rect by the light standing there.\n\n⚠ THE SCREEN IS MAPPED TO THE WORLD THROUGH THE WORLD PLANE — layer 0, the\nplane lights live on.  A parallaxed background is therefore lit as though it\nstood on that plane, which is the honest simplification here: per-layer\natmosphere is L3's question, not this pass's."
+            },
+            {
+              "sig": "pub fn composite_shader_source() -> text",
+              "doc": "The composite's fragment shader.  Public so a test can check it reads the\nfalloff and the floor as UNIFORMS rather than carrying its own copy of them."
+            },
+            {
+              "sig": "pub fn set_layer_fog(self: Stage, layer: integer, colour: integer, density: float)",
+              "doc": "Fade this layer toward `colour`.  Density 0 is clear and changes nothing."
+            },
+            {
+              "sig": "pub fn layer_fog_colour(self: const Stage, layer: integer) -> integer",
+              "doc": "The colour this layer fades toward.  An unset layer reads the plain layer's,\nso a scene that never asked for fog cannot be tinted by this existing."
+            },
+            {
+              "sig": "pub fn layer_fog_density(self: const Stage, layer: integer) -> float",
+              "doc": "How far it fades: 0 is clear."
+            },
+            {
+              "sig": "pub fn set_layer_blur(self: Stage, layer: integer, radius: integer)",
+              "doc": "Put this layer out of focus by `radius` pixels.  0 is sharp.\n\n⚠ THE BLUR RUNS WHEN THE LAYER FINISHES, so it softens everything drawn up to\nand including it and NOTHING above — which is what makes a sharp foreground\nover a hazy distance possible, and what a fullscreen blur cannot do.  Distant\nbands therefore blur together, which is what *distance is out of focus* means."
+            },
+            {
+              "sig": "pub fn layer_blur(self: const Stage, layer: integer) -> integer",
+              "doc": "This layer's blur radius in pixels; 0 is sharp."
+            },
+            {
+              "sig": "pub fn blur_region(cv: graphics::Canvas, x0: integer, y0: integer, x1: integer,",
+              "doc": "Box-blur a rectangle of the canvas in place.\n\n⚠ SAMPLES ARE CLAMPED TO THE EDGE, never read as black.  Counting an\noff-image sample as black loses light everywhere the kernel overhangs, and it\nshows as a dark frame around the picture — the classic bug this phase gates\nagainst.  Clamping keeps a uniform field EXACTLY itself."
+            }
+          ],
+          "published": "2026-09-09T23:07:55Z"
         }
       }
     },
