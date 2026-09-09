@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-09T21:19:13Z",
+  "updated": "2026-09-09T22:23:03Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -678,6 +678,131 @@
             }
           ],
           "published": "2026-08-18T09:12:46Z"
+        },
+        "0.3.9": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.9/crypto-0.3.9.tar.gz",
+          "sha256": "a2126243c2e3e32aaa14f32b5fda52b30bc7b5e7861b66ae2f84683471306cee",
+          "size": 64843,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.3.2",
+          "data_compatible_with": "0.3.2",
+          "subpath": "crypto",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn sha256(data: text) -> text",
+              "doc": "SHA-256 hash of a string. Returns 64-char hex string."
+            },
+            {
+              "sig": "pub fn sha256_b64(data_b64: text) -> text",
+              "doc": "SHA-256 of the RAW BYTES decoded from base64 `data_b64`. Returns base64 of the\n32-byte digest. Use this to hash arbitrary byte strings (ciphertext, canonical\nCBOR) that are not valid UTF-8 and so cannot be passed to `sha256` as text.\nExample: @CRY-001 — the two hashing doors: text in / hex out vs base64 both ways."
+            },
+            {
+              "sig": "pub fn hmac_sha256(key: text, data: text) -> text",
+              "doc": "HMAC-SHA256 of data with key. Returns 64-char hex string."
+            },
+            {
+              "sig": "pub fn base64_encode(data: text) -> text",
+              "doc": "Base64 encode a string."
+            },
+            {
+              "sig": "pub fn base64_decode(data: text) -> text",
+              "doc": "Base64 decode a string."
+            },
+            {
+              "sig": "pub fn base64url_encode(data: text) -> text",
+              "doc": "Base64url encode (JWT-safe, no padding)."
+            },
+            {
+              "sig": "pub fn ed25519_public_key(secret_key_b64: text) -> text",
+              "doc": "Derive the 32-byte public key (base64) from a 32-byte secret seed (base64)."
+            },
+            {
+              "sig": "pub fn ed25519_sign(secret_key_b64: text, message_b64: text) -> text",
+              "doc": "Sign the base64 `message` bytes with the 32-byte secret seed (base64).\nReturns the 64-byte signature, base64.\nExample: @CRY-002 — sign `base64_encode(msg)`; the bare text signs other bytes, silently."
+            },
+            {
+              "sig": "pub fn ed25519_verify(public_key_b64: text, message_b64: text, signature_b64: text) -> boolean",
+              "doc": "Verify a signature over the base64 `message` bytes under a public key.\nReturns true iff the signature is valid.\nExample: @CRY-002 — why a wrongly-spelled message still verifies against itself."
+            },
+            {
+              "sig": "pub fn ecdsa_p256_keygen() -> text",
+              "doc": "Generate a fresh 32-byte P-256 secret scalar (base64) from the OS CSPRNG."
+            },
+            {
+              "sig": "pub fn ecdsa_p256_public_key(secret_key_b64: text) -> text",
+              "doc": "Derive the 64-byte public key `x || y` (base64) from a 32-byte secret scalar (base64).\nExample: @CRY-003 — the three JOSE lengths (32 / 64 / 64) a caller should check."
+            },
+            {
+              "sig": "pub fn ecdsa_p256_sign(secret_key_b64: text, message_b64: text) -> text",
+              "doc": "Sign the base64 `message` bytes with the 32-byte secret scalar (base64).\nReturns the 64-byte `r || s` signature (base64), deterministic per RFC 6979.\nExample: @CRY-003 — signing twice answers identical bytes, and `r || s` is not DER."
+            },
+            {
+              "sig": "pub fn ecdsa_p256_verify(public_key_b64: text, message_b64: text, signature_b64: text) -> boolean",
+              "doc": "Verify an ES256 signature (64-byte `r || s`) over the base64 `message` bytes\nunder a 64-byte `x || y` public key.  Returns true iff the signature is valid."
+            },
+            {
+              "sig": "pub fn x25519_dh(secret_key_b64: text, public_key_b64: text) -> text",
+              "doc": "A secret key is a 32-byte X25519 scalar (base64); a public key is the\n32-byte u-coordinate (base64).  Returns the raw 32-byte shared secret\n(base64), or \"\" if either input is the wrong length.  Run the result\nthrough `hkdf_sha256` before using it as a key (RFC 7748 §6.1).\nExample: @CRY-004 — the DH output is keying material, not a key; and how to get a\npublic key out of a secret scalar (X25519 has no separate keygen)."
+            },
+            {
+              "sig": "pub fn hkdf_sha256(salt_b64: text, ikm_b64: text, info_b64: text, length: integer) -> text",
+              "doc": "Derive `length` bytes of output keying material from `ikm`, `salt`, and\n`info` (each base64).  An empty base64 `salt` selects the all-zero salt.\nReturns the base64 OKM, or \"\" if `length` exceeds 255*32 or is <= 0.\nExample: @CRY-004 — `info` is what separates two keys from one shared secret."
+            },
+            {
+              "sig": "pub fn hkdf_extract(salt_b64: text, ikm_b64: text) -> text",
+              "doc": "HKDF-Extract (RFC 5869 §2.2): the 32-byte PRK (base64) HMAC-SHA256(salt, ikm).\nAn empty base64 `salt` selects the all-zero salt.  Use the Extract/Expand\nhalves directly (rather than `hkdf_sha256`) when a PRK is reused for several\nExpands or when an Extract output is itself the value you want (e.g. HPKE).\nExample: @CRY-004 — the split halves compose to exactly `hkdf_sha256`."
+            },
+            {
+              "sig": "pub fn hkdf_expand(prk_b64: text, info_b64: text, length: integer) -> text",
+              "doc": "HKDF-Expand (RFC 5869 §2.3) from an existing 32-byte PRK.  Returns `length`\nbytes of OKM (base64), or \"\" on a short PRK, length > 255*32, or length <= 0."
+            },
+            {
+              "sig": "pub fn bytes_to_base64(bytes: vector<u8>) -> text",
+              "doc": "Standard base64 of a raw byte vector.  Empty vector -> \"\"."
+            },
+            {
+              "sig": "pub fn base64_to_bytes(b64: text) -> vector<u8>",
+              "doc": "Raw bytes from standard base64.  Malformed / empty input -> empty vector.\nSee the CAUTION above: read the result, never `+=` onto it.\nExample: @CRY-001 — reading a decoded byte vector, and hashing non-UTF-8 bytes."
+            },
+            {
+              "sig": "pub fn aes256gcm_seal(key_b64: text, nonce_b64: text, aad_b64: text, plaintext_b64: text) -> text",
+              "doc": "Encrypt + authenticate `plaintext` under `key`/`nonce`, binding `aad`.\nReturns base64 of ciphertext WITH the 16-byte tag appended, or \"\" on bad\nkey/nonce length.\nExample: @CRY-005 — the tag rides in the blob, and a fresh nonce per message."
+            },
+            {
+              "sig": "pub fn aes256gcm_open(key_b64: text, nonce_b64: text, aad_b64: text, ciphertext_b64: text) -> text",
+              "doc": "Verify + decrypt `ciphertext` (ciphertext||tag, base64) under `key`/`nonce`,\nbinding `aad`.  Returns the base64 plaintext, or \"\" on ANY authentication\nfailure — an empty result means the ciphertext/tag/aad did not verify.\nExample: @CRY-005 — \"\" is a failure signal, and an authentic empty plaintext gives it too."
+            },
+            {
+              "sig": "pub fn random_bytes(length: integer) -> text",
+              "doc": "Return `length` cryptographically secure random bytes (base64) from the OS\nRNG.  Returns \"\" for length <= 0.  Use for keys (32), nonces (12), salts."
+            },
+            {
+              "sig": "pub struct HpkeSealed",
+              "doc": "The result of `hpke_seal_base`: the KEM-encapsulated key `enc` and the AEAD\n`ciphertext` (ciphertext||16-byte-tag), both base64."
+            },
+            {
+              "sig": "pub fn hpke_seal_base(pk_r_b64: text, info_b64: text, aad_b64: text, pt_b64: text) -> HpkeSealed",
+              "doc": "HPKE SealBase (RFC 9180 §6.1): encrypt `pt` to recipient public key `pk_r`,\nbinding `info` (key-schedule context) and `aad` (per-message AAD).  Generates\na fresh ephemeral key, so each call's output differs.  All args/fields base64.\nReturns HpkeSealed { enc, ciphertext }; both \"\" on failure.\nExample: @CRY-006 — `enc` is fresh per call and must travel with the ciphertext."
+            },
+            {
+              "sig": "pub fn hpke_seal_base_deterministic(pk_r_b64: text, sk_e_b64: text, info_b64: text, aad_b64: text, pt_b64: text) -> HpkeSealed",
+              "doc": "Deterministic SealBase — TEST ONLY.  Uses the caller-supplied ephemeral\nsecret `sk_e_b64` instead of a random one, so the output is reproducible\nagainst an RFC 9180 known-answer vector.  Never use in production."
+            },
+            {
+              "sig": "pub fn hpke_open_base(sk_r_b64: text, enc_b64: text, info_b64: text, aad_b64: text, ct_b64: text) -> text",
+              "doc": "HPKE OpenBase (RFC 9180 §6.1): decrypt `ct` for recipient secret key `sk_r`\nusing the sender's `enc`, binding `info` and `aad`.  All args base64.  Returns\nthe base64 plaintext, or \"\" on ANY failure (bad enc/key or AEAD auth failure).\nExample: @CRY-006 — `info` AND `aad` must both match the sender's, or open gives \"\"."
+            },
+            {
+              "sig": "pub fn hpke_key_schedule_base_for_test(shared_secret_b64: text, info_b64: text) -> (text, text)",
+              "doc": "Expose the key-schedule outputs for KAT assertions — TEST ONLY.  Given a\nshared secret and base64 `info`, returns (key_b64, base_nonce_b64)."
+            },
+            {
+              "sig": "pub fn hpke_encap_deterministic_for_test(pk_r_b64: text, sk_e_b64: text) -> (text, text)",
+              "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
+            }
+          ],
+          "published": "2026-09-09T22:23:03Z"
         }
       }
     },
