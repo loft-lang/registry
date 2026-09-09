@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-09T22:23:03Z",
+  "updated": "2026-09-09T22:25:58Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -150,6 +150,40 @@
             }
           ],
           "published": "2026-08-18T09:12:43Z"
+        },
+        "0.1.5": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/cbor-v0.1.5/cbor-0.1.5.tar.gz",
+          "sha256": "d23b3d184c1fc37bac6feb04ed5b47b774cc63a416767a95e8082b67dea46e8d",
+          "size": 11117,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.1",
+          "data_compatible_with": "0.1.1",
+          "subpath": "cbor",
+          "deps": {},
+          "triggers": [],
+          "api": [
+            {
+              "sig": "pub enum CborValue",
+              "doc": "A dynamic CBOR value.  Mirrors the stdlib `JsonValue`, with CBOR's extra\n`CBytes` (native byte string) and the integer split that CBOR makes at the\nwire level folded into one signed `CInt`.\nExample: @CBR-002 — which variant you pick is part of the wire form: the same\ntwo payload bytes are a different record as `CBytes` than as `CText`."
+            },
+            {
+              "sig": "pub struct CborEntry",
+              "doc": "One key/value pair of a `CMap`."
+            },
+            {
+              "sig": "pub fn encode(v: CborValue) -> vector<u8>",
+              "doc": "Encode a `CborValue` to canonical CBOR bytes.\nA map's entries are SORTED here by their encoded key bytes, so the order you\nbuilt the map in never reaches the wire.\nExample: @CBR-001 — two maps built in opposite orders encode identically, which\nis what keeps a signature over the bytes valid.\nExample: @CBR-002 — `CBytes` and `CText` are different wire types, so the\nloft-side choice is part of what gets signed.\nExample: @CBR-004 — canonical is about ORDER, not uniqueness: duplicate keys\nencode without complaint."
+            },
+            {
+              "sig": "pub struct Decoded",
+              "doc": "The result of decoding one CBOR value: the `value`, the byte position just\npast it (`next`), and `ok` — false on any malformed / non-canonical /\ntruncated input.  Decoding never crashes (loft-safe): a bad byte stream\nyields ok=false rather than a trap."
+            },
+            {
+              "sig": "pub fn decode(bytes: vector<u8>) -> Decoded",
+              "doc": "Decode canonical CBOR bytes into a `CborValue`.  Returns `ok=false` on any\nmalformed, non-canonical, or truncated input — and rejects trailing bytes\nafter the top-level value.  Never crashes.\nExample: @CBR-003 — `ok=false` is one answer for four different problems, and\nthe surprising one is that well-formed but NON-canonical CBOR is refused.\nExample: @CBR-004 — a map carrying two entries under one key decodes ok=true."
+            }
+          ],
+          "published": "2026-09-09T22:25:58Z"
         }
       }
     },
