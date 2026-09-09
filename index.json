@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-09T21:16:19Z",
+  "updated": "2026-09-09T21:19:13Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -958,6 +958,103 @@
             }
           ],
           "published": "2026-08-18T09:12:40Z"
+        },
+        "0.2.2": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/arguments-v0.2.2/arguments-0.2.2.tar.gz",
+          "sha256": "b2c1eb1b17ad322675e57b2c7411cac435d180134c23883e10eaba8a3b219bc1",
+          "size": 14178,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.2.0",
+          "data_compatible_with": "0.2.0",
+          "subpath": "arguments",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn create(name: text, version: text, description: text) -> Args",
+              "doc": "Start an empty parser.  The three strings are what `help()` and\n`version_text()` render — nothing else reads them, so they are for the user\nand not for the parsing."
+            },
+            {
+              "sig": "pub fn flag(self: Args, opt_short: text, opt_long: text, desc: text)",
+              "doc": "A boolean flag (`--verbose` / `-v`)."
+            },
+            {
+              "sig": "pub fn option(self: Args, opt_short: text, opt_long: text, arg_name: text, desc: text)",
+              "doc": "An optional value option (`--output FILE`).  `arg_name` is the metavar shown in help."
+            },
+            {
+              "sig": "pub fn required(self: Args, opt_short: text, opt_long: text, arg_name: text, desc: text)",
+              "doc": "A required value option: `parse` fails if it is absent.\nExample: @ARG-004 — the parse-failure idiom (`ok`/`error_msg`/`try_help`)."
+            },
+            {
+              "sig": "pub fn optional(self: Args, opt_short: text, opt_long: text, arg_name: text, desc: text)",
+              "doc": "An optional-argument option: its value attaches only via `=` / glued form\n(`--color=auto`, `-cauto`); given bare (`--color`) it is present with value \"\".\nExample: @ARG-002 — glued value vs bare, and why the next word stays a positional."
+            },
+            {
+              "sig": "pub fn set_usage(self: Args, synopsis: text)",
+              "doc": "Set the positional synopsis for the usage line (e.g. \"[FILE...]\")."
+            },
+            {
+              "sig": "pub fn set_bug_address(self: Args, address: text)",
+              "doc": "Set the \"Report bugs to <addr>.\" help footer."
+            },
+            {
+              "sig": "pub fn set_epilog(self: Args, epilog: text)",
+              "doc": "Set free text printed after the option list in help."
+            },
+            {
+              "sig": "pub fn enable_help(self: Args)",
+              "doc": "Opt-in: register `--help`/`-h` and `--version`/`-V` (short forms only when free),\nso `parse` records `--help`/`--version` and `help()` lists them.  Nothing is\nauto-printed — the caller checks `wants_help()` / `wants_version()`.\nExample: @ARG-003 — the opt-in dance, and `--help` bypassing the required check."
+            },
+            {
+              "sig": "pub fn parse(self: Args, argv: vector<text>) -> boolean",
+              "doc": "Parse a command line against the declared options.  Answers false on a usage\nerror (see `ok`/`error_msg`); afterwards flags read through `has`, value options\nthrough `get`, and every non-option word lands in `positionals` in order.\nExample: @ARG-001 — the declare → parse → query lifecycle."
+            },
+            {
+              "sig": "pub fn has(self: Args, name: text) -> boolean",
+              "doc": "Was this option given?  Ask by the LONG name whatever the user typed — a\nshort, a prefix and the full name all land on the same option.  The one\nquestion a `flag` can be asked."
+            },
+            {
+              "sig": "pub fn get(self: Args, name: text) -> text?",
+              "doc": "The option's value, or null when it was not given.  `get_or` and `get_int`\nare this with the absent case already handled, and are usually what you want."
+            },
+            {
+              "sig": "pub fn get_or(self: Args, name: text, fallback: text) -> text",
+              "doc": "The option's value, or `fallback` when unset."
+            },
+            {
+              "sig": "pub fn get_int(self: Args, name: text) -> integer?",
+              "doc": "The option's value parsed as an integer, or null when unset or non-numeric."
+            },
+            {
+              "sig": "pub fn ok(self: Args) -> boolean",
+              "doc": "Did the parse succeed?  The same answer `parse` returned, available later —\nso a caller that dropped the return value can still ask."
+            },
+            {
+              "sig": "pub fn error_msg(self: Args) -> text",
+              "doc": "What went wrong, in GNU wording and ready to print.  Empty when nothing did.\nPair it with `try_help()`, which is the second line of that pair."
+            },
+            {
+              "sig": "pub fn wants_help(self: Args) -> boolean",
+              "doc": "Did the user ask for `--help`?  A SUCCESSFUL parse sets this, so check it\nbefore acting on the options — otherwise `--help` runs the program."
+            },
+            {
+              "sig": "pub fn wants_version(self: Args) -> boolean",
+              "doc": "The same for `--version`; print `version_text()` and stop."
+            },
+            {
+              "sig": "pub fn version_text(self: Args) -> text",
+              "doc": "The conventional one-line version banner, built from what `create` was told."
+            },
+            {
+              "sig": "pub fn try_help(self: Args) -> text",
+              "doc": "The GNU \"Try '<prog> --help' …\" hint to print alongside a parse error."
+            },
+            {
+              "sig": "pub fn help(self: Args) -> text",
+              "doc": "Render a GNU-format help screen from the declared options."
+            }
+          ],
+          "published": "2026-09-09T21:19:13Z"
         }
       }
     },
