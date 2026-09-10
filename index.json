@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-09T23:11:48Z",
+  "updated": "2026-09-10T05:35:26Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -14260,6 +14260,95 @@
           "subpath": "hex_grid",
           "deps": {},
           "published": "2026-06-14T14:42:33Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_grid-v0.1.1/hex_grid-0.1.1.tar.gz",
+          "sha256": "763a32351d0b5bf0ff542bcbc3be7e423b7c2fd3e6f79d72466ec1002d2fd228",
+          "size": 17097,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_grid",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn hex_to_px(q: integer, r: integer) -> (float, float)",
+              "doc": "Hex (col,row) -> world-plane centre (x,y). Pointy-top, ODD-R OFFSET (moros's\nconvention): odd rows shifted half a hex right, so a rectangle of cells stays\nUPRIGHT (axial sheared them). Throughout the kernel (q,r) ARE offset (col,row)."
+            },
+            {
+              "sig": "pub fn hex_round(qf: float, rf: float) -> (integer, integer)",
+              "doc": "Round fractional cube coords to the nearest hex; return AXIAL (q,r) — NOT the\nodd-r offset (col,row) the rest of this module takes.  Both are\n`(integer, integer)`, so mixing them type-checks and lands on a neighbouring\nhex.  Use `px_to_hex` unless you already hold axial coordinates.\nExample: @HXG-001"
+            },
+            {
+              "sig": "pub fn px_to_hex(x: float, y: float) -> (integer, integer)",
+              "doc": "World-plane point (x,y) -> nearest hex (col,row). Axial-fractional inverse +\ncube round, then convert axial -> odd-r offset (col = q + (r - (r&1))/2).\nThis is the conversion to reach for: it answers the OFFSET pair every other\nfunction here expects, where `hex_round` alone answers the axial one.\nExample: @HXG-001"
+            },
+            {
+              "sig": "pub fn hex_neighbor(q: integer, r: integer, dir: integer) -> (integer, integer)",
+              "doc": "The six neighbour directions (0=E, 1=SE, 2=SW, 3=W, 4=NW, 5=NE; r increases\nupward). ODD-R OFFSET, so the four diagonal deltas differ by row parity. The\ncompass order matches the old axial one, so edge_corners/canon_edge are unchanged.\nOnly E and W are parity-free: a hardcoded six-entry delta table is right on\nevery even row and hands back the wrong NEIGHBOUR — not a bad cell — on odd ones.\nExample: @HXG-002, @HXG-004"
+            },
+            {
+              "sig": "pub fn hex_distance(q1: integer, r1: integer, q2: integer, r2: integer) -> integer",
+              "doc": "Hex distance in steps — convert odd-r offset -> axial, then cube distance."
+            },
+            {
+              "sig": "pub fn hex_neighbor_dir(q1: integer, r1: integer, q2: integer, r2: integer) -> integer",
+              "doc": "Which of the 6 neighbour directions leads from (q1,r1) to adjacent (q2,r2)?\nInverse of hex_neighbor (odd-r offset, parity-dependent on r1); -1 if not adjacent.\n`-1` is an ordinary `integer`, not a null: it flows into every function that\ntakes a direction, where `hex_neighbor` and `hex_edge_corners` absorb it as\ndirection 5 and `hex_canon_edge` keeps it as an edge index.  Check it here.\nExample: @HXG-006"
+            },
+            {
+              "sig": "pub fn hex_corner_offset(i: integer) -> (float, float)",
+              "doc": "Corner offset of a pointy-top unit hex (circumradius 1), corner 0 = top,\ngoing counter-clockwise. Used to place edge endpoints and wall segments.\n+y is NORTH here.  The cell_* family below uses +y SOUTH, with the same\n`(float, float)` return type — see the example before assuming either.\nExample: @HXG-004"
+            },
+            {
+              "sig": "pub fn hex_corner_px(q: integer, r: integer, i: integer) -> (float, float)",
+              "doc": "World-plane position of corner i of hex (q,r)."
+            },
+            {
+              "sig": "pub fn hex_edge_corners(dir: integer) -> (integer, integer)",
+              "doc": "The two corner indices bounding the edge in neighbour direction `dir`.\nOut-of-range directions fall through to the direction-5 arm rather than\nraising, which is how a -1 from `hex_neighbor_dir` becomes a real answer.\nExample: @HXG-006"
+            },
+            {
+              "sig": "pub fn hex_canon_edge(q: integer, r: integer, dir: integer) -> (integer, integer, integer)",
+              "doc": "Resolve any of the 6 directions to the owning hex + canonical edge index\n(0,1,2). Dirs 0,1,2 are stored on this hex; 3,4,5 on the neighbour.\nCall this before you key a wall on anything.  A wall keyed on the raw\n(q, r, dir) a caller happened to approach from becomes TWO half-walls that\ndisagree — blocking from one side and open from the other.\nExample: @HXG-003, @HXG-006"
+            },
+            {
+              "sig": "pub fn cell_to_px(q: integer, r: integer) -> (float, float)",
+              "doc": "Cell (q,r) -> world centre."
+            },
+            {
+              "sig": "pub fn px_to_cell(x: float, y: float) -> (integer, integer)",
+              "doc": "World point -> the cell containing it (cells centred on integers)."
+            },
+            {
+              "sig": "pub fn cell_neighbor(q: integer, r: integer, dir: integer) -> (integer, integer)",
+              "doc": "4 orthogonal directions: 0=E, 1=S, 2=W, 3=N.  Note `r` increases SOUTH here,\nwhere in the hex_* family it increases NORTH — `hex_neighbor(q, r, 5)` and\n`cell_neighbor(q, r, 1)` return the same pair for opposite compass directions.\nExample: @HXG-004"
+            },
+            {
+              "sig": "pub fn cell_neighbor_dir(q1: integer, r1: integer, q2: integer, r2: integer) -> integer",
+              "doc": "Inverse of cell_neighbor; -1 if not orthogonally adjacent.  This — not\n`cell_distance(a, b) == 1` — is the adjacency test: the metric is Chebyshev\nand answers 1 for diagonals no single step can reach.\nExample: @HXG-005, @HXG-006"
+            },
+            {
+              "sig": "pub fn cell_distance(q1: integer, r1: integer, q2: integer, r2: integer) -> integer",
+              "doc": "King-move (Chebyshev) distance — matches 8-directional movement, which is NOT\nthe 4-directional move set `cell_neighbor` offers.  So `== 1` admits diagonals\nand is not an adjacency test; use `cell_neighbor_dir(…) >= 0` for that.\nExample: @HXG-005"
+            },
+            {
+              "sig": "pub fn cell_corner_offset(i: integer) -> (float, float)",
+              "doc": "Corner offsets of a unit cell (centre origin): 0=NW,1=NE,2=SE,3=SW (y down).\n+y is SOUTH here, the opposite of `hex_corner_offset` above.\nExample: @HXG-004"
+            },
+            {
+              "sig": "pub fn cell_corner_px(q: integer, r: integer, i: integer) -> (float, float)",
+              "doc": "One corner of a cell in pixels.  The last step before drawing: everything above it is\nexact, and this is where a renderer's coordinates begin."
+            },
+            {
+              "sig": "pub fn cell_edge_corners(dir: integer) -> (integer, integer)",
+              "doc": "The two corner indices bounding the edge in direction dir."
+            },
+            {
+              "sig": "pub fn cell_canon_edge(q: integer, r: integer, dir: integer) -> (integer, integer, integer)",
+              "doc": "Resolve any of the 4 directions to the owning cell + canonical edge (0=E,1=S);\nW/N delegate to the neighbour (each physical edge stored once)."
+            }
+          ],
+          "published": "2026-09-10T05:35:26Z"
         }
       }
     },
