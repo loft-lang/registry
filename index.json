@@ -14245,7 +14245,7 @@
       }
     },
     "hex_grid": {
-      "description": "Hex-grid geometry — axial/pixel conversion, neighbours, distance, and corner offsets.",
+      "description": "Hex-grid geometry — pointy-top, ODD-R OFFSET coordinates: coordinate/pixel conversion, neighbours, distance, corners and canonical edges, plus a square local basis for right-angled structures placed on the hex world.",
       "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_grid",
       "categories": [
         "geometry"
