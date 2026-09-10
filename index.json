@@ -14507,7 +14507,9 @@
           "size": 14087,
           "loft": ">=0.8",
           "subpath": "hex_terrain",
-          "deps": {},
+          "deps": {
+            "hex_grid": ">=0.1"
+          },
           "published": "2026-06-14T14:42:33Z"
         },
         "0.1.1": {
@@ -14516,7 +14518,9 @@
           "size": 14113,
           "loft": ">=0.8",
           "subpath": "hex_terrain",
-          "deps": {},
+          "deps": {
+            "hex_grid": ">=0.1"
+          },
           "api": [
             {
               "sig": "pub struct TerrainType",
