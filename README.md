@@ -9,7 +9,7 @@ ecosystem contributors see when they land on the registry repo.
 
 # loft-lang / registry
 
-The package registry for the [loft](https://github.com/jjstwerff/loft)
+The package registry for the [loft](https://github.com/loft-lang/loft)
 language ecosystem.  A single static `index.json` file that the
 loft client consumes when you run `loft install <pkg>`.
 
@@ -29,46 +29,25 @@ registry works, read on.
 include in your package, yanking, mirror policy.  Read that
 before opening a PR.
 
-**Short version**, per the design in
-[loft's PKG_REGISTRY.md](https://github.com/jjstwerff/loft/blob/main/doc/claude/PKG_REGISTRY.md):
+**Short version:**
 
-1. **Author tags a release** in their package repo (e.g.,
-   `git tag v0.1.0 && git push --tags`).
-2. **Author runs `loft package`** in the package directory to
-   produce `<pkg>-<version>.tar.gz` plus the sha256.
-3. **Author uploads the tarball** as an asset on a GitHub release
-   for the tag.
-4. **Author opens a PR here** adding a version row to
-   `index.json`:
-
-   ```diff
-    "crypto": {
-      "versions": {
-   +    "0.1.0": {
-   +      "url": "https://github.com/loft-lang/loft-crypto/releases/download/v0.1.0/crypto-0.1.0.tar.gz",
-   +      "sha256": "abc123…",
-   +      "size": 5717,
-   +      "loft": ">=0.8",
-   +      "deps": {},
-   +      "published": "2026-05-24T00:00:00Z"
-   +    }
-      }
-    }
-   ```
-
-5. **CI runs `tools/validate.py`** automatically on the PR:
-   - **Schema lint** — required fields, correct types.
-   - **Tarball verify** — downloads the release tarball, hashes
-     it, compares to the PR's claimed sha256.
-   - **Reproducible-build re-check** — clones the source repo at
-     the tag, runs `loft package` from scratch, compares the
-     resulting sha256 to the PR's claim.  Catches force-pushed
-     tags, mis-uploaded tarballs, and opportunistic supply-chain
-     swaps.
-6. **A maintainer reviews the PR.**
-7. **The maintainer signs the new `index.json` locally on their
-   trusted laptop** with `loft-keygen sign`, commits the
-   resulting `index.json.sig` to the PR branch, then merges.
+1. **Tag the release** in your package repo as `<name>-v<version>`
+   (`git tag my-lib-v0.1.0 && git push --tags`).
+2. **Run `loft package`** in the package directory: it writes
+   `<name>-<version>.tar.gz` and prints the index entry for it.
+3. **Upload the tarball** as the asset of a GitHub release for that tag.
+4. **Open a PR here** that adds one staging file,
+   `submissions/<name>-<version>.json`, holding that entry — the
+   recommended route, since it never touches `index.json`.  Editing
+   `index.json` directly also works; see SUBMITTING.md for both.
+5. **The submission is validated.**  A staging file goes through the
+   maintainer's publish run: your tests against the current loft, the
+   metadata, and a human review of any native code.  A direct
+   `index.json` edit runs `tools/validate.py` on the PR — schema lint,
+   tarball verify, and a reproducible build from the tag your release
+   url names, which catches a moved tag or a mis-uploaded tarball.
+6. **The maintainer signs the new `index.json`** on hardware they
+   control and merges.  You sign nothing.
 
 `loft install` clients fetch both `index.json` and
 `index.json.sig`, verify the signature against the public key
@@ -85,7 +64,7 @@ for ~30 seconds of human work per merge.
 
 ## Schema
 
-See [loft's PKG_REGISTRY.md § Schema](https://github.com/jjstwerff/loft/blob/main/doc/claude/PKG_REGISTRY.md#schema)
+See [loft's PKG_REGISTRY.md § Schema](https://github.com/loft-lang/loft/blob/main/doc/claude/PKG_REGISTRY.md#schema)
 for the full field reference.  Minimum required per version row:
 `url`, `sha256`, `size`, `loft`, `published`.  Everything else
 (`deps`, `conflicts`, `replaces`, `provides`, `binaries`,
@@ -100,7 +79,7 @@ maintainers.  The public half is embedded in every loft binary
 release (in `src/registry_keys.rs::TRUSTED_PUBLIC_KEYS`).
 
 If you suspect the signing key is compromised, file an issue
-ASAP — see [REGISTRY_BOOTSTRAP.md § Trust-root recovery](https://github.com/jjstwerff/loft/blob/main/doc/claude/REGISTRY_BOOTSTRAP.md#trust-root-recovery)
+ASAP — see [REGISTRY_BOOTSTRAP.md § Trust-root recovery](https://github.com/loft-lang/loft/blob/main/doc/claude/REGISTRY_BOOTSTRAP.md#trust-root-recovery)
 for the response procedure.
 
 ---
@@ -139,7 +118,7 @@ skip them.  Use the PR description to record the reason.
   investigation.
 - **Registry bug**: file an issue here.
 - **Loft client bug** (install fails, sig verify fails): file
-  an issue in [jjstwerff/loft](https://github.com/jjstwerff/loft/issues).
+  an issue in [loft-lang/loft](https://github.com/loft-lang/loft/issues).
 
 ---
 

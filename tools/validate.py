@@ -229,8 +229,12 @@ def gate_reproducible_build(idx: dict, prev: dict) -> None:
     ## Single-package vs multi-package chunk-repo homepages
 
     For a **single-package repo**, `homepage` is the repo root
-    (`https://github.com/<owner>/<repo>`), the tag is `v<version>`,
-    and `loft package` runs at the repo root.
+    (`https://github.com/<owner>/<repo>`) and `loft package` runs at
+    the repo root.
+
+    In both shapes the tag cloned is the one the version's release
+    `url` names (`release_tag`), which `loft package` spells
+    `<name>-v<version>`; the layout only supplies a fallback.
 
     For a **multi-package chunk repo** (e.g. `loft-libs-core` hosts
     `arguments`, `crypto`, `random` in separate subdirectories), the
@@ -291,13 +295,13 @@ def gate_reproducible_build(idx: dict, prev: dict) -> None:
             # both exist and disagree, the explicit subpath wins (it's
             # the canonical declaration; the homepage URL is a hint).
             subpath = vobj.get("subpath", url_subpath)
-            tag = f"{name}-v{ver}"
+            tag = release_tag(vobj, f"{name}-v{ver}")
         else:
             # Single-package repo: clone the homepage directly, repo
             # root is the package root.
             clone_url = homepage
             subpath = ""
-            tag = f"v{ver}"
+            tag = release_tag(vobj, f"v{ver}")
 
         with tempfile.TemporaryDirectory() as tmp:
             print(f"[repro] cloning {clone_url} @ {tag}"
@@ -404,6 +408,23 @@ def gate_trigger_uniqueness(idx: dict) -> None:
                 owner.setdefault(trig, name)
     print("[triggers] all method-on-type triggers are uniquely owned")
 
+
+
+RELEASE_URL = re.compile(r"^https://github\.com/[^/]+/[^/]+/releases/download/([^/]+)/[^/]+$")
+
+
+def release_tag(vobj: dict, fallback: str) -> str:
+    """The git tag a version's tarball was released under.
+
+    The release URL names it (`…/releases/download/<tag>/<file>`), and that is the
+    tag whose source must reproduce the tarball — whatever the repo layout.
+    `loft package` names every release `<name>-v<version>`, one-package repo or
+    chunk repo alike, so a layout-derived guess of bare `v<version>` refused
+    exactly the author who followed the tooling.  The layout rule is kept as the
+    fallback for a url that is not a GitHub release.
+    """
+    m = RELEASE_URL.match(vobj.get("url", ""))
+    return m.group(1) if m else fallback
 
 
 def _new_entries(idx: dict, prev: dict) -> list[tuple[str, str, dict]]:
