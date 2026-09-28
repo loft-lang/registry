@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-28T16:22:57Z",
+  "updated": "2026-09-28T16:58:55Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -16408,6 +16408,93 @@
             }
           ],
           "published": "2026-07-25T18:10:15Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-game/releases/download/input-v0.2.1/input-0.2.1.tar.gz",
+          "sha256": "973a3a00564a946d48c854a437a962338e482a6a799b8c483f46f3857553e177",
+          "size": 10080,
+          "loft": ">=2026.7.2",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "input",
+          "deps": {
+            "graphics": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct ActionBinding",
+              "doc": "One named action: \"jump\" → [KEY_SPACE, KEY_UP] (any of the listed\nkeys triggers the action).  An empty `ab_keys` is degenerate but\nvalid — the action will simply never fire."
+            },
+            {
+              "sig": "pub struct AxisBinding",
+              "doc": "One named axis: pair of (negative key, positive key) → -1.0 / 0.0\n/ +1.0.  If both are down simultaneously the axis reads 0.0 (they\ncancel) — same convention as Unity / Godot's built-in axis pairs."
+            },
+            {
+              "sig": "pub struct Bindings",
+              "doc": "Full binding set — game code constructs this once and passes it\ninto `input_new`.  Re-binding at runtime: mutate this struct in\nplace (or build a new one) and call `input_set_bindings`."
+            },
+            {
+              "sig": "pub struct InputState",
+              "doc": "Abstract input state.  Fields are documented but considered\nopaque — query via the `is_action_*` / `get_axis` / `mouse_*`\nfunctions below.\n\n`is_keys_now[i]` is true if key code `i` is currently down;\n`is_keys_prev[i]` holds the same flag from the previous tick so\nedge detection compares the two.  Mouse buttons are a bitmask\n(`MB_LEFT | MB_RIGHT | …`)."
+            },
+            {
+              "sig": "pub fn input_new(b: Bindings) -> InputState",
+              "doc": "Construct an `InputState` from a `Bindings` set.  Both key tables\nstart fully released; the first call to `input_tick` populates\n`is_keys_now` (and `is_keys_prev` stays all-false, so any key down\non the first tick fires its `just_pressed` edge — the documented\n\"first frame counts as a transition\" semantics)."
+            },
+            {
+              "sig": "pub fn input_set_bindings(self: &InputState, b: Bindings)",
+              "doc": "Replace the binding set on a live state (e.g. after the player\nremaps keys in a settings menu).  Does NOT clear the key tables —\nin-flight key presses survive the rebind so a remap doesn't\nstrand an already-held key.\nExample: @INP-004"
+            },
+            {
+              "sig": "pub fn input_tick(self: &InputState)",
+              "doc": "Poll the graphics input primitives and refresh state for one tick.\nReads `gl_key_pressed` for every key code referenced by the\ncurrent bindings (avoids a 256-call sweep — only ask about keys\nthe game actually cares about), plus `gl_mouse_x`/`gl_mouse_y`/\n`gl_mouse_button`/`gl_mouse_wheel` unconditionally.\nExample: @INP-001"
+            },
+            {
+              "sig": "pub fn input_tick_from_state(",
+              "doc": "Advance state from a caller-supplied snapshot instead of polling\n`graphics`.  Used by tests (no GL context) and by network replay\n/ record-playback systems.  `keys` length is clamped to KEY_MAX;\nout-of-range entries are ignored.\nExample: @INP-001"
+            },
+            {
+              "sig": "pub fn is_action_pressed(self: const InputState, action: text) -> boolean",
+              "doc": "True if ANY of the action's bound keys is currently down.\nExample: @INP-002"
+            },
+            {
+              "sig": "pub fn is_action_just_pressed(self: const InputState, action: text) -> boolean",
+              "doc": "True for exactly one tick: the moment any of the action's bound\nkeys transitions from up to down.  If multiple bound keys all\ntransition on the same tick it still fires once.\nExample: @INP-001"
+            },
+            {
+              "sig": "pub fn is_action_just_released(self: const InputState, action: text) -> boolean",
+              "doc": "True for exactly one tick: the moment any of the action's bound\nkeys transitions from down to up.\nExample: @INP-001"
+            },
+            {
+              "sig": "pub fn get_axis(self: const InputState, axis: text) -> float",
+              "doc": "Read an axis pair: -1.0 if only `ax_neg` is down, +1.0 if only\n`ax_pos` is down, 0.0 if neither or both.  Unknown axis name\nreturns 0.0.\nExample: @INP-002"
+            },
+            {
+              "sig": "pub fn mouse_x(self: const InputState) -> float",
+              "doc": "Mouse position — pixels from the top-left of the window\n(matches `graphics::gl_mouse_x` / `gl_mouse_y`)."
+            },
+            {
+              "sig": "pub fn mouse_y(self: const InputState) -> float",
+              "doc": "The pointer's y this frame, the companion of `mouse_x`."
+            },
+            {
+              "sig": "pub fn mouse_button_down(self: const InputState, button: integer) -> boolean",
+              "doc": "True if the given mouse button (`MB_LEFT` / `MB_RIGHT` / `MB_MIDDLE`)\nis currently down.  Pass the constant, not a bitmask of multiple.\nExample: @INP-003"
+            },
+            {
+              "sig": "pub fn mouse_button_just_pressed(self: const InputState, button: integer) -> boolean",
+              "doc": "True for exactly one tick — the moment the button transitions\nfrom up to down.\nExample: @INP-003"
+            },
+            {
+              "sig": "pub fn mouse_button_just_released(self: const InputState, button: integer) -> boolean",
+              "doc": "True for exactly one tick — the moment the button transitions\nfrom down to up."
+            },
+            {
+              "sig": "pub fn mouse_wheel(self: const InputState) -> integer",
+              "doc": "Accumulated scroll-wheel delta since the last `input_tick` —\npositive = scroll up.  Mirrors `graphics::gl_mouse_wheel`."
+            }
+          ],
+          "published": "2026-09-28T16:58:55Z"
         }
       }
     },
