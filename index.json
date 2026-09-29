@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-29T06:23:33Z",
+  "updated": "2026-09-29T07:03:40Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -30394,6 +30394,15 @@
           "subpath": "lib/lavition_ui",
           "deps": {},
           "published": "2026-08-21T11:18:22Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/jjstwerff/moros/releases/download/lavition_ui-v0.1.1/lavition_ui-0.1.1.tar.gz",
+          "sha256": "83daadfe3b2df4353ac5dddf477dab207e21f3d3f456b766d83f84fe6e8878a3",
+          "size": 38406,
+          "loft": ">=2026.10.0",
+          "subpath": "lib/lavition_ui",
+          "deps": {},
+          "published": "2026-09-29T07:03:40Z"
         }
       }
     },
