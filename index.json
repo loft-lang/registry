@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-02T04:22:09Z",
+  "updated": "2026-10-02T04:46:07Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -34262,6 +34262,133 @@
             }
           ],
           "published": "2026-10-02T02:37:53Z"
+        },
+        "0.4.4": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/text2d-v0.4.4/text2d-0.4.4.tar.gz",
+          "sha256": "2b70331daddf8072820a25db9b3d026f40fb7daf64c049571dd0706df89dc7a5",
+          "size": 21212,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.4.0",
+          "data_compatible_with": "0.4.0",
+          "subpath": "text2d",
+          "deps": {
+            "graphics": ">=0.5.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn face_codes() -> vector<integer>",
+              "doc": "The codepoints, ascending — `face_row` bisects this."
+            },
+            {
+              "sig": "pub fn face_rows() -> vector<integer>",
+              "doc": "Seven rows per glyph, in the same order as `face_codes`."
+            },
+            {
+              "sig": "pub fn blit_glyph(cv: graphics::Canvas, code: integer, x: integer, y: integer, colour: integer, scale: integer)",
+              "doc": "Blit one codepoint's glyph with its top-left at (x, y).  Shared by the direct\nblitter and by the atlas, so the bit-walk has ONE home and the two can never\ndisagree about what a glyph looks like."
+            },
+            {
+              "sig": "pub fn text_width(s: text, scale: integer) -> integer",
+              "doc": "Width in pixels of `s` at `scale`, INCLUDING the gap after every glyph but the\nlast — the ink extent.  Exact: it is what `write_text` answers, so the caller can\ncentre with it and be right.\nExample: @TXD-001"
+            },
+            {
+              "sig": "pub fn line_height(scale: integer) -> integer",
+              "doc": "Height of one line at `scale`."
+            },
+            {
+              "sig": "pub fn write_text(cv: graphics::Canvas, s: text, x: integer, y: integer, colour: integer, scale: integer) -> integer",
+              "doc": "⚠ NAMED `write_text`, NOT `draw_text`.  `graphics` already has `draw_text` as a\nMETHOD on `Canvas`, and a name has one body per receiver type: a free\n`draw_text(cv: Canvas, …)` here would be refused as a redefinition of it.\n\nDraw `s` with its top-left at (x, y).  Answers the width drawn — `text_width(s,\nscale)`, 0 for an empty string — so a caller can lay out the next run without\nmeasuring twice.\n\n⚠ Iterates CHARACTERS, not bytes.  `len(text)` counts characters and an indexed\nread is bytes, so a byte loop truncates multi-byte text silently — the trap the\nstrict-index lint exists for.  A character with no glyph draws a blank of the\nsame width rather than being skipped, so a string never changes length because\none character was missing."
+            },
+            {
+              "sig": "pub fn write_centred(cv: graphics::Canvas, s: text, bx: integer, by: integer, bw: integer, bh: integer, colour: integer, scale: integer) -> integer",
+              "doc": "Draw `s` centred in the box (bx, by, bw, bh).  The commonest thing a HUD wants,\nand the commonest place an off-by-one lands."
+            },
+            {
+              "sig": "pub struct Atlas { a_cv: graphics::Canvas, a_codes: vector<integer>, a_scale: integer, a_cols: integer, a_next: integer, a_writes: integer }",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Quad { q_x: integer, q_y: integer, q_cell: integer }",
+              "doc": "One glyph placed on a line: where it goes, and which cell it comes from."
+            },
+            {
+              "sig": "pub fn atlas_new(scale: integer, capacity: integer) -> Atlas",
+              "doc": "A sheet with room for `capacity` glyphs at `scale`.  Shelf-packed in a grid,\nwhich is enough for a fixed-width face — a proportional one would want a real\npacker, and would still not change what the caller sees."
+            },
+            {
+              "sig": "pub fn atlas_glyph_count(self: const Atlas) -> integer",
+              "doc": "How many distinct glyphs the sheet holds.  It rises only when a code is met\nfor the FIRST time, so it measures what the atlas actually cost rather than\nhow much text has been drawn through it."
+            },
+            {
+              "sig": "pub fn atlas_writes(self: const Atlas) -> integer",
+              "doc": "How many times the sheet has been WRITTEN.  A GL consumer uploads on exactly\nthese, so a caller can assert that a changing label costs no upload — which is\nthe property the whole arc exists for.\nExample: @TXD-003"
+            },
+            {
+              "sig": "pub fn atlas_cell(self: Atlas, code: integer) -> integer",
+              "doc": "The cell holding `code`, rasterising it on first use.  -1 when the sheet is full."
+            },
+            {
+              "sig": "pub fn layout(self: Atlas, s: text, x: integer, y: integer) -> vector<Quad>",
+              "doc": "Lay a string out over the sheet.  Answers one quad per character; NOTHING is\nwritten to the sheet unless a character is new to it."
+            },
+            {
+              "sig": "pub fn draw_quads(cv: graphics::Canvas, atlas: const Atlas, quads: const vector<Quad>, colour: integer)",
+              "doc": "Blit laid-out quads from the sheet onto a canvas."
+            },
+            {
+              "sig": "pub struct Metrics { m_adv64: integer, m_line_h: integer, m_mono: boolean }",
+              "doc": "What the consumer measured.\n\n⚠ `m_mono` IS A FACT ABOUT THE FACE THAT RESOLVED, not the one that was asked\nfor.  Requesting `DejaVuSansMono.ttf` gives a fixed-pitch face on the desktop\nand a PROPORTIONAL fallback in the browser, because the browser resolves the\nbase name to a CSS family it does not know.  Only a measurement can tell."
+            },
+            {
+              "sig": "pub fn metrics_measured(wide_run: float, narrow_run: float, n: integer, line_h: integer) -> Metrics",
+              "doc": "Build metrics from two runs the consumer measured: `n` copies of a WIDE\ncharacter and `n` copies of a NARROW one.\n\n⚠ THE TWO RUNS ARE THE WHOLE INSTRUMENT, and one width cannot replace them.\nTen M's are ten M's in any font, so a single measurement gives the advance of\nan M and nothing about whether the face is fixed-pitch.  Two same-length,\nopposite-width strings answer it in one comparison.\n\nThe advance is taken from the WIDE run: under fixed pitch the two agree, and\nwhen they do not, the wider one is the safe basis for a fits-in-the-box\nquestion — it over-estimates rather than overflowing."
+            },
+            {
+              "sig": "pub fn metrics_builtin(scale: integer) -> Metrics",
+              "doc": "The built-in face's own metrics, so a layout written against this seam works\nwith no font file at all — the property `B0` exists for, carried forward."
+            },
+            {
+              "sig": "pub fn advance64(self: const Metrics) -> integer",
+              "doc": "The advance in 1/64 px, as measured."
+            },
+            {
+              "sig": "pub fn advance(self: const Metrics) -> integer",
+              "doc": "The advance in whole pixels, for a caller that wants to show it.\n\n⚠ DERIVED, NOT A SECOND FIELD.  One quantity stored twice is how two numbers\ndescribing one distance drift apart the moment either is edited."
+            },
+            {
+              "sig": "pub fn height(self: const Metrics) -> integer",
+              "doc": "The line height in pixels — what to advance y by between two lines."
+            },
+            {
+              "sig": "pub fn is_mono(self: const Metrics) -> boolean",
+              "doc": "Is the pitch fixed?  True is what makes `width` exact instead of an\nover-estimate, so a caller laying out columns can trust the number."
+            },
+            {
+              "sig": "pub fn width(self: const Metrics, s: text) -> integer",
+              "doc": "The ADVANCE width of `s` — what to reserve a box by.\n\n⚠ ROUNDED UP.  The residual is a fraction of a pixel per character, and the\nsafe direction to spend it is outwards: an over-estimate reserves a pixel too\nmany and the text still fits, an under-estimate spills out of a box that was\njust measured as fitting.  Exact under fixed pitch, an over-estimate\notherwise — the same reason the advance comes from the wide run.\n\nDistinct from `text_width`, which is the built-in face's INK extent: the two\ndiffer by the one trailing gap the ink extent leaves off, and they answer\ndifferent questions — centre by the ink, reserve by the advance."
+            },
+            {
+              "sig": "pub fn fits(self: const Metrics, s: text, px: integer) -> boolean",
+              "doc": "Does `s` fit in `px`?  Asks the ADVANCE width, which rounds outwards, so a\ntrue here means drawing it will not spill — the direction a caller needs.\n`fit_text` is what to reach for when the answer is no."
+            },
+            {
+              "sig": "pub fn fit_text(self: const Metrics, s: text, px: integer) -> text",
+              "doc": "The longest prefix of `s` that fits in `px`, with \"..\" marking the cut.\n\n⚠ AN UNTOUCHED STRING COMES BACK UNTOUCHED, so a caller cannot tell \"fitted\"\nfrom \"never measured\" by looking for the marker — it appears only when\nsomething was actually removed.\n\n\"..\" rather than a single \"…\": the ellipsis is one code point but several\nbytes, and a marker whose own width is ambiguous is the wrong thing to measure\na truncation with.\n\n⚠ CUTS BY CHARACTERS.  This shipped in B1m as `s[0..keep]`, a BYTE range given\na character count — safe, because loft snaps a byte cut outward to a character\nboundary, but wrong: a non-ASCII label came back shorter than it needed to be.\nB2's `take_chars` is the cure and the trap is the same one wrapping has."
+            },
+            {
+              "sig": "pub fn take_chars(s: text, n: integer) -> text",
+              "doc": "The first `n` CHARACTERS of `s`.  The cure for the trap above, and public\nbecause every caller that slices text by a measured count needs it.\nExample: @TXD-002"
+            },
+            {
+              "sig": "pub fn wrap(self: const Metrics, s: text, px: integer) -> vector<text>",
+              "doc": "Break `s` into lines that each fit `px`, greedily, on measured advances.\n\n⚠ A LINE ALWAYS TAKES AT LEAST ONE CHARACTER.  In a box narrower than the\nnarrowest glyph the alternatives are an infinite loop or dropping the text,\nand a line that overflows and says so is better than either.\n\n⚠ AND THE RESULTING TABLE IS PER TARGET.  Native measures a real TTF, the\nbrowser measures whatever family resolved, so the same string breaks in\ndifferent places.  The invariant that travels is self-consistency: every line\nhere fits the box THESE metrics measured."
+            },
+            {
+              "sig": "pub fn align_x(self: const Metrics, line: text, bx: integer, bw: integer, align: integer) -> integer",
+              "doc": "Where to start drawing `line` inside a box at `bx` of width `bw`.\n\n⚠ A LINE WIDER THAN ITS BOX STARTS AT THE BOX.  Centring or right-aligning it\narithmetically would push its beginning off the left edge, where it cannot be\nclipped back into view — overflow to the right is recoverable, overflow to the\nleft loses the start of the text."
+            }
+          ],
+          "published": "2026-10-02T04:46:07Z"
         }
       }
     },
