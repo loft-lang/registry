@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-02T08:00:04Z",
+  "updated": "2026-10-02T08:16:50Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -21476,6 +21476,23 @@
             }
           ],
           "published": "2026-08-29T18:45:34Z"
+        },
+        "0.1.2": {
+          "url": "https://github.com/loft-lang/loft-libs-docs/releases/download/html-v0.1.2/html-0.1.2.tar.gz",
+          "sha256": "4fdd42ca26ecebd04f1e25ea59c7a302ea12b354deecb925e639affb50d9be51",
+          "size": 7370,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "html",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn escape_html(self: text) -> text",
+              "doc": "HTML-escape the standard five entities for safe interpolation\ninto HTML output:\n\n&  →  &amp;\n<  →  &lt;\n>  →  &gt;\n\"  →  &quot;\n'  →  &#x27;\n\nUse whenever user-supplied text gets dropped into an HTML\nelement body or attribute value.  Each character is replaced\nonce, in one pass, so the entities it writes are not escaped\nagain within the call — but a second call escapes them.\nExample: @HTM-001 — escape once, where the text enters markup.\nExample: @HTM-002 — a single-quoted attribute stays closed."
+            }
+          ],
+          "published": "2026-10-02T08:16:45Z"
         }
       }
     },
@@ -22111,6 +22128,47 @@
             }
           ],
           "published": "2026-09-09T23:09:01Z"
+        },
+        "0.2.4": {
+          "url": "https://github.com/loft-lang/loft-libs-docs/releases/download/markdown-v0.2.4/markdown-0.2.4.tar.gz",
+          "sha256": "1ca665f0c796bf2dd750675c28a7491e45b6af1f370a472a8ed2ceafdee319cb",
+          "size": 27898,
+          "loft": ">=2026.7.2",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "markdown",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn html_escape(s: text) -> text",
+              "doc": "Make text safe to put inside markup: `&`, `<`, `>` and `\"` become entities.\n\n⚠ `'` IS NOT ESCAPED, so the result is safe in a double-quoted attribute and\nin element text, but not in a single-quoted one.  Quote attributes with `\"`.\nExample: @MKD-003 — a single-quoted attribute is broken by the value's own `'`."
+            },
+            {
+              "sig": "pub fn render(source: text, base_dir: text, tag_url_prefix: text, image_url_prefix: text) -> text",
+              "doc": "Render markdown to HTML — the entry point, and the only one most callers need.\nThe three prefixes each switch off with `\"\"`, so the plainest possible call is\n`render(src, \"\", \"\", \"\")`; see the header for what each one turns on.\nExample: @MKD-001 — a non-empty `base_dir` routes relative links through `/file/`."
+            },
+            {
+              "sig": "pub fn slugify(heading: text) -> text",
+              "doc": "A heading's anchor id, by GitHub's rules — lower-cased, spaces to hyphens,\npunctuation dropped.  `render` puts this on every heading, so a caller\nbuilding its own table of contents uses this to get links that match."
+            },
+            {
+              "sig": "pub fn render_inline(src: text, base_dir: text, tag_url_prefix: text, image_url_prefix: text) -> text",
+              "doc": "Render only the INLINE constructs — bold, code, links, images — with no\nparagraph or block wrapper.  What a title, a table cell or a tooltip wants,\nwhere `render` would wrap the result in `<p>`."
+            },
+            {
+              "sig": "pub fn rewrite_link(url: text, base_dir: text) -> text",
+              "doc": "Resolve one relative URL the way a link in the body would be: joined onto\n`base_dir` and routed through `/file/`.  Absolute URLs and anchors are left\nalone — a scheme, an anchor, and a root-relative `/...` are all already\nabsolute.  For a caller that builds its own navigation and needs it to agree\nwith the links inside the rendered page.\nExample: @MKD-001"
+            },
+            {
+              "sig": "pub struct Heading { level: integer, text: text, slug: text }",
+              "doc": "One heading of a document: its level (1..6), its raw text, and its anchor slug."
+            },
+            {
+              "sig": "pub fn extract_headings(source: text) -> vector<Heading>",
+              "doc": "Extract every heading from `source` in source order — both\nATX (`# Title`) and setext (`Title\\n===` / `Title\\n---`).\nEach entry carries the level (1..6), the heading's plain\ntext (BEFORE inline rendering — the caller can pass it\nthrough render_inline if needed), and a GitHub-compatible\nslug (the same one the rendered headings get as `id=`).\n\nUseful for building an in-page table of contents: walk the\nreturned vector, indent by `level`, link each entry to\n`#<slug>`.\nExample: @MKD-002 — raw text, and the slug `render` puts on the heading."
+            }
+          ],
+          "published": "2026-10-02T08:16:50Z"
         }
       }
     },
