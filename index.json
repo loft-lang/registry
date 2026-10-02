@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-02T07:39:25Z",
+  "updated": "2026-10-02T07:47:12Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -37085,6 +37085,262 @@
             }
           ],
           "published": "2026-10-02T03:03:16Z"
+        },
+        "0.4.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/drawing-v0.4.0/drawing-0.4.0.tar.gz",
+          "sha256": "de20e1e83f1c0752a7feffaaab6c3755cfc77308b54a70d796f1c6012b11a6a7",
+          "size": 86373,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.4.0",
+          "data_compatible_with": "0.4.0",
+          "subpath": "drawing",
+          "deps": {
+            "graphics": ">=0.8.0",
+            "imaging": ">=0.3.2"
+          },
+          "api": [
+            {
+              "sig": "pub struct Brush { bname: text = \"\", bw: integer = 0, bh: integer = 0, period: float = 0.0, img: vector<integer> }",
+              "doc": "A footprint: `bw` columns across the stroke, `bh` rows along it, packed\n0xAARRGGBB, tiled every `period` canvas px along the stroke.  Column 0 lands on\nthe stroke's RIGHT side walking root→tip (`flip` mirrors it)."
+            },
+            {
+              "sig": "pub struct LockStyle { w0: float = 2.0, w: float = 10.0, swell: float = 0.3, body: float = 0.8, tips: integer = 3, tipvar: float = 0.35, spread: float = 8.0, seed: integer = 1, period: float = 48.0, dark: integer = 0, base: integer = 0, lit: integer = 0, lx: float = -0.5, ly: float = -0.8, lz: float = 0.6, alpha: float = 1.0, flip: boolean = false }",
+              "doc": "Everything a `Lock` line says past its points.  Widths and `period` are in\ncanvas px here and scaled to the supersampled canvas by `scaled` at the raster\ncall, like every other mark."
+            },
+            {
+              "sig": "pub struct Layer { x0: integer = 0, y0: integer = 0, lw: integer = 0, lh: integer = 0, px: vector<integer> }",
+              "doc": "A stroke as a layer over the canvas: `px` is `lw × lh` packed 0xAARRGGBB placed\nat `(x0, y0)`; `lw == 0` means the stroke painted nothing."
+            },
+            {
+              "sig": "pub fn scaled(st: const LockStyle, k: float) -> LockStyle",
+              "doc": "The style with its canvas-px lengths scaled by `k` — the supersample factor."
+            },
+            {
+              "sig": "pub fn hair_brush(bw: integer, bh: integer, seed: integer, gap: float) -> vector<integer>",
+              "doc": "The built-in split-bristle footprint.  Columns group into channels 1..3 px\nwide, each a bristle with its own value; a `gap` fraction are thin translucent\nstrands that FADE OUT along the run (the broken parallel streaks a worn brush\nlays); the outermost columns are soft so the silhouette frays.  Greyscale\nvalue × alpha — the stroke's colour ramp multiplies in at resolve time.\n@FR-Brush-Image — the built-in footprint."
+            },
+            {
+              "sig": "pub fn load_brush(path: text, bname: text, period: float) -> Brush",
+              "doc": "An authored footprint from a PNG: rows along the stroke, columns across.\n`bw == 0` when the file could not be read.  `period` 0 means one row per\ncanvas px — the image's own height."
+            },
+            {
+              "sig": "pub fn lock_layer(xs: const vector<float>, ys: const vector<float>, cw: integer, ch: integer, br: const Brush, st: const LockStyle) -> Layer",
+              "doc": "Drag brush `br` along the pixel path (`xs`, `ys`) as a lock styled by `st`\n(pixel units), answering the stroke as a layer clipped to the `cw × ch`\ncanvas — `lw == 0` when it paints nothing.\n@FR-Brush-Ramp (the resolve) · @FR-Oracle-Order (expression for expression the oracle's)"
+            },
+            {
+              "sig": "pub fn composite_layer(cv: graphics::Canvas, lay: const Layer)",
+              "doc": "Alpha-OVER the layer onto the canvas, straight alpha, in the integer\narithmetic the oracle uses — `(s·a·255 + d·A·(255−a) + ½) / (a·255 + A·(255−a))`\nper channel, so an opaque ground and a transparent sprite are one formula.\n@FR-Brush-Over"
+            },
+            {
+              "sig": "pub enum PaintKind { Stroked, Solid, Linear, Radial }",
+              "doc": "How a mark is filled, if it is filled at all."
+            },
+            {
+              "sig": "pub struct Paint { pk: PaintKind = Stroked, c1: integer = 0, c2: integer = 0, spec: vector<float> }",
+              "doc": "A mark's fill descriptor.\n\n`Stroked` is the absence of a fill, not a fill of nothing: it is what sends a\n`Poly` down the pen path instead of the polygon path, and the two produce\ncompletely different pictures from the same points."
+            },
+            {
+              "sig": "pub enum OpKind { Sky, Fill, Stroke, Lock }",
+              "doc": "What an op does.  `Lock` is the brush stroke — see [brush.loft](brush.loft)."
+            },
+            {
+              "sig": "pub struct Op { kind: OpKind = Sky, pts: vector<raster::Pt>, paint: Paint, widths: vector<float>, w: integer = 3, color: integer = 0, color2: integer = 0, style: brush::LockStyle, brush: integer = -1 }",
+              "doc": "One entry in the ordered draw program.\n\n⚠ `pts` are FRACTIONS of the paper (0..1, origin top-left, y down), never\npixels.  The scale to pixels happens once, at the raster call, because the\npaper size is a property of the scene and the supersample factor is a\nproperty of the renderer — neither belongs in a parsed mark.  @FR-Scene-Fraction"
+            },
+            {
+              "sig": "pub struct Elem { ename: text = \"\", seen: boolean = false, bx0: float = 0.0, by0: float = 0.0, bx1: float = 0.0, by1: float = 0.0, first_at: integer = -1 }",
+              "doc": "A named group of marks and the box they cover, in paper fractions."
+            },
+            {
+              "sig": "pub struct Landmark { lname: text = \"\", lvalue: float = 0.0 }",
+              "doc": "A `landmark <name> = <value>` line."
+            },
+            {
+              "sig": "pub struct Sketch { sw: integer = 800, sh: integer = 800, transparent: boolean = false, ops: vector<Op>, elems: vector<Elem>, landmarks: vector<Landmark>, checks: vector<text>, unparsed: vector<text>, deferred: vector<text>, brushes: vector<brush::Brush>, base_dir: text = \"\" }",
+              "doc": "A parsed scene: the paper, the ordered draw program, and everything the\nparser could measure or could not accept.\n\n⚠ NOT called `Scene`: `mesh3d::Scene` owns that name and `graphics` depends on\nmesh3d, so the collision is a hard error — the same trap `graphics::Coord`\nhit with `Point`.  Reach for `Sketch` in `.draw` code and the 3-D names stay\nwhere they belong.\nExample: @DRW-002"
+            },
+            {
+              "sig": "pub fn grey(gl: float) -> integer",
+              "doc": "A grey level in 0..1 as an opaque colour, rounded HALF TO EVEN.\n\nPython's `round` is half-to-even and `draw.py` uses it here, so `fill=0.5`\nis 128 and not 127 — a difference of one level that no eye would find and a\nbyte diff would."
+            },
+            {
+              "sig": "pub struct PointList { pts: vector<raster::Pt>, smooth: vector<boolean>, widths: vector<float>, has_width: vector<boolean>, any_width: boolean = false }",
+              "doc": "Every `(x,y)` on a line, with the two suffixes a point may carry."
+            },
+            {
+              "sig": "pub fn read_points(s: text) -> PointList",
+              "doc": "`\\(\\s*(n)\\s*,\\s*(n)\\s*\\)\\s*(~?)\\s*(?:@\\s*(n))?`, found repeatedly along the line.\n\nScanning for points rather than splitting the line is what lets the same\ngrammar carry options: `rgb=140,104,62` has no parentheses, so it is not a\npoint, and no separator has to be agreed between the two."
+            },
+            {
+              "sig": "pub fn circle_pts(cx: float, cy: float, r: float, n: integer, flat: float, pw: integer, ph: integer) -> vector<raster::Pt>",
+              "doc": "The outline of a `Circle`, as `draw.py` builds it: `n` segments round the\ncentre with the FIRST point repeated at the end, so the polygon closes\nitself and Pillow adds no edge of its own.\n\n`flat` squashes the vertical radius; the `W/H` factor keeps the circle round\non non-square paper, since the coordinates are fractions of each axis."
+            },
+            {
+              "sig": "pub fn smooth_applies(pts: const vector<raster::Pt>, flags: const vector<boolean>) -> boolean",
+              "doc": "Does this outline curve at all?  Fewer than three points, or no `~`, and the\ncontrol points ARE the polyline — which is what keeps a plain `Poly`\nunchanged."
+            },
+            {
+              "sig": "pub fn smooth_pts(pts: const vector<raster::Pt>, flags: const vector<boolean>, closed: boolean) -> vector<raster::Pt>",
+              "doc": "Expand control points to a dense polyline.  @FR-Mark-Smooth\n\nA point flagged `~` curves (its tangent is half the neighbour chord); a\ncorner uses the segment chord, which makes that segment exactly straight.  So\none outline mixes straight runs and curves, and a segment between two corners\nis a line however many `~` the rest of the outline has."
+            },
+            {
+              "sig": "pub fn smooth_vals(vals: const vector<float>, closed: boolean) -> vector<float>",
+              "doc": "The per-point widths carried across the same expansion, interpolated linearly."
+            },
+            {
+              "sig": "pub fn parse_scene(src: text) -> Sketch",
+              "doc": "Parse a whole `.draw` source.\n\nThe command order below is `draw.py`'s, and it is not alphabetical or\ntidy — `Circle` is tried before `Poly`, `Line` last of all.  Keep it: a\ngrammar this loose is defined by the order its alternatives are tried in,\nand re-sorting it silently re-reads lines that sit in two alternatives.\n@FR-Scene-Order\nExample: @DRW-001"
+            },
+            {
+              "sig": "pub fn parse_scene_at(src: text, base: text) -> Sketch",
+              "doc": "`parse_scene` for a scene that lives in a directory: `base` is what a\n`Brush … file=` path is relative to."
+            },
+            {
+              "sig": "pub struct Check { claim: text = \"\", ok: boolean = false, lhs: float = 0.0, rhs: float = 0.0, tol: float = 0.02, err: text = \"\", report: text = \"\" }",
+              "doc": "One evaluated `check` line."
+            },
+            {
+              "sig": "pub fn eval_check(sk: const Sketch, raw: text) -> Check",
+              "doc": "One `check` line, measured — `draw.py`'s `eval_check`, verdict for verdict."
+            },
+            {
+              "sig": "pub fn eval_checks(sk: const Sketch) -> vector<Check>",
+              "doc": "Every `check` the scene states, measured.\nExample: @DRW-003"
+            },
+            {
+              "sig": "pub fn scene_ok(sk: const Sketch, results: const vector<Check>) -> boolean",
+              "doc": "Did the scene come out whole — every line understood, every mark drawn, every\ncheck passing?  This is what `--once` exits on.\n\nA DEFERRED mark counts as a failure, where `draw.py` has no such notion: a\nmark this build recognises and does not draw means the picture is short of\nsomething the scene asked for, and a renderer that answers \"fine\" to that is\nthe one thing this channel exists to prevent."
+            },
+            {
+              "sig": "pub fn metric_report(sk: const Sketch, results: const vector<Check>) -> text",
+              "doc": "The metric report: what did not parse, where every named element sits, and\nhow each check came out.\n\n`draw.py`'s `stats.txt` blocks, in its spelling, minus the two that are\npictures of the render (the density map and the composition notes) —\nthis channel measures the SCENE, and a picture already has a diff."
+            },
+            {
+              "sig": "pub fn render(sc: const Sketch) -> graphics::Canvas",
+              "doc": "Draw a parsed scene: at `SUPERSAMPLE`x, then resampled down with Lanczos.\n\nA transparent background renders on transparent pixels so the resample\nanti-aliases edges against ALPHA rather than against white — which is what\nmakes the result a sprite that can be composited over anything, with no\ncolour-key hack.  @FR-Raster-Transparent · @FR-Mark-Deposit (fills and strokes\noverwrite; only `Lock` composites, through `brush`)."
+            },
+            {
+              "sig": "pub fn render_file(src: text, out: text) -> Sketch",
+              "doc": "Render a `.draw` file to a PNG, answering the parsed scene so the caller can\nreport what it could not accept.  A `Brush … file=` in it resolves against the\nscene's own directory."
+            },
+            {
+              "sig": "pub fn hash01(hseed: integer, hidx: integer, hsalt: integer) -> float",
+              "doc": "A reproducible pseudo-random float in [-1, 1) from three small non-negative\nintegers — `noise::seed_hash`, kept under this name because the corpus is\ndefined by it.  (Public names are one namespace across a package's modules,\nwhich is why the implementation carries a different one.)  @FR-Seed-Hash"
+            },
+            {
+              "sig": "pub fn lowfreq(lseed: integer, lu: float) -> float",
+              "doc": "A smooth low-frequency wave over [0,1] — `noise::seed_wave`."
+            },
+            {
+              "sig": "pub struct Frond { fpts: vector<raster::Pt>, fwid: vector<float> }",
+              "doc": "One frond: a centreline in paper fractions and a width per point."
+            },
+            {
+              "sig": "pub struct FrondSpec { count: integer = 8, len1: float = 0.1, len2: float = 0.1, wid1: float = 3.0, wid2: float = 3.0, ang1: float = 30.0, ang2: float = 30.0, mirror: boolean = false, jitter: float = 0.5, clump: float = 0.6, fray: float = 0.4, bow: float = 0.0, seed: integer = 1, depth: integer = 1, sub: float = 0.32 }",
+              "doc": "Everything a `Fronds` line says about the array, past its two endpoints.\n\nA struct rather than twenty parameters, because the fractal recursion builds a\nMODIFIED copy of it — a parameter list that long is one a caller gets wrong in\norder, and the recursion is the caller."
+            },
+            {
+              "sig": "pub fn fronds(x1: float, y1: float, x2: float, y2: float, sp: const FrondSpec, pw: integer, ph: integer) -> vector<Frond>",
+              "doc": "A linear array of tapered strokes rooted along the spine `(x1,y1)-(x2,y2)`.\n@FR-Seed-NonUniform\n\nEvery frond is the same template placed at `u` along the spine and tilted off\nthe normal, then made NON-UNIFORM three ways at once: placement clumps on the\nseeded low-frequency field, length / width / angle ramp along the run and are\nthen jittered per frond, and the ends FRAY. Zero all three and it is a comb.\n\n⚠ `mirror` reuses the SAME sample on both sides — length, angle and width are\ndrawn once, outside the side loop, and reflected. Drawing them per side would\nconsume the hash twice as fast and desynchronise every frond after the first.\n\nBuilt in PIXEL space and handed back in fractions, so the array stays correct\non non-square paper."
+            },
+            {
+              "sig": "pub fn seed_hash(hseed: integer, hidx: integer, hsalt: integer) -> float",
+              "doc": "A reproducible pseudo-random float in [-1, 1) from three small non-negative\nintegers.\n\n⚠ NOT a PRNG, and deliberately not the `random` package. `draw.py` says so in\nits own docstring — *\"never random()/hash() (those break reproducible\nrenders)\"* — and the corpus is defined by THIS hash: swap in PCG-64 and every\njittered frond moves, so the substitution fails the gate it was meant to help\npass.\n\nThree details are load-bearing. The masking is 32-bit throughout, and the\nwidest product it forms (`0xFFFFFFFF * 1274126177`) is 5.47e18 — inside i64 by\na hair, so this needs no widening but has none to spare. And the final divide\nis a REAL division: `x / 0xFFFFFFFF` in integer arithmetic is 0 for every input\nand would give a perfectly smooth, entirely wrong field.\n@FR-Seed-Hash"
+            },
+            {
+              "sig": "pub fn seed_wave(lseed: integer, lu: float) -> float",
+              "doc": "A smooth low-frequency wave over [0,1], two harmonics with seed-derived phases.\n\nSmooth in `u` is the point: neighbouring fronds see nearby values, so they\nCLUMP and leave gaps. White noise would scatter them evenly, which reads as\nman-made — the opposite of what this is for.  Periodic in `u`, which is what\nlets a brush footprint tile along a stroke without a seam.\n@FR-Seed-NonUniform — the field an array clumps on."
+            },
+            {
+              "sig": "pub struct Pt { ptx: float, pty: float }",
+              "doc": "A point in canvas pixels, before Pillow truncates it to a whole pixel.\n\nThe truncation is `(int)` on a C double — toward ZERO, so `-0.4` lands on 0\nand not on -1.  Keep coordinates fractional right up to the rasteriser and\nthe port and the oracle round the same way."
+            },
+            {
+              "sig": "pub fn pt(px: float, py: float) -> Pt",
+              "doc": "Build a point without spelling the field names."
+            },
+            {
+              "sig": "pub fn round_up(ru_v: float) -> integer",
+              "doc": "`ROUND_UP` from `Draw.c` — half AWAY from zero.\n\nNot `floor(f + 0.5)`: the sign lives outside, so the negative side mirrors\nthe positive one exactly (`ROUND_UP(-0.5)` is -1, not 0)."
+            },
+            {
+              "sig": "pub fn round_down(rd_v: float) -> integer",
+              "doc": "`ROUND_DOWN` from `Draw.c` — `ceil(f - 0.5)`, mirrored about zero.\n\nThe mirroring is the whole subtlety: `ROUND_DOWN(-0.45)` is **0**, because\nthe `ceil` runs on `|f| - 0.5` and the sign is applied afterwards.  Take the\nobvious `ceil(-0.95)` instead and a span that should end on column 0 ends on\ncolumn -1, which clips away and draws nothing."
+            },
+            {
+              "sig": "pub fn fill_poly(cv: graphics::Canvas, pts: const vector<Pt>, ink: integer)",
+              "doc": "Fill a polygon the way `ImageDraw.polygon(pts, fill=…)` does.\n\nThe outline closes itself only when the last point is not already the first —\na circle handed in with its start repeated gets no extra edge, which is how\n`draw.py` passes one."
+            },
+            {
+              "sig": "pub fn wide_line(cv: graphics::Canvas, wx0: float, wy0: float, wx1: float, wy1: float, ink: integer, wwidth: integer)",
+              "doc": "One thick segment, the way `ImageDraw.line(…, width=w)` draws it for `w > 1`.\n\nPillow does not stroke — it builds a four-cornered quad around the segment\nand fills that, with the two half-widths rounded APART (`ROUND_UP` one side,\n`ROUND_DOWN` the other) so an even width still lands on whole pixels.  A\npolyline is therefore a series of independent quads with no joins, and the\noverlap at a bend is what rounds the corner."
+            },
+            {
+              "sig": "pub fn thin_line(cv: graphics::Canvas, pts: const vector<Pt>, ink: integer)",
+              "doc": "`line32` from `Draw.c` — Bresenham, and it stops one pixel SHORT of the end.\n\n`draw_lines` puts that missing pixel back after the last segment, which is\nwhy this is a polyline call rather than a segment one: split it into\nsegments and each one grows a pixel Pillow never drew."
+            },
+            {
+              "sig": "pub struct Scan { ok: boolean, at: integer, value: float }",
+              "doc": "A parse position and what was read there.\n\nA scan either lands (`ok`) or does not, and the caller needs BOTH the value\nand where to carry on from, so every reader answers all three at once."
+            },
+            {
+              "sig": "pub fn scan_fail() -> Scan",
+              "doc": "The did-not-land answer, which every reader below returns when it cannot\nmatch.  A caller tests `ok` and never has to know a sentinel position."
+            },
+            {
+              "sig": "pub fn is_digit(b: integer) -> boolean",
+              "doc": "A regex `[0-9]`, ASCII only — which costs nothing here, because a `.draw`\ncommand line is ASCII by construction."
+            },
+            {
+              "sig": "pub fn is_word_byte(b: integer) -> boolean",
+              "doc": "A regex `\\w`: letters, digits and underscore."
+            },
+            {
+              "sig": "pub fn is_space_byte(b: integer) -> boolean",
+              "doc": "A regex `\\s`: space, tab, and the line endings a stray `\\r` leaves behind."
+            },
+            {
+              "sig": "pub fn at(s: text, i: integer) -> integer",
+              "doc": "The byte at `i`, or -1 past either end — a value no byte can take, so a\ncaller never has to bound-check before asking."
+            },
+            {
+              "sig": "pub fn lower_byte(b: integer) -> integer",
+              "doc": "ASCII lowercase of one byte."
+            },
+            {
+              "sig": "pub fn skip_space(s: text, i: integer) -> integer",
+              "doc": "Past any run of spaces starting at `i`."
+            },
+            {
+              "sig": "pub fn matches_at(s: text, i: integer, word: text) -> boolean",
+              "doc": "Does `s` carry `word` at byte `i`, ignoring case?  (`word` must be lowercase.)"
+            },
+            {
+              "sig": "pub fn word_boundary(s: text, i: integer) -> boolean",
+              "doc": "A regex `\\b` before byte `i`: position 0, or a non-word byte to the left."
+            },
+            {
+              "sig": "pub fn read_number(s: text, i: integer) -> Scan",
+              "doc": "A regex `([-\\d.]+)` — a run of digits, dots and minus signs, read as a number.\n\nThe character class is what `draw.py` writes, so this is deliberately loose:\nthe run is taken first and converted second, and a run that is not a number\nfails the scan rather than being silently read as zero."
+            },
+            {
+              "sig": "pub fn read_unsigned(s: text, i: integer) -> Scan",
+              "doc": "A regex `([\\d.]+)` — digits and dots, no sign."
+            },
+            {
+              "sig": "pub fn read_uint(s: text, i: integer) -> Scan",
+              "doc": "A regex `(\\d+)` — digits only."
+            },
+            {
+              "sig": "pub fn find_option(s: text, key: text) -> Scan",
+              "doc": "The first `\\b<key>\\s*=\\s*` on the line, answering where its VALUE starts.\n\nThis is the shape every option regex in `draw.py` opens with, and the\nword-boundary is load-bearing rather than decorative: without it `w=` would\nalso be found inside `w2=`, which is a different option with a different\nmeaning.  `key` must be lowercase; the match is not."
+            },
+            {
+              "sig": "pub fn find_word_from(s: text, word: text, start: integer) -> Scan",
+              "doc": "The first occurrence of a lowercase `word` at or after `start`, ignoring case\n— a regex literal with no boundary condition, which is what `Circle` and\n`Line` open with.\n\nThe `start` is what makes a failed parse behave like `re.search`: a command\nwhose first occurrence does not parse is retried from the NEXT one rather\nthan given up on."
+            }
+          ],
+          "published": "2026-10-02T07:47:12Z"
         }
       }
     },
