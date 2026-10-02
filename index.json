@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-02T01:48:28Z",
+  "updated": "2026-10-02T02:37:57Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -2135,6 +2135,83 @@
             }
           ],
           "published": "2026-09-29T06:10:35Z"
+        },
+        "0.5.2": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/shapes-v0.5.2/shapes-0.5.2.tar.gz",
+          "sha256": "3b3898c6eb2e6ea2df9f3c47d4bfdda52b55f2a951ac81e8a4d961ae177bd173",
+          "size": 10100,
+          "loft": ">=2026.7.2",
+          "api_compatible_with": "0.3.0",
+          "data_compatible_with": "0.3.0",
+          "subpath": "shapes",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Rect { rx: float, ry: float, rw: float, rh: float }",
+              "doc": "Axis-aligned bounding box for 2D collision."
+            },
+            {
+              "sig": "pub struct Circle { cx: float, cy: float, cr: float }",
+              "doc": "Circle shape for 2D collision."
+            },
+            {
+              "sig": "pub fn rects_overlap(a: const Rect, b: const Rect) -> boolean",
+              "doc": "Test whether two axis-aligned rectangles overlap.\nThe comparison is STRICT, so rectangles sharing an edge do NOT overlap.\nExample: @SHP-001 — touching is not overlapping, and what that buys: a row of\nabutting tiles is quiet, and a mover pushed out by exactly its penetration\ndepth is done."
+            },
+            {
+              "sig": "pub fn circles_overlap(a: const Circle, b: const Circle) -> boolean",
+              "doc": "Test whether two circles overlap.\nStrict, like `rects_overlap`: tangent circles do NOT overlap.\nExample: @SHP-001 — the shared strict boundary across all three predicates."
+            },
+            {
+              "sig": "pub fn rect_circle_overlap(r: const Rect, c: const Circle) -> boolean",
+              "doc": "Test whether a rectangle and a circle overlap.\nA true circle test — the circle's bounding box is NOT a substitute for it, and\na circle wholly inside the rectangle counts as overlapping.\nExample: @SHP-003 — where the box approximation disagrees (every corner), and\nwhy containment answers true."
+            },
+            {
+              "sig": "pub struct Overlap { ox: float, oy: float }",
+              "doc": "Overlap depth between two rectangles on each axis."
+            },
+            {
+              "sig": "pub fn rect_overlap_depth(a: const Rect, b: const Rect) -> Overlap",
+              "doc": "Compute the overlap depth between two rectangles on each axis: how far one must\nmove along that axis to stop overlapping, the smaller of the two ways out — not\nhow much of it lies inside the other.\nBoth depths are UNSIGNED distances — the caller derives the direction from the\nrelative positions.  Returns (0.0, 0.0) when they don't overlap.\nUseful for bounce direction: if ox < oy → horizontal bounce.\nExample: @SHP-002 — the sign is the caller's to work out (applying it the wrong\nway pushes deeper), and the smaller axis is the minimal correction."
+            },
+            {
+              "sig": "pub fn aabb_overlap(ax: float, ay: float, aw: float, ah: float, bx: float, by: float, bw: float, bh: float) -> boolean",
+              "doc": "Test AABB overlap using raw coordinates (no struct allocation — safe in loops).\nSame strict boundary as `rects_overlap`.\nExample: @SHP-001 — touching is not overlapping, raw form included."
+            },
+            {
+              "sig": "pub fn aabb_depth_x(ax: float, ay: float, aw: float, ah: float, bx: float, by: float, bw: float, bh: float) -> float",
+              "doc": "Compute the AABB overlap depth on the X axis using raw coordinates —\n`aabb_depth_y` is the other half of the pair, and each call re-runs the overlap\ntest on its own.  Unsigned, like `rect_overlap_depth`.  `0.0` means the two do\nnot overlap AT ALL (a real overlap always penetrates by strictly more than\nzero), not \"they meet with no penetration on this axis\".\nSafe in loops (no struct allocation).\nExample: @SHP-002 — the depth pair, its 0.0 sentinel, and how a caller turns it\ninto a correction."
+            },
+            {
+              "sig": "pub fn aabb_depth_y(ax: float, ay: float, aw: float, ah: float, bx: float, by: float, bw: float, bh: float) -> float",
+              "doc": "Compute the AABB overlap depth on the Y axis using raw coordinates — the other\nhalf of the `aabb_depth_x` pair, with the same unsigned `0.0`-is-no-overlap\ncontract.  Safe in loops (no struct allocation).\nExample: @SHP-002 — the depth pair, its 0.0 sentinel, and how a caller turns it\ninto a correction."
+            },
+            {
+              "sig": "pub struct Proxy { boxes: vector<Rect> }",
+              "doc": "A shape approximated by a SET of boxes rather than one.\n\nA sprite's silhouette is rarely a rectangle, and a single bounding box around\na diagonal or an L is mostly empty — a mover well clear of the art still reads\nas a hit.  A handful of boxes tracks the silhouette closely enough to fix that\nwhile staying axis-aligned, so every test below is still the cheap one.\n\nThe contract a producer owes is CONTAINMENT: every box together must cover\neverything solid, so substituting the proxy for the art can only ever over-\nreport a hit, never miss one. A system validated against the proxy therefore\nstays valid when the art changes. Containment alone is satisfied by a\nscreen-sized box, which is why a producer also bounds the OVERSHOOT — see\n`overshoot`.\n\nMeasured over a 36-sprite corpus (@PLN146 F7a): 16 boxes banded along the\ntighter axis beat a convex hull on mean, median and worst case, and need no\nshape kind this library does not already have."
+            },
+            {
+              "sig": "pub fn proxy_hits(self: const Proxy, r: const Rect) -> boolean",
+              "doc": "Does anything in the proxy overlap `r`?\n\nThe set test every consumer would otherwise write, with the same STRICT\nboundary as `rects_overlap` — a box sharing an edge does not overlap.  An\nEMPTY proxy answers false: nothing solid was derived, so nothing can be hit,\nwhich is the answer that keeps a sprite with no opaque texels from colliding\nwith the world."
+            },
+            {
+              "sig": "pub fn proxies_overlap(self: const Proxy, other: const Proxy) -> boolean",
+              "doc": "Do two proxies overlap anywhere?\n\nPairwise, because a proxy is small by construction — 16 boxes against 16 is\n256 rect tests in the worst case and stops at the first hit.  Cull with the\ncheap `bounds()` box first when both are large."
+            },
+            {
+              "sig": "pub fn bounds(self: const Proxy) -> Rect",
+              "doc": "The single box containing every box in the proxy — the AABB it replaces.\n\nUseful as a broad-phase cull before `proxies_overlap`, and as the denominator\nwhen judging whether the proxy earned its extra boxes.  An empty proxy answers\na zero-size box at the origin."
+            },
+            {
+              "sig": "pub fn area(self: const Proxy) -> float",
+              "doc": "Total area of the proxy's boxes.\n\nBands from one derivation do not overlap, so for a banded proxy this is the\ncovered area exactly.  A proxy whose boxes DO overlap counts the shared part\ntwice, which overstates the area and therefore the overshoot — the honest\ndirection for a bound."
+            },
+            {
+              "sig": "pub fn overshoot(self: const Proxy, solid: float) -> float",
+              "doc": "How much bigger the proxy is than the thing it stands for, as a fraction.\n\n`solid` is the area actually covered by art — the opaque texel count for a\nsprite. `0.0` is exact, `1.0` is twice the size. This is the number a packer\ngates on, and the reason containment alone is not the contract: a\nscreen-sized box contains everything and is useless.\n\nA `solid` of zero or less answers `0.0` rather than dividing: there is nothing\nto be a multiple OF, and a null here would propagate into a comparison that\nthen silently passes.\n\nThe trailing `?` is not redundant with that guard.  A divide types `float?`\nwhatever the code above it proves, so without the discharge this returns a\nnull into a non-null `float` — which is the very failure the guard is there to\nprevent, arriving by the other door."
+            }
+          ],
+          "published": "2026-10-02T02:37:48Z"
         }
       }
     },
@@ -12160,6 +12237,47 @@
             }
           ],
           "published": "2026-09-29T06:10:23Z"
+        },
+        "0.4.2": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.4.2/imaging-0.4.2.tar.gz",
+          "sha256": "0a82d7724c915bea278c778e79066e68e2313ec75798bcd3eb01cd21476a6b21",
+          "size": 31535,
+          "loft": ">=0.8",
+          "api_compatible_with": "0.4.0",
+          "data_compatible_with": "0.3.0",
+          "subpath": "imaging",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Pixel { const r: integer limit(0, 255), const g: integer limit(0, 255), const b: integer limit(0, 255), const a: integer limit(0, 255) = 255 }",
+              "doc": "Data per pixel of a PNG image.\nFields r, g, b hold red, green and blue intensity and `a` holds opacity, each\n0–255.  The channels are const, so a pixel is REPLACED (`img.data[i] =\nPixel{…}`), never edited in place, and `limit(0, 255)` is a range rather than a\nclamp — a value outside it stores 0.\n\n**`a` defaults to 255, and the default is load-bearing.** An omitted field takes\nits type's zero, and zero alpha is INVISIBLE — so without the declared default\nevery `Pixel{r, g, b}` ever written would silently become fully transparent\n(loft#914's `omitted-field-zero` in its purest form).  With it, code that\npredates alpha keeps meaning what it meant: opaque.\nExample: @IMG-003 — replacing a pixel, and why the local you read it into is a\nview of its slot rather than a snapshot.\nExample: @IMG-004 — the range is not a clamp: doubling a bright channel stores\n0, so brightening turns the brightest pixels black."
+            },
+            {
+              "sig": "pub fn value(self: Pixel) -> integer",
+              "doc": "Returns the pixel colour as a packed 24-bit integer (0xRRGGBB).\nUse for fast colour comparison or storage.  Alpha is NOT in it — this is the\npre-alpha contract and stays 24-bit, so a comparison written against it keeps\nanswering what it answered.  For opacity read `p.a`, or `rgba()` for the packed\n32-bit form."
+            },
+            {
+              "sig": "pub fn rgba(self: Pixel) -> integer",
+              "doc": "Returns the pixel as a packed 32-bit integer (0xAARRGGBB) — the byte order\n`graphics::Canvas` uses, so a decoded image can be handed to a canvas without a\nper-channel loop at the call site."
+            },
+            {
+              "sig": "pub fn opaque(self: Pixel, cutoff: integer = 128) -> boolean",
+              "doc": "Is this texel opaque enough to count as covered?\n\nA collision proxy, a trim box and a colour key all want the same question, and\nthey want it with a THRESHOLD rather than `a == 255`: antialiased art has a\nfringe of partly-transparent texels that belong to the silhouette.  Default 128\n— half opacity — which is the midpoint of that fringe."
+            },
+            {
+              "sig": "pub struct Image { name: text, width: integer, height: integer, data: vector<Pixel> }",
+              "doc": "Database structure with image data.\nThe actual data is in height rows of width length: `data` is one FLAT vector in\nrow-major order, so the pixel at (x, y) is `data[y * width + x]`, and\n`len(data) == width * height` always holds on an image `png()` handed back.\nExample: @IMG-001 — the addressing rule, and what the null check buys."
+            },
+            {
+              "sig": "pub fn save_png(self: const Image, path: text) -> boolean",
+              "doc": "Write this image to a PNG file. Returns true on success."
+            },
+            {
+              "sig": "pub fn png(self: File) -> Image?",
+              "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
+            }
+          ],
+          "published": "2026-10-02T02:37:44Z"
         }
       }
     },
@@ -31342,6 +31460,133 @@
             }
           ],
           "published": "2026-10-01T12:45:39Z"
+        },
+        "0.4.3": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/text2d-v0.4.3/text2d-0.4.3.tar.gz",
+          "sha256": "48accf5e68562e88ce93b59a2e3d7adb69a78ef068b86945e9bdd0469020e7f3",
+          "size": 21213,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.4.0",
+          "data_compatible_with": "0.4.0",
+          "subpath": "text2d",
+          "deps": {
+            "graphics": ">=0.5.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn face_codes() -> vector<integer>",
+              "doc": "The codepoints, ascending — `face_row` bisects this."
+            },
+            {
+              "sig": "pub fn face_rows() -> vector<integer>",
+              "doc": "Seven rows per glyph, in the same order as `face_codes`."
+            },
+            {
+              "sig": "pub fn blit_glyph(cv: graphics::Canvas, code: integer, x: integer, y: integer, colour: integer, scale: integer)",
+              "doc": "Blit one codepoint's glyph with its top-left at (x, y).  Shared by the direct\nblitter and by the atlas, so the bit-walk has ONE home and the two can never\ndisagree about what a glyph looks like."
+            },
+            {
+              "sig": "pub fn text_width(s: text, scale: integer) -> integer",
+              "doc": "Width in pixels of `s` at `scale`, INCLUDING the gap after every glyph but the\nlast — the ink extent.  Exact: it is what `write_text` answers, so the caller can\ncentre with it and be right.\nExample: @T2D-001"
+            },
+            {
+              "sig": "pub fn line_height(scale: integer) -> integer",
+              "doc": "Height of one line at `scale`."
+            },
+            {
+              "sig": "pub fn write_text(cv: graphics::Canvas, s: text, x: integer, y: integer, colour: integer, scale: integer) -> integer",
+              "doc": "⚠ NAMED `write_text`, NOT `draw_text`.  `graphics` already has `draw_text` as a\nMETHOD on `Canvas`, and a name has one body per receiver type: a free\n`draw_text(cv: Canvas, …)` here would be refused as a redefinition of it.\n\nDraw `s` with its top-left at (x, y).  Answers the width drawn — `text_width(s,\nscale)`, 0 for an empty string — so a caller can lay out the next run without\nmeasuring twice.\n\n⚠ Iterates CHARACTERS, not bytes.  `len(text)` counts characters and an indexed\nread is bytes, so a byte loop truncates multi-byte text silently — the trap the\nstrict-index lint exists for.  A character with no glyph draws a blank of the\nsame width rather than being skipped, so a string never changes length because\none character was missing."
+            },
+            {
+              "sig": "pub fn write_centred(cv: graphics::Canvas, s: text, bx: integer, by: integer, bw: integer, bh: integer, colour: integer, scale: integer) -> integer",
+              "doc": "Draw `s` centred in the box (bx, by, bw, bh).  The commonest thing a HUD wants,\nand the commonest place an off-by-one lands."
+            },
+            {
+              "sig": "pub struct Atlas { a_cv: graphics::Canvas, a_codes: vector<integer>, a_scale: integer, a_cols: integer, a_next: integer, a_writes: integer }",
+              "doc": ""
+            },
+            {
+              "sig": "pub struct Quad { q_x: integer, q_y: integer, q_cell: integer }",
+              "doc": "One glyph placed on a line: where it goes, and which cell it comes from."
+            },
+            {
+              "sig": "pub fn atlas_new(scale: integer, capacity: integer) -> Atlas",
+              "doc": "A sheet with room for `capacity` glyphs at `scale`.  Shelf-packed in a grid,\nwhich is enough for a fixed-width face — a proportional one would want a real\npacker, and would still not change what the caller sees."
+            },
+            {
+              "sig": "pub fn atlas_glyph_count(self: const Atlas) -> integer",
+              "doc": "How many distinct glyphs the sheet holds.  It rises only when a code is met\nfor the FIRST time, so it measures what the atlas actually cost rather than\nhow much text has been drawn through it."
+            },
+            {
+              "sig": "pub fn atlas_writes(self: const Atlas) -> integer",
+              "doc": "How many times the sheet has been WRITTEN.  A GL consumer uploads on exactly\nthese, so a caller can assert that a changing label costs no upload — which is\nthe property the whole arc exists for.\nExample: @T2D-003"
+            },
+            {
+              "sig": "pub fn atlas_cell(self: Atlas, code: integer) -> integer",
+              "doc": "The cell holding `code`, rasterising it on first use.  -1 when the sheet is full."
+            },
+            {
+              "sig": "pub fn layout(self: Atlas, s: text, x: integer, y: integer) -> vector<Quad>",
+              "doc": "Lay a string out over the sheet.  Answers one quad per character; NOTHING is\nwritten to the sheet unless a character is new to it."
+            },
+            {
+              "sig": "pub fn draw_quads(cv: graphics::Canvas, atlas: const Atlas, quads: const vector<Quad>, colour: integer)",
+              "doc": "Blit laid-out quads from the sheet onto a canvas."
+            },
+            {
+              "sig": "pub struct Metrics { m_adv64: integer, m_line_h: integer, m_mono: boolean }",
+              "doc": "What the consumer measured.\n\n⚠ `m_mono` IS A FACT ABOUT THE FACE THAT RESOLVED, not the one that was asked\nfor.  Requesting `DejaVuSansMono.ttf` gives a fixed-pitch face on the desktop\nand a PROPORTIONAL fallback in the browser, because the browser resolves the\nbase name to a CSS family it does not know.  Only a measurement can tell."
+            },
+            {
+              "sig": "pub fn metrics_measured(wide_run: float, narrow_run: float, n: integer, line_h: integer) -> Metrics",
+              "doc": "Build metrics from two runs the consumer measured: `n` copies of a WIDE\ncharacter and `n` copies of a NARROW one.\n\n⚠ THE TWO RUNS ARE THE WHOLE INSTRUMENT, and one width cannot replace them.\nTen M's are ten M's in any font, so a single measurement gives the advance of\nan M and nothing about whether the face is fixed-pitch.  Two same-length,\nopposite-width strings answer it in one comparison.\n\nThe advance is taken from the WIDE run: under fixed pitch the two agree, and\nwhen they do not, the wider one is the safe basis for a fits-in-the-box\nquestion — it over-estimates rather than overflowing."
+            },
+            {
+              "sig": "pub fn metrics_builtin(scale: integer) -> Metrics",
+              "doc": "The built-in face's own metrics, so a layout written against this seam works\nwith no font file at all — the property `B0` exists for, carried forward."
+            },
+            {
+              "sig": "pub fn advance64(self: const Metrics) -> integer",
+              "doc": "The advance in 1/64 px, as measured."
+            },
+            {
+              "sig": "pub fn advance(self: const Metrics) -> integer",
+              "doc": "The advance in whole pixels, for a caller that wants to show it.\n\n⚠ DERIVED, NOT A SECOND FIELD.  One quantity stored twice is how two numbers\ndescribing one distance drift apart the moment either is edited."
+            },
+            {
+              "sig": "pub fn height(self: const Metrics) -> integer",
+              "doc": "The line height in pixels — what to advance y by between two lines."
+            },
+            {
+              "sig": "pub fn is_mono(self: const Metrics) -> boolean",
+              "doc": "Is the pitch fixed?  True is what makes `width` exact instead of an\nover-estimate, so a caller laying out columns can trust the number."
+            },
+            {
+              "sig": "pub fn width(self: const Metrics, s: text) -> integer",
+              "doc": "The ADVANCE width of `s` — what to reserve a box by.\n\n⚠ ROUNDED UP.  The residual is a fraction of a pixel per character, and the\nsafe direction to spend it is outwards: an over-estimate reserves a pixel too\nmany and the text still fits, an under-estimate spills out of a box that was\njust measured as fitting.  Exact under fixed pitch, an over-estimate\notherwise — the same reason the advance comes from the wide run.\n\nDistinct from `text_width`, which is the built-in face's INK extent: the two\ndiffer by the one trailing gap the ink extent leaves off, and they answer\ndifferent questions — centre by the ink, reserve by the advance."
+            },
+            {
+              "sig": "pub fn fits(self: const Metrics, s: text, px: integer) -> boolean",
+              "doc": "Does `s` fit in `px`?  Asks the ADVANCE width, which rounds outwards, so a\ntrue here means drawing it will not spill — the direction a caller needs.\n`fit_text` is what to reach for when the answer is no."
+            },
+            {
+              "sig": "pub fn fit_text(self: const Metrics, s: text, px: integer) -> text",
+              "doc": "The longest prefix of `s` that fits in `px`, with \"..\" marking the cut.\n\n⚠ AN UNTOUCHED STRING COMES BACK UNTOUCHED, so a caller cannot tell \"fitted\"\nfrom \"never measured\" by looking for the marker — it appears only when\nsomething was actually removed.\n\n\"..\" rather than a single \"…\": the ellipsis is one code point but several\nbytes, and a marker whose own width is ambiguous is the wrong thing to measure\na truncation with.\n\n⚠ CUTS BY CHARACTERS.  This shipped in B1m as `s[0..keep]`, a BYTE range given\na character count — safe, because loft snaps a byte cut outward to a character\nboundary, but wrong: a non-ASCII label came back shorter than it needed to be.\nB2's `take_chars` is the cure and the trap is the same one wrapping has."
+            },
+            {
+              "sig": "pub fn take_chars(s: text, n: integer) -> text",
+              "doc": "The first `n` CHARACTERS of `s`.  The cure for the trap above, and public\nbecause every caller that slices text by a measured count needs it.\nExample: @T2D-002"
+            },
+            {
+              "sig": "pub fn wrap(self: const Metrics, s: text, px: integer) -> vector<text>",
+              "doc": "Break `s` into lines that each fit `px`, greedily, on measured advances.\n\n⚠ A LINE ALWAYS TAKES AT LEAST ONE CHARACTER.  In a box narrower than the\nnarrowest glyph the alternatives are an infinite loop or dropping the text,\nand a line that overflows and says so is better than either.\n\n⚠ AND THE RESULTING TABLE IS PER TARGET.  Native measures a real TTF, the\nbrowser measures whatever family resolved, so the same string breaks in\ndifferent places.  The invariant that travels is self-consistency: every line\nhere fits the box THESE metrics measured."
+            },
+            {
+              "sig": "pub fn align_x(self: const Metrics, line: text, bx: integer, bw: integer, align: integer) -> integer",
+              "doc": "Where to start drawing `line` inside a box at `bx` of width `bw`.\n\n⚠ A LINE WIDER THAN ITS BOX STARTS AT THE BOX.  Centring or right-aligning it\narithmetically would push its beginning off the left edge, where it cannot be\nclipped back into view — overflow to the right is recoverable, overflow to the\nleft loses the start of the text."
+            }
+          ],
+          "published": "2026-10-02T02:37:53Z"
         }
       }
     },
@@ -31563,6 +31808,111 @@
             }
           ],
           "published": "2026-09-29T06:10:39Z"
+        },
+        "0.1.2": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/tween-v0.1.2/tween-0.1.2.tar.gz",
+          "sha256": "923092e530d38db0213f0b5e6956bd425c95209c00013c239491cdedda2b58fa",
+          "size": 18595,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "tween",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub enum Curve { Linear, Quad, Cubic, Quart, Quint, Sine, Expo, Circ, Back, Elastic, Bounce }",
+              "doc": "Which shape the curve has.\n\n⚠ `Back` and `Elastic` leave `[0, 1]` on purpose — they overshoot and come\nback — so a consumer clamping the RESULT of an ease is undoing the effect it\nasked for.  Every other curve stays inside."
+            },
+            {
+              "sig": "pub enum Shape { In, Out, InOut }",
+              "doc": "Which direction the curve runs: slow at the start, slow at the end, or both."
+            },
+            {
+              "sig": "pub fn ease(c: Curve, s: Shape, t: float) -> float",
+              "doc": "Ease `t` — the entry point, and the three reflections of the header's rule 2.\n\n⚠ There is no clamp HERE on purpose; every arm reads the curve through\n`curve_at`, which is where the endpoints are decided.  See the header for\nwhy in front of the reflections is the wrong side of them.\nExample: @TWN-003"
+            },
+            {
+              "sig": "pub fn curve_at(c: Curve, t: float) -> float",
+              "doc": "The curve, clamped — **the one place all thirty-three combinations get their\nendpoints from.**\n\n⚠ **Clamped, not trusted.**  `t <= 0` answers exactly 0.0 and `t >= 1`\nexactly 1.0 without consulting the curve, which is what makes the endpoints\nexact — including for the two curves whose textbook definitions miss them.\n\n⚠ A `null` progress (a NaN) is neither `<= 0.0` nor `>= 1.0`, so it reaches\nthe curve and comes back null.  That is deliberate: an unanswerable progress\nmust not silently read as \"finished\"."
+            },
+            {
+              "sig": "pub fn curve_in(c: Curve, t: float) -> float",
+              "doc": "The **In** direction of each curve, raw — the eleven definitions everything\nelse is reflected from.\n\n⚠ **Public so it can be gated, not because it is the door.**  It is NOT\nclamped: `curve_in(Sine, 1.0)` is `0.9999999999999999`, which is exactly the\nhole `ease` exists to close.  Reach for `ease`."
+            },
+            {
+              "sig": "pub fn lerp(a: float, b: float, t: float) -> float",
+              "doc": "A linear interpolation that lands EXACTLY on both endpoints.\n\n⚠ **`a·(1−t) + b·t`, and the other spelling is not equivalent** — see the\nheader: `a + (b−a)·t` answers 0.0 for `lerp(1e17, 1.0, 1.0)`.  Reach for\nthis one whenever an endpoint has to be hit rather than approached.\n\n`t` outside `[0, 1]` extrapolates, which is what makes the overshooting\ncurves (`Back`, `Elastic`) work.\nExample: @TWN-002"
+            },
+            {
+              "sig": "pub struct Tween { from: float, to: float, duration: integer, elapsed: integer, lead: integer, curve: Curve = Curve.Linear, shape: Shape = Shape.In }",
+              "doc": "One value moving from `from` to `to` over `duration` base units.\n\n⚠ **`duration <= 0` means INSTANT, not unarmed** — it reads `to` and is\n`done` immediately.  That is the opposite of `fixstep`'s `Timer`, where a\nzero total means nothing is running, and it is deliberate: \"move there over\nno time\" is a step, and a chain built from one must pass straight through\nit rather than stall."
+            },
+            {
+              "sig": "pub fn tween_new(from: float, to: float, duration: integer, c: Curve = Curve.Linear, s: Shape = Shape.In) -> Tween",
+              "doc": "A tween ready to run."
+            },
+            {
+              "sig": "pub fn delay(self: Tween, units: integer)",
+              "doc": "Wait `units` before starting.\n\n⚠ A door rather than a sixth parameter, for `fixstep`'s reason: a delay is a\ncase some callers have and most do not.  During the wait the tween reads\n`from` and is not `done`."
+            },
+            {
+              "sig": "pub fn advance(self: Tween, units: integer) -> integer",
+              "doc": "Spend `units` of time on it, and answer how many were LEFT OVER — the time\npast its end, which is what the next link of a chain must already have run\nfor.  Zero while it is still running.\n\n⚠ Non-positive time is dropped rather than owed (`fixstep`'s rule 2), so a\npaused consumer may call this every frame.\nExample: @TWN-001"
+            },
+            {
+              "sig": "pub fn progress(self: const Tween) -> float",
+              "doc": "How far through it is, before easing — the exact ratio `elapsed / duration`,\nin `[0, 1]`.\n\n⚠ **It reaches 1.0 and STAYS there**, which is the difference from\n`fixstep`'s `timer_fraction` (documented `[0, 1)`, and 0.0 again once the\ntimer fires — a tween built on one would snap back to its start the instant\nit finished)."
+            },
+            {
+              "sig": "pub fn value(self: const Tween) -> float",
+              "doc": "What it reads right now.\n\n⚠ Exactly `from` before it starts and exactly `to` once it has finished —\nsee the header for why that needs the interpolation to be written one way\nand not the other."
+            },
+            {
+              "sig": "pub fn done(self: const Tween) -> boolean",
+              "doc": "Has it finished?  A tween still waiting out its `delay` has not."
+            },
+            {
+              "sig": "pub fn rewind(self: Tween, lead: integer = 0)",
+              "doc": "Put it back at the start, delay and all — the same tween, run again."
+            },
+            {
+              "sig": "pub enum Play { Chain, Parallel }",
+              "doc": "How several tweens share one stream of time."
+            },
+            {
+              "sig": "pub struct Track { steps: vector<Tween>, mode: Play = Play.Chain, at: integer }",
+              "doc": "Several tweens driven together.\n\n⚠ **It is a rule about time, not a scheduler** — there is no queue, no\npriority and no callback.  `Chain` hands each link's leftover to the next,\nwhich is the entire reason `advance` answers one."
+            },
+            {
+              "sig": "pub fn track_new(mode: Play = Play.Chain) -> Track",
+              "doc": "An empty track."
+            },
+            {
+              "sig": "pub fn add(self: Track, tw: Tween)",
+              "doc": "Add a link.  For `Chain` the order of the calls is the order they run in."
+            },
+            {
+              "sig": "pub fn advance(self: Track, units: integer) -> integer",
+              "doc": "Spend `units` on the track, and answer the leftover — the same contract one\ntween has, so a track composes into a chain exactly like a tween does."
+            },
+            {
+              "sig": "pub fn done(self: const Track) -> boolean",
+              "doc": "Have all its links finished?"
+            },
+            {
+              "sig": "pub fn active(self: const Track) -> integer",
+              "doc": "Which link is running, for `Chain` — `len(steps)` once it has finished."
+            },
+            {
+              "sig": "pub fn value_at(self: const Track, i: integer) -> float",
+              "doc": "What the link at `i` reads right now.\n\n⚠ A door rather than making a consumer index `steps` itself, because an\nout-of-range index there reads `null` and this answers `0.0`."
+            },
+            {
+              "sig": "pub fn rewind(self: Track)",
+              "doc": "Put every link back at its start."
+            }
+          ],
+          "published": "2026-10-02T02:37:57Z"
         }
       }
     },
