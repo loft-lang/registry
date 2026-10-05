@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-05T21:41:16Z",
+  "updated": "2026-10-05T21:51:47Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -48479,6 +48479,101 @@
             }
           ],
           "published": "2026-10-05T16:53:24Z"
+        },
+        "0.1.2": {
+          "url": "https://github.com/loft-lang/loft-libs-game/releases/download/audio_bus-v0.1.2/audio_bus-0.1.2.tar.gz",
+          "sha256": "437c41f91b1a3d62c6a788ab35eaf53ca925a356f9ae26ea37df886ec580427a",
+          "size": 8845,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "audio_bus",
+          "deps": {
+            "graphics": ">=0.9.0"
+          },
+          "api": [
+            {
+              "sig": "pub struct Bus { bs_name: text, bs_parent: text = \"\", bs_volume: float = 1.0, bs_before: float = -1.0 }",
+              "doc": "One level in the tree: a name, a level, and what it hangs under."
+            },
+            {
+              "sig": "pub struct Voice { vc_sink: integer, vc_bus: text = \"\", vc_volume: float = 1.0 }",
+              "doc": "One playing sound, and the bus it answers to."
+            },
+            {
+              "sig": "pub struct Mixer { buses: hash<Bus[bs_name]>, voices: hash<Voice[vc_sink]> }",
+              "doc": "The mixer: the bus tree, and every voice currently on it."
+            },
+            {
+              "sig": "pub fn mixer() -> Mixer",
+              "doc": "A mixer with nothing on it but the master bus."
+            },
+            {
+              "sig": "pub fn add(m: Mixer, name: text, parent: text = MASTER, volume: float = 1.0) -> boolean",
+              "doc": "Add a bus under `parent`, at `volume`.\n\nAnswers false — changing nothing — when the name is already taken, when the\nparent does not exist, or when the name is empty. A mixer that silently\naccepts a second `\"music\"` has two of them and obeys neither."
+            },
+            {
+              "sig": "pub fn gain(m: const Mixer, name: text) -> float",
+              "doc": "The gain a sound on this bus is multiplied by: the bus's own level times\nevery level above it.\n\nA name no bus has answers 0.0 rather than 1.0. Silence is the answer a caller\ncan hear; a missing bus that plays at full volume is one they cannot."
+            },
+            {
+              "sig": "pub fn level(m: const Mixer, sink: integer) -> float",
+              "doc": "What a voice's sink should be set to: the sound's own level times its bus."
+            },
+            {
+              "sig": "pub fn attach(m: Mixer, sink: integer, bus: text, volume: float = 1.0) -> boolean",
+              "doc": "Put an already-playing sink on a bus at its own level.\n\nThe seam this package is built around: `play` is `graphics::audio_play`\nfollowed by this, and a caller who plays a sound their own way — a procedural\neffect, a clip started before the mixer existed — gets the same bus."
+            },
+            {
+              "sig": "pub fn detach(m: Mixer, sink: integer)",
+              "doc": "Forget a sink without stopping it — it keeps whatever level it has."
+            },
+            {
+              "sig": "pub fn play(m: Mixer, bus: text, clip: integer, volume: float = 1.0, looping: boolean = false, pan: float = 0.0, start: float = 0.0) -> integer",
+              "doc": "Play a clip on a bus. The arguments past `volume` are `graphics::audio_play`'s\nand mean exactly what they mean there.\n\nAnswers the sink handle, or -1 when the sound did not start — in which case\nnothing is attached, so a mixer never carries a voice that is not playing."
+            },
+            {
+              "sig": "pub fn set_volume(m: Mixer, name: text, volume: float) -> boolean",
+              "doc": "Set a bus's level, and move every sound under it.\n\nAnswers false for a bus that does not exist. A level below 0 is clamped: a\nnegative gain inverts a waveform rather than quietening it, which is not what\nany caller of a volume control means."
+            },
+            {
+              "sig": "pub fn volume(m: const Mixer, name: text) -> float",
+              "doc": "This bus's own level — not counting the buses above it."
+            },
+            {
+              "sig": "pub fn duck(m: Mixer, name: text, to: float) -> boolean",
+              "doc": "Duck a bus to `to` — speech over music, a menu over a battle.\n\nThe level it replaces is REMEMBERED, so `unduck` restores it exactly. Ducking\nan already-ducked bus moves it again and keeps the ORIGINAL level to come home\nto: a duck inside a duck must not make the first one's restore a guess.\n\nAnswers false for a bus that does not exist."
+            },
+            {
+              "sig": "pub fn unduck(m: Mixer, name: text) -> boolean",
+              "doc": "Lift a duck, putting back the exact level it replaced.\n\nAnswers false for a bus that does not exist or is not ducked — the second is\nworth an answer rather than a shrug, because an unduck that finds nothing to\nlift means a duck and its lift have come apart somewhere."
+            },
+            {
+              "sig": "pub fn ducked(m: const Mixer, name: text) -> boolean",
+              "doc": "Is this bus ducked right now?"
+            },
+            {
+              "sig": "pub fn pan(m: const Mixer, sink: integer, position: float)",
+              "doc": "Move one playing sound across the stereo field. The mixer keeps the voice\nlist, so this is where a caller already is."
+            },
+            {
+              "sig": "pub fn stop(m: Mixer, sink: integer)",
+              "doc": "Stop one sound and forget it."
+            },
+            {
+              "sig": "pub fn stop_bus(m: Mixer, name: text) -> integer",
+              "doc": "Stop every sound on a bus — and on the buses under it.\n\nAnswers how many it stopped, because \"the scene is over, silence its sounds\"\nis a claim a caller may want to check rather than assume."
+            },
+            {
+              "sig": "pub fn stop_all(m: Mixer) -> integer",
+              "doc": "Stop everything, on every bus."
+            },
+            {
+              "sig": "pub fn under(m: const Mixer, name: text, ancestor: text) -> boolean",
+              "doc": "Is `name` at or below `ancestor` in the tree?"
+            }
+          ],
+          "published": "2026-10-05T21:51:47Z"
         }
       }
     }
