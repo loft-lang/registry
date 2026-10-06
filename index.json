@@ -45496,7 +45496,9 @@
         "game",
         "asset-format"
       ],
-      "yanked": [],
+      "yanked": [
+        "0.4.0"
+      ],
       "versions": {
         "0.1.0": {
           "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/assets-v0.1.0/assets-0.1.0.tar.gz",
