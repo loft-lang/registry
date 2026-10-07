@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-06T22:11:33Z",
+  "updated": "2026-10-07T21:18:18Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -388,6 +388,40 @@
             }
           ],
           "published": "2026-10-06T22:11:21Z"
+        },
+        "0.1.12": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/cbor-v0.1.12/cbor-0.1.12.tar.gz",
+          "sha256": "656a0a55a5b650dce34491247fb8b628ec17becf85e5d918e2f1aa94b694c9ee",
+          "size": 17814,
+          "loft": ">=2026.10.20261007",
+          "api_compatible_with": "0.1.1",
+          "data_compatible_with": "0.1.1",
+          "subpath": "cbor",
+          "deps": {},
+          "triggers": [],
+          "api": [
+            {
+              "sig": "pub enum CborValue { CNull, CBool { pub value: boolean }, CInt { pub value: integer }, CBytes { pub value: vector<u8> }, CText { pub value: text }, CArray { pub items: vector<CborValue> }, CMap { pub entries: vector<CborEntry> } }",
+              "doc": "A dynamic CBOR value.  Mirrors the stdlib `JsonValue`, with CBOR's extra\n`CBytes` (native byte string) and the integer split that CBOR makes at the\nwire level folded into one signed `CInt`.\nExample: @CBR-002 — which variant you pick is part of the wire form: the same\ntwo payload bytes are a different record as `CBytes` than as `CText`."
+            },
+            {
+              "sig": "pub struct CborEntry { const key: CborValue, const value: CborValue }",
+              "doc": "One key/value pair of a `CMap`."
+            },
+            {
+              "sig": "pub fn encode(v: CborValue) -> vector<u8>",
+              "doc": "Encode a `CborValue` to canonical CBOR bytes.\nA map's entries are SORTED here by their encoded key bytes, so the order you\nbuilt the map in never reaches the wire.\nExample: @CBR-001 — two maps built in opposite orders encode identically, which\nis what keeps a signature over the bytes valid.\nExample: @CBR-002 — `CBytes` and `CText` are different wire types, so the\nloft-side choice is part of what gets signed.\nExample: @CBR-004 — canonical is about ORDER, not uniqueness: duplicate keys\nencode without complaint."
+            },
+            {
+              "sig": "pub struct Decoded { const value: CborValue, const next: integer, const ok: boolean }",
+              "doc": "The result of decoding one CBOR value: the `value`, the byte position just\npast it (`next`), and `ok` — false on any malformed / non-canonical /\ntruncated input, and on nesting deeper than `MAX_DEPTH`.  Decoding never\ncrashes (loft-safe): a bad byte stream yields ok=false rather than a trap."
+            },
+            {
+              "sig": "pub fn decode(bytes: vector<u8>) -> Decoded",
+              "doc": "Decode canonical CBOR bytes into a `CborValue`.  Returns `ok=false` on any\nmalformed, non-canonical, or truncated input, on nesting deeper than\n`MAX_DEPTH` — and rejects trailing bytes after the top-level value.  Never\ncrashes.\nExample: @CBR-003 — `ok=false` is one answer for four different problems, and\nthe surprising one is that well-formed but NON-canonical CBOR is refused.\nExample: @CBR-004 — a map carrying two entries under one key decodes ok=true."
+            }
+          ],
+          "published": "2026-10-07T21:18:05Z"
         }
       }
     },
@@ -16056,6 +16090,578 @@
             }
           ],
           "published": "2026-10-06T21:38:33Z"
+        },
+        "0.9.11": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.11/graphics-0.9.11.tar.gz",
+          "sha256": "17d0de871307ca4e1f2e36bd66bdc3a619371795601ce8a2e380c414bb21293d",
+          "size": 219157,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.4.2",
+          "data_compatible_with": "0.4.2",
+          "subpath": "graphics",
+          "deps": {
+            "mesh3d": ">=0.1.1",
+            "glb": ">=0.1.1"
+          },
+          "api": [
+            {
+              "sig": "pub fn rgba(cr: integer, cg: integer, cb: integer, ca: integer) -> integer",
+              "doc": "Pack RGBA channels into a single integer using bitwise ops.\nLayout: bits 24..31 = alpha, 16..23 = red, 8..15 = green, 0..7 = blue.\nLoft integers are 64-bit signed post-2c, so the packed value fits\ndirectly — no widening cast needed.  Each channel is MASKED to 8 bits, so an\nout-of-range argument wraps rather than saturating or being refused.\nExample: @GFX-001 — the alpha byte is the one a hand-written hex literal\nleaves at zero, and a zero alpha is fully transparent."
+            },
+            {
+              "sig": "pub fn rgb(cr: integer, cg: integer, cb: integer) -> integer",
+              "doc": "Opaque colour: the same pack with alpha 255.  `rgb(255, 0, 0)` is 0xFFFF0000 —\nNOT the 0xFF0000 a reader reaches for, which has alpha 0.\nExample: @GFX-001 — why the literal and this call are different colours, and\nwhat each compositing path does with the difference."
+            },
+            {
+              "sig": "pub fn color_r(color: integer) -> integer",
+              "doc": "The channels back out of a packed colour, matching `rgba`'s layout — red,\ngreen, blue, then alpha off the high byte."
+            },
+            {
+              "sig": "pub fn color_g(color: integer) -> integer",
+              "doc": "Green."
+            },
+            {
+              "sig": "pub fn color_b(color: integer) -> integer",
+              "doc": "Blue."
+            },
+            {
+              "sig": "pub fn color_a(color: integer) -> integer",
+              "doc": "Alpha.  255 is opaque; a colour written as a bare 0xRRGGBB literal reads 0\nhere, which is what makes it composite to nothing."
+            },
+            {
+              "sig": "pub struct Canvas { const width: integer, const height: integer, const data: vector<integer> }",
+              "doc": "A 2D pixel canvas backed by a flat vector of RGBA integers.\nPixels are stored row-major: data[y * width + x]."
+            },
+            {
+              "sig": "pub fn canvas(cw: integer, ch: integer, fill_color: integer) -> Canvas",
+              "doc": "Create a canvas filled with a solid color."
+            },
+            {
+              "sig": "pub fn get_pixel(self: const Canvas, gx: integer, gy: integer) -> integer",
+              "doc": "Get pixel color at (x, y). Returns 0 if out of bounds — and 0 is a COLOUR the\ncanvas can hold (`rgba(0, 0, 0, 0)`), so the answer cannot serve as a bounds\ntest.  Bound with `width`/`height`.\nExample: @GFX-003 — a neighbourhood scan that tests the returned colour\nmiscounts its own transparent pixels as off-canvas."
+            },
+            {
+              "sig": "pub fn set_pixel(self: Canvas, sx: integer, sy: integer, color: integer)",
+              "doc": "Set pixel color at (x, y). No-op if out of bounds.  STORES the colour byte for\nbyte, alpha included — it does not composite; `blend_pixel` does.\nExample: @GFX-002 — storing a half-transparent colour replaces what was under\nit, rather than showing through it.\nExample: @GFX-003 — an out-of-range coordinate is declined in silence, so a\nwrong index is a missing part of the drawing, never a message."
+            },
+            {
+              "sig": "pub fn clear(self: Canvas, color: integer)",
+              "doc": "Fill the entire canvas with a solid color."
+            },
+            {
+              "sig": "pub fn blend(dst: integer, src: integer) -> integer",
+              "doc": "Alpha-blend src over dst. Both are 0xAARRGGBB packed integers.\nUses standard \"src over\" compositing: out = src * alpha + dst * (1 - alpha)."
+            },
+            {
+              "sig": "pub fn blend_pixel(self: Canvas, bx: integer, by: integer, color: integer)",
+              "doc": "Draw a pixel with alpha blending at (x, y) — the compositing counterpart to\n`set_pixel`, and the one a caller reaching for alpha usually meant.\nExample: @GFX-002 — store versus composite, side by side."
+            },
+            {
+              "sig": "pub fn fill_rect(self: Canvas, rx: integer, ry: integer, rw: integer, rh: integer, color: integer)",
+              "doc": "Fill a rectangle with a solid color. Clipped to canvas bounds.  Like every\nsolid primitive here it STORES the colour (see `set_pixel`); a rectangle drawn\nin a half-transparent colour is not a translucent overlay.\nExample: @GFX-002 — what the buffer holds afterwards."
+            },
+            {
+              "sig": "pub fn hline(self: Canvas, hx0: integer, hx1: integer, hy: integer, color: integer)",
+              "doc": "Draw a horizontal line from (x0, y) to (x1, y). Clipped.  The end is\nEXCLUSIVE — `[x0, x1)` — and a reversed span draws nothing rather than being\nnormalised.\nExample: @GFX-004 — where a span starts and stops, and what silence looks like."
+            },
+            {
+              "sig": "pub fn vline(self: Canvas, vx: integer, vy0: integer, vy1: integer, color: integer)",
+              "doc": "Draw a vertical line from (x, y0) to (x, y1). Clipped.  Exclusive end and\nno normalisation, exactly like `hline`.\nExample: @GFX-004 — the half-open span rule on both axes."
+            },
+            {
+              "sig": "pub fn draw_rect(self: Canvas, drx: integer, dry: integer, drw: integer, drh: integer, color: integer)",
+              "doc": "Draw a rectangle outline (1px border). Clipped.  Built from four half-open\nspans, so (x, y, w, h) covers x .. x + w - 1 by y .. y + h - 1.\nExample: @GFX-004 — the exact pixels, and the hollow interior."
+            },
+            {
+              "sig": "pub fn draw_line(self: Canvas, lx0: integer, ly0: integer, lx1: integer, ly1: integer, color: integer)",
+              "doc": "Draw a line from (x0, y0) to (x1, y1) using Bresenham's algorithm.\nHandles all octants. Each pixel is set (no blending)."
+            },
+            {
+              "sig": "pub fn draw_circle(self: Canvas, ccx: integer, ccy: integer, radius: integer, color: integer)",
+              "doc": "Draw a circle outline using the midpoint algorithm.\nCenter at (cx, cy) with the given radius. Clipped via set_pixel."
+            },
+            {
+              "sig": "pub fn fill_circle(self: Canvas, fcx: integer, fcy: integer, radius: integer, color: integer)",
+              "doc": "Fill a circle (solid disk). Center at (cx, cy), given radius."
+            },
+            {
+              "sig": "pub fn fill_ellipse(self: Canvas, fex: integer, fey: integer, ferx: integer, fery: integer, color: integer)",
+              "doc": "Fill an axis-aligned ellipse (solid). Center (cx, cy), radii (rx, ry)."
+            },
+            {
+              "sig": "pub fn draw_ellipse(self: Canvas, ecx: integer, ecy: integer, erx: integer, ery: integer, color: integer)",
+              "doc": "Draw an axis-aligned ellipse outline. Center (cx, cy), radii (rx, ry)."
+            },
+            {
+              "sig": "pub fn draw_bezier(self: Canvas, bx0: integer, by0: integer, bx1: integer, by1: integer, bx2: integer, by2: integer, bx3: integer, by3: integer, color: integer)",
+              "doc": "Draw a cubic Bezier curve from (bx0,by0) to (bx3,by3) with control points\n(bx1,by1) and (bx2,by2). Uses adaptive subdivision — splits until segments\nare flat enough, then draws with Bresenham lines.\nFlatness threshold: max deviation of control points from the chord."
+            },
+            {
+              "sig": "pub fn draw_aa_line(self: Canvas, ax0: integer, ay0: integer, ax1: integer, ay1: integer, color: integer)",
+              "doc": "Draw an anti-aliased line using Xiaolin Wu's algorithm.\nUses blend_pixel for sub-pixel coverage."
+            },
+            {
+              "sig": "pub fn fill_triangle(self: Canvas, tx0: integer, ty0: integer, tx1: integer, ty1: integer, tx2: integer, ty2: integer, color: integer)",
+              "doc": "Fill a triangle with vertices (tx0,ty0), (tx1,ty1), (tx2,ty2).\nUses flat-top/flat-bottom decomposition with scanline fill."
+            },
+            {
+              "sig": "pub struct Coord { px: integer, py: integer }",
+              "doc": "A point on the canvas, in pixels.\n\nExists because a polygon is a LIST of them and `fill_triangle`'s six loose\nintegers do not generalise — six is already the edge of what a caller gets\nright in order, and a polygon has no fixed count.\n\nNOT called `Point`: `mesh3d::LightType` has a `Point` variant and `graphics`\ndepends on mesh3d, so the name is taken and the collision is a hard error\n(\"struct 'Point' conflicts with a enumvalue of the same name\"). `Vertex` is\nmesh3d's too. Reach for `Coord` in 2-D graphics code and the 3-D names stay\nwhere they belong."
+            },
+            {
+              "sig": "pub fn fill_polygon(self: Canvas, pts: const vector<Coord>, color: integer)",
+              "doc": "Fill a closed polygon under the EVEN-ODD rule.\n\nThe polygon closes itself: the last point joins the first, so a triangle is\nthree points and not four. Fewer than three points draws nothing.\n\nEven-odd means a point is inside when a ray from it crosses the outline an odd\nnumber of times, so a self-intersecting outline leaves its overlap EMPTY — the\nclassic five-point star is a pentagon-shaped hole with five filled arms. That\nis a choice, not a bug: the alternative (non-zero winding) fills the middle,\nand the two disagree on exactly the shapes people draw deliberately.\n\nMatches `fill_triangle` pixel for pixel on a triangle, which is the reason the\nrow rule below is inclusive rather than the half-open rule a scanline filler\nusually takes. See the note on `polygon_crossings`.\nExample: @GFX-006 — the star's hollow middle, and the triangle agreement."
+            },
+            {
+              "sig": "pub fn resize_lanczos(self: const Canvas, ow: integer, oh: integer) -> Canvas",
+              "doc": "Resample this canvas to `ow` x `oh` with a Lanczos-3 filter.\n\nByte-identical to Pillow's `Image.resize(..., Image.LANCZOS)`, which is the\npoint: the `.draw` corpus renders at 3x and downscales with exactly that, so a\nrenderer that resamples any other way cannot be pixel-compared against it\nhowever good it looks (@PLN146 W0 finding 5).\n\n**Alpha is premultiplied across the resample and undone after**, because\nPillow defines `resize` on an image with alpha as\n`convert(\"RGBa\") -> resize -> convert(\"RGBA\")`. That is a contract, not an\noptimisation: resampling straight RGBA lets a transparent texel's colour bleed\ninto its neighbours, and the two disagree on any edge where alpha varies.\nBoth roundings are Pillow's and neither is the obvious one — `(v*a + 127)/255`\ngoing in, a TRUNCATING divide coming out, and alpha 0 passes its colour\nthrough untouched rather than going black.\nExample: @GFX-007 — why a 3x supersample plus this is not the same picture as\ndrawing once at final size."
+            },
+            {
+              "sig": "pub fn resize_bicubic(self: const Canvas, ow: integer, oh: integer) -> Canvas",
+              "doc": "Resample with a BICUBIC filter — Pillow's `Image.resize` default.\n\nThe default is the reason this exists: `resize(size)` with no `resample=`\nargument is bicubic, and code that builds a small image and enlarges it (a\ngradient computed at 100x100, say) takes that path without naming it. Read\nthe call site's filter off the ARGUMENT LIST and it looks like there isn't\none.\n\n⚠ Bicubic has negative lobes, so an ENLARGEMENT overshoots: a hard 40→200\nstep upscaled 4x spans 28..212 in Pillow and here alike. That is the filter,\nnot a defect — clamping it away would be the defect."
+            },
+            {
+              "sig": "pub fn save_png(self: const Canvas, path: text) -> boolean",
+              "doc": "Save canvas as a PNG file. Automatically uses RGBA if any pixel has alpha < 255,\notherwise uses RGB. Returns true on success.\nExample: @GFX-005 — the choice is read off the pixels, so ONE alpha-0 pixel\n(a hand-written hex literal — @GFX-001) makes the whole file RGBA and that\npixel a transparent hole."
+            },
+            {
+              "sig": "pub fn gl_screenshot(width: integer, height: integer, path: text) -> boolean",
+              "doc": "Capture the current GL back-buffer to an RGB PNG.  Call after a frame's\ndraw calls and BEFORE gl_swap_buffers (reads GL_BACK).  Works on a\nheadless / Wayland desktop where the window itself can't be grabbed."
+            },
+            {
+              "sig": "pub fn gl_create_window(width: integer, height: integer, title: text) -> boolean",
+              "doc": "Create a window with an OpenGL 3.3 context. Returns true on success."
+            },
+            {
+              "sig": "pub fn gl_create_fullscreen_window(title: text) -> boolean",
+              "doc": "Open a borderless fullscreen window at the primary monitor's native\nresolution. Returns true on success. Read the actual viewport size\nafterwards with `gl_window_width` / `gl_window_height` if you need\nto set up an aspect-aware camera."
+            },
+            {
+              "sig": "pub fn gl_set_fullscreen(on: boolean)",
+              "doc": "Toggle fullscreen on the existing window (runtime flip, cheaper\nthan recreating the GL context — textures / VAOs / shaders\nsurvive).  Pass `true` for borderless fullscreen, `false` for\nwindowed.  Browsers (WASM) require a user gesture to enter\nfullscreen; calling outside one is non-fatal."
+            },
+            {
+              "sig": "pub fn gl_window_width() -> integer",
+              "doc": "Current window inner size in physical pixels.  Query after creating a\n(especially fullscreen) window so projection / 2D ortho / overlays use\nthe real resolution rather than a windowed hint."
+            },
+            {
+              "sig": "pub fn gl_window_height() -> integer",
+              "doc": "And its height — the pair is what a projection or a 2-D ortho is built from."
+            },
+            {
+              "sig": "pub fn gl_poll_events() -> boolean",
+              "doc": "Poll window events. Returns false when the window should close."
+            },
+            {
+              "sig": "pub fn gl_swap_buffers()",
+              "doc": "Swap buffers (present the frame)."
+            },
+            {
+              "sig": "pub fn gl_clear(color: integer)",
+              "doc": "Clear the screen with an RGBA color (packed as 0xRRGGBBAA)."
+            },
+            {
+              "sig": "pub fn gl_destroy_window()",
+              "doc": "Destroy the window and OpenGL context."
+            },
+            {
+              "sig": "pub fn gl_create_shader(vertex_source: text, fragment_source: text) -> integer",
+              "doc": "Compile and link a shader program. Returns the program ID (0 on failure)."
+            },
+            {
+              "sig": "pub fn gl_use_shader(program: integer)",
+              "doc": "Use a shader program for subsequent draw calls."
+            },
+            {
+              "sig": "pub fn gl_draw(vao: integer, vertex_count: integer)",
+              "doc": "Draw a VAO with vertex_count vertices as triangles."
+            },
+            {
+              "sig": "pub fn gl_upload_vertices(data: vector<single>, stride: integer) -> integer",
+              "doc": "Upload a vector<single> as a vertex buffer. Returns VAO handle.\nstride = floats per vertex (3=pos, 6=pos+normal, 10=pos+normal+color).\nNative codegen: loft_gl_upload_vertices(data_ptr: *const f32, count: u32, stride: i32) -> i32"
+            },
+            {
+              "sig": "pub fn gl_upload_instance_buffer(data: vector<single>) -> integer",
+              "doc": "Upload per-instance data to a DYNAMIC_DRAW buffer. Returns the VBO handle\n(pass it to gl_instance_attrib). DYNAMIC because instances change per frame."
+            },
+            {
+              "sig": "pub fn gl_instance_attrib(vao: integer, ivbo: integer, location: integer, components: integer, stride_floats: integer, offset_floats: integer)",
+              "doc": "Bind instance VBO `ivbo`'s field to attribute `location` on `vao`, advancing\nonce per INSTANCE (VertexAttribDivisor=1). components = floats in the field\n(2=vec2, 4=vec4); stride_floats = floats per instance record; offset_floats =\nthis field's start within the record. Use locations >=5 to clear the vertex attrs."
+            },
+            {
+              "sig": "pub fn gl_draw_instanced(vao: integer, vertex_count: integer, instance_count: integer)",
+              "doc": "Draw vertex_count vertices of `vao` as triangles, instance_count times."
+            },
+            {
+              "sig": "pub fn gl_update_buffer(vbo: integer, data: vector<single>)",
+              "doc": "Orphan + re-upload an existing VBO (returned by gl_upload_vertices /\ngl_upload_instance_buffer) with new data, DYNAMIC_DRAW — per-frame updates\nwithout recreating the buffer."
+            },
+            {
+              "sig": "pub fn gl_upload_indices(vao: integer, data: vector<integer>) -> integer",
+              "doc": "Upload triangle indices as an element (index) buffer bound to `vao`, so\ngl_draw_elements(vao, index_count, mode) draws indexed. Returns the EBO handle."
+            },
+            {
+              "sig": "pub struct GroupVboSet { slots: hash<GroupVbo[gk]>, const stride: integer, const draw_mode: integer }",
+              "doc": "The vertex buffers of a grouped mesh: one `GroupVbo` per group key in `slots`, all\nsharing one vertex layout (`stride` floats per vertex) and one `draw_mode`."
+            },
+            {
+              "sig": "pub fn group_vbos_new(stride: integer, draw_mode: integer) -> GroupVboSet",
+              "doc": "Create an empty set for a fixed vertex stride + draw mode."
+            },
+            {
+              "sig": "pub fn group_vbos_upsert(set: GroupVboSet, gk: integer, verts: vector<single>, min_x: single, min_z: single, max_x: single, max_z: single)",
+              "doc": "Upload (or RE-upload) one group's baked vertices: delete the group's old VAO\nif present, upload the new data, and record the handle + vertex count + world\nbounds.  Call this only for the DIRTY groups each edit; untouched groups keep\ntheir cached VBOs."
+            },
+            {
+              "sig": "pub fn group_vbos_draw_all(set: const GroupVboSet)",
+              "doc": "Draw every group's cached VBO with the set's draw mode.  (Per-group frustum\nculling — skip groups whose world bounds fall outside the view — is a future\naddition; the bounds are already stored.)"
+            },
+            {
+              "sig": "pub fn group_vbos_destroy(set: GroupVboSet)",
+              "doc": "Free every group's VAO and clear the set (call on teardown / world reset)."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_mat4(program: integer, name: text, mat: const vector<float>)",
+              "doc": "Set a mat4 uniform on a shader program. mat is a Mat4.m vector (16 floats).\nNative codegen: loft_gl_set_mat4(program: i32, name_ptr, name_len, mat_ptr: *const f64, count: u32)"
+            },
+            {
+              "sig": "pub fn gl_set_uniform_float(program: integer, name: text, val: float)",
+              "doc": "Set a float uniform."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_int(program: integer, name: text, val: integer)",
+              "doc": "Set an integer uniform (also used for sampler2D texture unit bindings)."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_vec2(program: integer, name: text, x: float, y: float)",
+              "doc": "Set a vec2 uniform (e.g. screen size, texel size, a 2D offset)."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_vec3(program: integer, name: text, x: float, y: float, z: float)",
+              "doc": "Set a vec3 uniform (e.g. light position, color)."
+            },
+            {
+              "sig": "pub fn gl_set_uniform_vec4(program: integer, name: text, x: float, y: float, z: float, w: float)",
+              "doc": "Set a vec4 uniform (e.g. an RGBA color, a rect x/y/w/h)."
+            },
+            {
+              "sig": "pub fn gl_enable(cap: integer)",
+              "doc": "Enable a GL capability (GL_DEPTH_TEST, GL_BLEND, GL_CULL_FACE, GL_SCISSOR_TEST)."
+            },
+            {
+              "sig": "pub fn gl_disable(cap: integer)",
+              "doc": "Disable a GL capability."
+            },
+            {
+              "sig": "pub fn gl_blend_func(src: integer, dst: integer)",
+              "doc": "Set blend function (e.g. gl_blend_func(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA))."
+            },
+            {
+              "sig": "pub fn gl_cull_face(face: integer)",
+              "doc": "Set which face to cull (0=back, 1=front)."
+            },
+            {
+              "sig": "pub fn gl_depth_mask(write: boolean)",
+              "doc": "Enable/disable depth buffer writing."
+            },
+            {
+              "sig": "pub fn gl_finish()",
+              "doc": "Block until every GL command issued so far has completed.\n\nThe call that makes a read-back trustworthy: `gl_screenshot` and any other\nframebuffer read otherwise race the driver, so the same program can produce a\ncomplete frame or an empty one from run to run.  Costs a stall by definition —\nuse it in a test or a screenshot path, never in a frame loop."
+            },
+            {
+              "sig": "pub fn gl_viewport(x: integer, y: integer, w: integer, h: integer)",
+              "doc": "Set the viewport rectangle (used for FBO render passes)."
+            },
+            {
+              "sig": "pub fn gl_scissor(x: integer, y: integer, w: integer, h: integer)",
+              "doc": "Set the scissor box — clips rendering to this rect (origin bottom-left, like\nthe viewport). Takes effect only while gl_enable(GL_SCISSOR_TEST) is set; use\nit for partial-damage redraw (re-render just a changed region)."
+            },
+            {
+              "sig": "pub fn gl_create_framebuffer() -> integer",
+              "doc": "Create a framebuffer object. Returns FBO handle."
+            },
+            {
+              "sig": "pub fn gl_bind_framebuffer(fbo: integer)",
+              "doc": "Bind a framebuffer (0 = default screen framebuffer)."
+            },
+            {
+              "sig": "pub fn gl_framebuffer_texture(fbo: integer, attachment: integer, tex: integer)",
+              "doc": "Attach a texture to an FBO (attachment: 0=color, 1=depth)."
+            },
+            {
+              "sig": "pub fn gl_create_depth_texture(width: integer, height: integer) -> integer",
+              "doc": "Create a depth-only texture for shadow mapping."
+            },
+            {
+              "sig": "pub fn gl_create_color_texture(width: integer, height: integer) -> integer",
+              "doc": "Create an empty RGBA texture for render-to-texture."
+            },
+            {
+              "sig": "pub fn gl_texture_filter(tex: integer, nearest: boolean)",
+              "doc": "Set a texture's filtering: nearest = crisp pixel-art, else linear/smooth."
+            },
+            {
+              "sig": "pub fn gl_generate_mipmap(tex: integer)",
+              "doc": "Generate mipmaps + trilinear minification for `tex` (after its pixels are\nuploaded) — keeps minified sprites / atlas pages clean."
+            },
+            {
+              "sig": "pub fn gl_texture_subimage(tex: integer, x: integer, y: integer, w: integer, h: integer, data: vector<integer>)",
+              "doc": "Upload a sub-region of RGBA pixels (Canvas data, 0xAARRGGBB) into an existing\ntexture at (x,y) sized w*h — incremental atlas packing without re-uploading."
+            },
+            {
+              "sig": "pub fn gl_draw_fullscreen_quad()",
+              "doc": "Draw a fullscreen quad (for post-processing). Uses built-in VAO with UV coords.\nVertex shader receives: layout(location=0) vec2 aPos, layout(location=1) vec2 aUV."
+            },
+            {
+              "sig": "pub fn gl_draw_mode(vao: integer, vertex_count: integer, mode: integer)",
+              "doc": "Draw a VAO with explicit mode (DRAW_TRIANGLES, DRAW_LINES, DRAW_POINTS)."
+            },
+            {
+              "sig": "pub fn gl_draw_elements(vao: integer, index_count: integer, mode: integer)",
+              "doc": "Draw using an index buffer (EBO). mode: DRAW_TRIANGLES, DRAW_LINES, DRAW_POINTS."
+            },
+            {
+              "sig": "pub fn gl_line_width(width: float)",
+              "doc": "Set line width for DRAW_LINES rendering."
+            },
+            {
+              "sig": "pub fn gl_point_size(size: float)",
+              "doc": "Set point size for DRAW_POINTS rendering."
+            },
+            {
+              "sig": "pub fn gl_key_pressed(key_code: integer) -> boolean",
+              "doc": "Returns true if the key is currently pressed (use KEY_* constants)."
+            },
+            {
+              "sig": "pub fn gl_mouse_x() -> float",
+              "doc": "Mouse position X (pixels from left edge of window)."
+            },
+            {
+              "sig": "pub fn gl_mouse_y() -> float",
+              "doc": "Mouse position Y (pixels from top edge of window)."
+            },
+            {
+              "sig": "pub fn gl_mouse_button() -> integer",
+              "doc": "Mouse button bitmask: 1=left, 2=right, 4=middle."
+            },
+            {
+              "sig": "pub fn gl_mouse_wheel() -> integer",
+              "doc": "Scroll-wheel delta accumulated since the last call (positive = up).\nReset on read.  Use per-frame to drive the editor's `InputState.in_wheel`\nor any other scroll-driven UI.  Pixel-delta trackpad scrolling is\nquantised at 20 px/line."
+            },
+            {
+              "sig": "pub fn gl_next_event() -> integer",
+              "doc": "Pop the next queued input event and latch it; returns its EV_* tag, or\nEV_NONE when the queue is drained.  Call after gl_poll_events()."
+            },
+            {
+              "sig": "pub fn gl_event_key() -> integer",
+              "doc": "Named/keycode of the latched key event (the KEY_* constants)."
+            },
+            {
+              "sig": "pub fn gl_event_mods() -> integer",
+              "doc": "Modifier bitmask of the latched event (MOD_SHIFT | MOD_CTRL | MOD_ALT | MOD_SUPER)."
+            },
+            {
+              "sig": "pub fn gl_event_repeat() -> boolean",
+              "doc": "True if the latched key-down is an auto-repeat."
+            },
+            {
+              "sig": "pub fn gl_event_text() -> text",
+              "doc": "UTF-8 text of the latched EV_TEXT event (\"\" otherwise)."
+            },
+            {
+              "sig": "pub fn gl_event_x() -> float",
+              "doc": "X position (pixels) of the latched mouse/touch event; width for EV_RESIZE."
+            },
+            {
+              "sig": "pub fn gl_event_y() -> float",
+              "doc": "Y position (pixels) of the latched mouse/touch event; height for EV_RESIZE."
+            },
+            {
+              "sig": "pub fn gl_event_button() -> integer",
+              "doc": "Button of the latched mouse event (1=left, 2=right, 4=middle)."
+            },
+            {
+              "sig": "pub fn gl_event_wheel() -> integer",
+              "doc": "Wheel delta of the latched EV_WHEEL event (positive = up)."
+            },
+            {
+              "sig": "pub fn gl_event_touch_id() -> integer",
+              "doc": "Stable finger id of the latched EV_TOUCH_* event."
+            },
+            {
+              "sig": "pub fn gl_load_font(path: text) -> integer",
+              "doc": "Load a font from a file path. Returns a font handle (>= 0) or null on error.\n\n#255: a RELATIVE path resolves against the program's OWN directory\n(`source_dir()` — the source dir under `--interpret`, the executable's dir\nunder `--native`), so a bundled font travels with the program and loads\nregardless of the launch directory (the symptom #255 hit: a font addressed\nrelative to the source missed under `--native`, which runs from a temp dir,\nand text rendered invisible).  An ABSOLUTE path is used verbatim.  This\nmatches loft's program-relative file-I/O default (`file()` / `read_file`)."
+            },
+            {
+              "sig": "pub fn gl_measure_text(font: integer, content: text, size: float) -> float",
+              "doc": "Measure text width in pixels at the given font size."
+            },
+            {
+              "sig": "pub fn gl_text_height(font: integer, size: float) -> integer",
+              "doc": "Return the line height in pixels for a font at the given size."
+            },
+            {
+              "sig": "pub fn gl_font_ascent(font: integer, size: float) -> float",
+              "doc": "@P340: return the font ASCENT in pixels (baseline -> top of glyphs) from the\nfont's real metrics.  gl_draw_text(x, y) anchors by the TOP, placing the\nbaseline at y + gl_font_ascent(font, size); to baseline-align mixed sizes,\ndraw each at y = baseline - gl_font_ascent(font, size_i)."
+            },
+            {
+              "sig": "pub fn draw_text(self: Canvas, font: integer, content: text, size: float, dt_x: integer, dt_y: integer, color: integer)",
+              "doc": "Rasterise text into the canvas at (x, y), anchored by the TOP-left.\n\n⚠ NEEDS THE NATIVE RASTERISER, so this is one of the canvas routines that\ndoes NOT work headless: without it the call is a no-op and the canvas keeps\nwhatever was under the text.  `text2d` exists for exactly that case — it\ncarries a baked face and draws through `set_pixel`, so text always appears."
+            },
+            {
+              "sig": "pub fn gl_load_texture(path: text) -> integer",
+              "doc": "Load an image file (PNG, JPG) and upload it as a GL texture.\nReturns the texture ID (0 on failure)."
+            },
+            {
+              "sig": "pub fn gl_upload_canvas(data: const vector<integer>, width: integer, height: integer) -> integer",
+              "doc": "Upload Canvas pixel data as a GL texture. Returns the texture ID.\nConverts 0xAARRGGBB packed integers to RGBA bytes for OpenGL."
+            },
+            {
+              "sig": "pub fn gl_bind_texture(texture_id: integer, unit: integer)",
+              "doc": "Bind a texture to a texture unit (0-based) for rendering."
+            },
+            {
+              "sig": "pub fn gl_delete_texture(texture_id: integer)",
+              "doc": "Delete a texture."
+            },
+            {
+              "sig": "pub fn gl_delete_shader(program: integer)",
+              "doc": "Delete a shader program."
+            },
+            {
+              "sig": "pub fn gl_delete_vao(vao: integer)",
+              "doc": "Delete a vertex array object."
+            },
+            {
+              "sig": "pub fn gl_delete_framebuffer(fbo: integer)",
+              "doc": "Delete a framebuffer object."
+            },
+            {
+              "sig": "pub struct SpriteSheet { const ss_tex: integer, const ss_shader: integer, const ss_vao: integer, const ss_cols: integer, const ss_rows: integer, const ss_cell_w: integer, const ss_cell_h: integer }",
+              "doc": "A sprite sheet backed by a Canvas atlas uploaded as a GL texture.\nSprites are arranged in a grid of `ss_cols` x `ss_rows` cells."
+            },
+            {
+              "sig": "pub fn create_sprite_sheet(atlas: const Canvas, cols: integer, rows: integer, vao: integer) -> SpriteSheet",
+              "doc": "Create a sprite sheet from a Canvas atlas.\nThe canvas is divided into a grid of `cols` x `rows` cells.\nSprite index 0 is top-left, incrementing left-to-right then top-to-bottom."
+            },
+            {
+              "sig": "pub fn draw_sprite(sheet: const SpriteSheet, mvp: const vector<float>, sp_idx: integer)",
+              "doc": "Draw sprite at `index` (0-based, row-major).\n`mvp` is the pre-multiplied projection * model matrix (16 singles).\nThe caller builds the MVP for the desired screen position and size."
+            },
+            {
+              "sig": "pub struct Painter2D { p2_flat: integer, p2_tex: integer, p2_vao: integer, p2_proj: vector<float> }",
+              "doc": "A 2D painter bundling shaders, a unit-quad VAO, and an orthographic\nprojection. Create once per window with `create_painter_2d`, then use\n`draw_rect_at`, `draw_sprite_at`, and `draw_texture_at` to render."
+            },
+            {
+              "sig": "pub fn create_painter_2d(screen_w: float, screen_h: float) -> Painter2D",
+              "doc": "Create a Painter2D for a window of size `screen_w` x `screen_h`.\nCompiles the flat and textured shaders, uploads the unit-quad VAO, and\nbuilds an orthographic projection with the origin at the top-left.\nCall once after `gl_create_window`."
+            },
+            {
+              "sig": "pub fn painter_vao(self: const Painter2D) -> integer",
+              "doc": "Return the unit-quad VAO owned by the painter, so it can be shared with\n`create_sprite_sheet` instead of uploading a second copy."
+            },
+            {
+              "sig": "pub fn draw_rect_at(painter: const Painter2D, x: float, y: float, w: float, h: float, r: float, g: float, b: float, a: float)",
+              "doc": "Draw a filled rectangle at screen position (x, y) with size (w, h).\nColour channels are in 0.0..1.0. Uses the painter's flat-color shader."
+            },
+            {
+              "sig": "pub fn draw_sprite_at(sheet: const SpriteSheet, painter: const Painter2D, x: float, y: float, w: float, h: float, sp_idx: integer)",
+              "doc": "Draw a sprite from `sheet` at screen position (x, y) with size (w, h).\n`sp_idx` is the 0-based sprite index (row-major) in the sheet.\nThis is a one-liner replacement for `make_mvp` + `draw_sprite`."
+            },
+            {
+              "sig": "pub fn draw_texture_at(painter: const Painter2D, tex: integer, x: float, y: float, w: float, h: float)",
+              "doc": "Draw an arbitrary GL texture as a screen-space quad at (x, y, w, h).\nUses the painter's textured shader, which flips V to match canvas origin.\nSuitable for textures created with `create_text_texture` or `gl_upload_canvas`."
+            },
+            {
+              "sig": "pub fn create_text_texture(font: integer, content: text, size: float, color: integer) -> integer",
+              "doc": "Rasterize `content` with `font` at `size` pixels, upload the glyph bitmap\nas a GL texture, and return the texture ID. The texture is sized to fit\nthe measured text plus a small padding; pair with `draw_texture_at` to\nrender. Caller owns the texture — call `gl_delete_texture` when done.\nReturns 0 if the text cannot be measured."
+            },
+            {
+              "sig": "pub fn audio_load(path: text) -> integer",
+              "doc": "Load an audio clip (WAV or OGG). Returns handle (>= 0) or null on failure."
+            },
+            {
+              "sig": "pub fn audio_play(clip: integer, volume: float, looping: boolean = false, pan: float = 0.0, start: float = 0.0) -> integer",
+              "doc": "Play a loaded clip.  Returns a playback handle, or -1 when it will not play.\n\n`volume` is 0.0-1.0, `looping` repeats the clip until it is stopped, `pan`\nplaces it across the stereo field (-1 left, 0 centre, 1 right), and `start`\nbegins that many seconds in.  Everything past `volume` has a default, so an\nexisting `audio_play(clip, 0.8)` keeps meaning what it meant.\n\n`start` skips into the FIRST pass only: a looping clip then repeats whole,\nwhich is what a browser's `start(when, offset)` with `loop` does.\n\nA handle is never handed out twice.  When a clip finishes its slot is reused,\nbut the handle carries which use it belongs to, so an `audio_stop` on a\nfinished sound stops nothing instead of stopping whatever took its place."
+            },
+            {
+              "sig": "pub fn audio_stop(sink: integer)",
+              "doc": "Stop a playing clip by its playback handle."
+            },
+            {
+              "sig": "pub fn audio_stop_all()",
+              "doc": "Stop every playing clip — a pause menu, a scene change, a game over."
+            },
+            {
+              "sig": "pub fn audio_set_volume(sink: integer, volume: float)",
+              "doc": "Set volume of a playing clip (0.0-1.0)."
+            },
+            {
+              "sig": "pub fn audio_set_pan(sink: integer, pan: float)",
+              "doc": "Move a playing clip across the stereo field: -1 left, 0 centre, 1 right.\n\nThe law is Web Audio's `StereoPannerNode`, equal-power for a mono clip: a\nsweep holds its loudness through the middle rather than dipping.  A stereo\nclip is narrowed toward the near side rather than having the far one muted."
+            },
+            {
+              "sig": "pub fn audio_seek(sink: integer, seconds: float) -> boolean",
+              "doc": "Jump a playing clip to `seconds` from its start.  Answers whether it moved.\n\nA LOOPING clip cannot seek — repeating needs a buffered source, which has no\nearlier position to go back to — and this answers false rather than leaving\nthe caller believing a jump happened."
+            },
+            {
+              "sig": "pub fn audio_play_raw(samples: vector<single>, sample_rate: integer, volume: float) -> integer",
+              "doc": "Play raw PCM samples (mono, values -1.0 to 1.0) at the given sample rate.\nReturns playback handle, or null on failure."
+            },
+            {
+              "sig": "pub fn sfx_beep(sb_freq: single, sb_dur: single, sb_vol: single) -> integer",
+              "doc": "Short percussive beep — brick hit, UI click."
+            },
+            {
+              "sig": "pub fn sfx_descend(sd_f0: single, sd_f1: single, sd_dur: single, sd_vol: single) -> integer",
+              "doc": "Descending tone — life lost, negative event."
+            },
+            {
+              "sig": "pub fn sfx_chirp(sc_f0: single, sc_f1: single, sc_dur: single, sc_vol: single) -> integer",
+              "doc": "Rising chirp — pickup collected, positive event."
+            },
+            {
+              "sig": "pub fn sfx_noise(sn_dur: single, sn_vol: single) -> integer",
+              "doc": "White noise burst — percussion, explosion, brick break."
+            },
+            {
+              "sig": "pub fn sfx_bounce(sp_freq: single, sp_vol: single) -> integer",
+              "doc": "Paddle bounce — low square wave thud with pitch drop."
+            },
+            {
+              "sig": "pub struct Renderer { const width: integer, const height: integer, const pbr_shader: integer, const shadow_shader: integer, const shadow_fbo: integer, const shadow_tex: integer, const shadow_size: integer, const start_tick: integer, const vaos: vector<integer>, const vert_counts: vector<integer>, uploaded: boolean }",
+              "doc": "A window with the 3D renderer's GL state: its size, the PBR and shadow shaders, the\nshadow-map framebuffer and texture, and the vertex arrays `upload_scene` filled.\n`create_renderer` makes one."
+            },
+            {
+              "sig": "pub fn create_renderer(rw: integer, rh: integer, title: text) -> Renderer",
+              "doc": "Create a renderer with a window.  Compiles built-in shaders, allocates\nshadow map FBO.  Returns null on failure (no display)."
+            },
+            {
+              "sig": "pub fn elapsed(self: const Renderer) -> float",
+              "doc": "Seconds since the renderer was created."
+            },
+            {
+              "sig": "pub fn upload_scene(self: Renderer, sc: const scene::Scene)",
+              "doc": "Upload all meshes in the scene to GPU VAOs."
+            },
+            {
+              "sig": "pub fn render_frame_no_swap(self: Renderer, sc: const scene::Scene, cam: const scene::Camera) -> boolean",
+              "doc": "Render one frame's 3D passes WITHOUT swapping buffers.  Callers\nthat want to draw a 2D overlay between the 3D pass and the swap\n(e.g. the native Moros editor's panel) use this variant and\ninvoke `graphics::gl_swap_buffers()` themselves after their\noverlay renders.  Returns false when close requested.\n\nIntroduced by Initiative 03 Phase 3b (native moros editor\npanel overlay).  The existing `render_frame` wrapper below\npreserves backward compatibility with every current caller."
+            },
+            {
+              "sig": "pub fn render_frame(self: Renderer, sc: const scene::Scene, cam: const scene::Camera) -> boolean",
+              "doc": "Render one frame (3D passes + buffer swap).  Convenience wrapper\nfor callers that don't need a 2D overlay between the 3D pass and\nthe swap — brick-buster, 24-renderer-demo, and every other current\nconsumer.  Returns false when close requested."
+            },
+            {
+              "sig": "pub fn render_loop(self: Renderer, sc: const scene::Scene, cam: const scene::Camera)",
+              "doc": "Convenience: render loop until close."
+            },
+            {
+              "sig": "pub fn destroy(self: Renderer)",
+              "doc": "Destroy GPU resources and close the window."
+            }
+          ],
+          "published": "2026-10-07T21:18:14Z"
         }
       }
     },
@@ -42848,6 +43454,355 @@
             }
           ],
           "published": "2026-10-06T22:11:33Z"
+        },
+        "0.1.6": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/zttext-v0.1.6/zttext-0.1.6.tar.gz",
+          "sha256": "f72aed7809c745902d83df2795392d5a42f8d2e0b844f470dbaf68cad50ea4ad",
+          "size": 62111,
+          "loft": ">=2026.10.20261007",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "zttext",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn zttext_version() -> text",
+              "doc": "The version of this source — the `version` in its `loft.toml`, bumped with it."
+            },
+            {
+              "sig": "pub struct Piece { start: integer, count: integer, style: integer }",
+              "doc": "A piece p = ⟨o, ℓ, s⟩ references the buffer span B[start, start+count) with style-id\n`style`. Pieces are immutable value objects: an edit REBUILDS the piece sequence, it\nnever mutates a piece or swaps vector slots in place."
+            },
+            {
+              "sig": "pub struct Doc { buf: vector<character>, pieces: vector<Piece> }",
+              "doc": "The content model. `buf` is the append-only buffer B ∈ Σ* (a vector<character>, so\noffsets are characters); `pieces` is the piece sequence D = ⟨p₁…pₙ⟩. The materialised\ntext ⌊D⌋ is the concatenation of each piece's buffer span. (Bundling B with D keeps the\nengine's surface small; the buffer is treated as append-only within an edit.)"
+            },
+            {
+              "sig": "pub struct Run { str: text, style: integer }",
+              "doc": "A styled run: a maximal same-style character span. `slice_runs` returns these; they are\nwhat an inverse Ins/Sty re-creates so undo restores styles, not just text."
+            },
+            {
+              "sig": "pub fn empty_doc() -> Doc",
+              "doc": "A document with no text.  The starting point every edit sequence builds from,\nand what an undo to the beginning arrives at."
+            },
+            {
+              "sig": "pub fn doc_from_text(s: text, style: integer) -> Doc",
+              "doc": "build a one-piece doc holding `s` at style-id `style`."
+            },
+            {
+              "sig": "pub fn materialise(d: Doc) -> text",
+              "doc": "⌊D⌋ — the logical text of the doc (concatenate every piece's buffer span in order)."
+            },
+            {
+              "sig": "pub fn doc_len(d: Doc) -> integer",
+              "doc": "|⌊D⌋| — the character length of the logical text.\nExample: @ZTX-002 — CHARACTERS, which is not the byte length of the\nmaterialised text."
+            },
+            {
+              "sig": "pub fn locate(d: Doc, a: integer) -> (integer, integer)",
+              "doc": "locate(D, a) → (piece index, in-piece offset). Anchor `a` ∈ [0,|⌊D⌋|] sits BETWEEN\ncharacters; piece i covers logical [Cᵢ, Cᵢ+countᵢ). A boundary a = Cᵢ₊₁ lands in piece\ni+1 at offset 0; a = |⌊D⌋| (the end) returns the sentinel (n_pieces, 0)."
+            },
+            {
+              "sig": "pub fn locate_inverse(d: Doc, pi: integer, ro: integer) -> integer",
+              "doc": "inverse of locate: (piece index, in-piece offset) → the logical anchor a."
+            },
+            {
+              "sig": "pub fn insert_text(d: Doc, a: integer, s: text, style: integer) -> Doc",
+              "doc": "insert text `s` (style-id `style`) at anchor `a`. Appends `s`'s characters to a fresh\nbuffer (append-only), then rebuilds the piece sequence splitting the piece at `a`.\nExample: @ZTX-001 — this RETURNS a new Doc; the one passed in is unchanged, so\na discarded result is an edit that silently never happened."
+            },
+            {
+              "sig": "pub fn delete_range(d: Doc, a: integer, b: integer) -> Doc",
+              "doc": "delete the range [a,b). Keeps each piece's portion outside [a,b); the buffer is\nUNCHANGED (deleted characters stay in B so undo can restore them).\nExample: @ZTX-001 — a value, not a mutation: bind the result.\nExample: @ZTX-002 — `a` and `b` are CHARACTER positions, and the append-only\nbuffer does not shrink (that is what undo restores from)."
+            },
+            {
+              "sig": "pub fn set_style(d: Doc, a: integer, b: integer, style: integer) -> Doc",
+              "doc": "set style-id `style` on the range [a,b): split each overlapping piece three ways\n([ps,a) old · [a,b) new · [b,pe) old) and restyle the middle.\nExample: @ZTX-001 — a value, not a mutation: bind the result."
+            },
+            {
+              "sig": "pub fn slice_runs(d: Doc, a: integer, b: integer) -> vector<Run>",
+              "doc": "the styled runs of [a,b): one Run per overlapping piece-fragment, carrying its text and\nstyle. Concatenating the run texts is exactly ⌊D⌋[a,b); the styles are χ_D over [a,b)."
+            },
+            {
+              "sig": "pub fn materialise_range(d: Doc, a: integer, b: integer) -> text",
+              "doc": "materialise just [a,b) as text."
+            },
+            {
+              "sig": "pub fn char_styles(d: Doc) -> vector<integer>",
+              "doc": "per-character style vector over the whole doc (χ_D as a concrete list) — the reference\nagainst which piece-blindness (I2) and undo are checked."
+            },
+            {
+              "sig": "pub enum Op { Ins { pub at: integer, pub str: text, pub style: integer }, Del { pub from: integer, pub to: integer }, Sty { pub from: integer, pub to: integer, pub style: integer } }",
+              "doc": "The primitive edit operations (notation §8): ins(a,t,σ) · del(a,b) · sty(a,b,σ)."
+            },
+            {
+              "sig": "pub struct Txn { ops: vector<Op> }",
+              "doc": "A transaction τ — an atomic, ordered composition of primitive ops; the unit of undo."
+            },
+            {
+              "sig": "pub fn txn_of(ops: vector<Op>) -> Txn",
+              "doc": "Bundle ops into ONE transaction — the unit of undo.  Grouping them here is\nwhat makes a compound edit undo in a single step rather than in pieces."
+            },
+            {
+              "sig": "pub fn apply_op(d: Doc, op: Op) -> Doc",
+              "doc": "Apply one primitive op and answer the new document.  The dispatch every\nhigher-level edit funnels through, so `Ins` / `Del` / `Sty` have exactly one\nmeaning each.  An unrecognised op answers the document unchanged."
+            },
+            {
+              "sig": "pub fn apply(d: Doc, t: Txn) -> Doc",
+              "doc": "apply a whole transaction, left to right. Only the pre- and post-states are observable."
+            },
+            {
+              "sig": "pub fn inv_op_group(pre: Doc, op: Op) -> vector<Op>",
+              "doc": "the inverse of a single op against its PRE-state `pre`, as an ordered op list (a delete\nor restyle over a multi-style range inverts to one op per style-run, so undo restores\nstyles exactly, not just text)."
+            },
+            {
+              "sig": "pub fn invert(d: Doc, t: Txn) -> Txn",
+              "doc": "invert(D, τ) → τ⁻¹ such that apply(apply(D,τ), τ⁻¹) ≈ D (same text + same per-char\nstyles). Each op's inverse is computed against its pre-state; the groups are emitted in\nreverse op order (prepend each new group), since τ⁻¹ undoes the last op first.\nExample: @ZTX-003 — `d` must be the state BEFORE the transaction; the inverse of\na deletion is an insertion of what was there, which only the pre-state knows.\nRestores per-character styles as well as text."
+            },
+            {
+              "sig": "pub struct Style { size: float, weight: integer, italic: boolean, dir: integer }",
+              "doc": "A concrete style σ ∈ 𝕊. For the fake monospace measurer only `size` (per-character\nadvance) matters; `weight`/`italic`/`dir` (0 = LTR, 1 = RTL) round out the shape the\nreal backends will fill in. Layout reads styles ONLY through a StyleResolver, so a\nsurface restyles by swapping the resolver."
+            },
+            {
+              "sig": "pub fn default_style() -> Style",
+              "doc": "Size 1, regular, upright, left-to-right — the style a document starts in and\nthe one to adjust from rather than building a `Style` field by field."
+            },
+            {
+              "sig": "pub fn mono_measure(s: text, st: Style) -> float",
+              "doc": "The fake monospace Measurer μ: advance width = character-count × style.size. Pure and\ndeterministic, so every layout milestone is headless and parity-testable. The Measurer\nPORT type is `fn(text, Style) -> float`; this is one implementation (a named ref you\npass where a Measurer is expected)."
+            },
+            {
+              "sig": "pub fn default_resolver(_id: integer) -> Style",
+              "doc": "A trivial StyleResolver ρ: every id resolves to the default style. The port type is\n`fn(integer) -> Style`; a real surface passes its own (document stylesheet · IDE syntax\ntheme · cell format)."
+            },
+            {
+              "sig": "pub fn run_height(st: Style) -> float",
+              "doc": "The fake box height of a run in style `st`. Real backends give ascent+descent; the fake\nuses square cells (height = size) so line stacking is deterministic and hand-checkable."
+            },
+            {
+              "sig": "pub struct Rect { x: float, y: float, w: float, h: float }",
+              "doc": "The render IR (notation §4). A Rect is a plane rectangle; a Box β = ⟨rect, κ, style⟩\ncarries the LOGICAL content-ref κ = [ks, ke) (character span in ⌊D⌋) and a single style.\nThe rect's position is the VISUAL order; κ is the LOGICAL order — both explicit in every\nbox, which is the whole BiDi story (a selection is κ-intersection, geometry-free)."
+            },
+            {
+              "sig": "pub struct Box { rect: Rect, ks: integer, ke: integer, style: integer, hyphen: boolean = false }",
+              "doc": "`hyphen` marks a synthetic line-end hyphen glyph (from a discretionary break, S4.7):\nit renders \"-\" rather than its κ text, and κ points at the soft-hyphen it stands in for."
+            },
+            {
+              "sig": "pub struct BoxSet { boxes: vector<Box> }",
+              "doc": "The boxes of a laid-out text: one `Box` per glyph run, in layout order.  What `flow_layout`\nreturns."
+            },
+            {
+              "sig": "pub struct LaidLine { cs: integer, ce: integer, y: float, h: float, para_end: boolean = false, right: float = 0.0 }",
+              "doc": "A laid-out visual line: the logical char span [cs,ce) its boxes cover, its top y and its\nheight. `para_end` is true when this is a paragraph's LAST line (ended at a hard break or\nthe doc end) — it is left ragged (justify skips it). `right` is the line's available right\nedge (the column edge, or an image's edge for a line beside one) — the target justify fills\nto. Carried by a Layout so incremental reflow can find the lines an edit touches (M3)."
+            },
+            {
+              "sig": "pub struct PlacedImage { x: float, y: float, w: float, h: float, id: integer }",
+              "doc": "A placed image on the page: its rectangle + the image reference `id` (a file_record id at\nthe app layer). It is BOTH a rendered element AND an exclusion region the text steers around."
+            },
+            {
+              "sig": "pub struct Layout { boxes: vector<Box>, lines: vector<LaidLine>, images: vector<PlacedImage> }",
+              "doc": "A full layout result: the text boxes (the render IR), per-line metadata (the seam\nincremental reflow needs), and the placed images (rendered separately; text never overlaps\nthem). `flow_layout` returns just the BoxSet; `flow_layout_full` returns this."
+            },
+            {
+              "sig": "pub struct Token { word: boolean, ts: integer, te: integer, disc: boolean = false, brk: boolean = false }",
+              "doc": "A token in the stream: a word (non-space run), glue (a space run), a discretionary break\n(`disc`, a soft hyphen), or a paragraph break (`brk`, a newline run). `word`/`disc`/`brk`\nare the kind flags; all false → glue. Glue is the breakable inter-word space; disc is a\nzero-width in-WORD break (S4.7); brk is a HARD break that ends the line and starts a new\nparagraph (a paragraph's last line is ragged, and gets paragraph spacing after it)."
+            },
+            {
+              "sig": "pub fn soft_hyphen() -> text",
+              "doc": "The canonical discretionary-hyphen character: Unicode SOFT HYPHEN U+00AD (UTF-8 0xC2 0xAD).\nIt is the PORTABLE storage form — invisible in any conforming Markdown/HTML pipeline, and\nrendered as a hyphen only when a line breaks at it. The `[-]` authoring notation maps to it."
+            },
+            {
+              "sig": "pub fn encode_shy(s: text) -> text",
+              "doc": "encode the `[-]` authoring notation → the canonical soft hyphen (import / editor-input path)."
+            },
+            {
+              "sig": "pub fn decode_shy(s: text) -> text",
+              "doc": "decode the canonical soft hyphen → the `[-]` notation (editor source-view / round-trip)."
+            },
+            {
+              "sig": "pub fn seg(d: Doc) -> vector<Token>",
+              "doc": "seg(⌊D⌋) → the token stream T of words ω, glue δ, and discretionary breaks (soft hyphens).\nA soft hyphen becomes its own zero-width Disc token; words are maximal non-space,\nnon-soft-hyphen runs, so every inter-token boundary is a legal break (space or hyphen)."
+            },
+            {
+              "sig": "pub fn token_width(d: Doc, tok: Token, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> float",
+              "doc": "ν(t) — the measured advance of a token: the sum over its style-runs of μ(run, ρ(style)).\n(A token may cross a style boundary; each run measures under its own resolved style.)"
+            },
+            {
+              "sig": "pub struct Line { first: integer, last_excl: integer }",
+              "doc": "A laid-out line: the half-open token range [first, last_excl). Trailing glue at a break\nis NOT included (notation §6: \"trailing glue on a line is dropped\")."
+            },
+            {
+              "sig": "pub fn lines_greedy(d: Doc, toks: vector<Token>, w_col: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> vector<Line>",
+              "doc": "greedy line breaking (notation §6, brk): pack words while they fit in width W; interior\nglue counts toward the width, trailing glue is deferred and dropped at a break. The first\nword on a line always fits (an over-wide word overflows onto its own line, no infinite loop)."
+            },
+            {
+              "sig": "pub fn next_line(d: Doc, toks: vector<Token>, from: integer, w_col: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> (integer, integer, integer, boolean)",
+              "doc": "Break ONE line greedily starting at token `from` → (last_excl, next_tok, hyphen_disc,\npara_break): the line covers tokens [from, last_excl); the next line starts at `next_tok`;\nhyphen_disc is the token index of a soft hyphen the line broke a word at (a trailing hyphen\nglyph), else -1; para_break is true when the line ended at a HARD paragraph break (which is\nconsumed — `next_tok` is past it). The per-line step both the full layout and the patch reuse."
+            },
+            {
+              "sig": "pub struct PlacedLine { boxes: vector<Box>, line: LaidLine }",
+              "doc": "A placed line: its boxes plus its LaidLine metadata."
+            },
+            {
+              "sig": "pub fn place_line(d: Doc, toks: vector<Token>, first: integer, last_excl: integer, hyphen_disc: integer, para_end: boolean, y: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> PlacedLine",
+              "doc": "Place tokens [first, last_excl) at top y — one box per style-run, x-advance left to right;\nthe shared placement primitive so the full layout and a patched tail are byte-identical. If\n`hyphen_disc >= 0`, append a trailing hyphen glyph box for that soft hyphen (S4.7)."
+            },
+            {
+              "sig": "pub fn layout_tokens_from(d: Doc, toks: vector<Token>, y0: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float, para_gap: float = 0.0) -> Layout",
+              "doc": "Lay out a TOKEN LIST (absolute char spans) from top y0 — the whole-doc layout, built as a\nsequence of next_line + place_line steps (the exact steps an incremental patch reuses)."
+            },
+            {
+              "sig": "pub fn flow_layout_full(d: Doc, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float, para_gap: float = 0.0) -> Layout",
+              "doc": "L for the flow surface: content + resolver + measurer + column width → a full Layout.\n`para_gap` is the extra vertical space after each paragraph (0 = paragraphs still break onto\nnew lines, just with no gap)."
+            },
+            {
+              "sig": "pub fn flow_layout(d: Doc, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> BoxSet",
+              "doc": "The BoxSet-only view of a flow layout (the M1/M2 surface).\nExample: @ZTX-004 — measurement is an ARGUMENT, which is why the same document\nand ports lay out identically on every target; `default_resolver` + `mono_measure`\nare the deterministic pair to test against."
+            },
+            {
+              "sig": "pub fn line_assignment(d: Doc, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> vector<LaidLine>",
+              "doc": "D1 (EDITOR_DESIGN step D) — the LINE ASSIGNMENT: the per-line logical char spans [cs,ce) a\ndocument breaks into (each with its y/height, its justify edge `right`, and whether it is a\nparagraph's ragged last line). It is a PURE function of (content, styles, metrics, column), and\nit is the layer the determinism budget lives at (§8.22): common word widths ⇒ identical breaks ⇒\nidentical assignment on every platform. This is what a screen RenderSink paints one element PER\n(step D2), and what the loft-native PDF emitter (step E) paginates from — both downstream of, and\nagreeing because of, this one assignment. Materialise a line's text with\n`materialise_range(d, cs, ce)`."
+            },
+            {
+              "sig": "pub fn render_dump(bs: BoxSet, d: Doc) -> text",
+              "doc": "A headless RenderSink R: a deterministic textual dump of the BoxSet, one line per box —\n`[x,y,w,h] ks..ke s=style 'text'`. Golden-string comparable; the eyeball/regression view\nthat stands in for a real DOM/Canvas/PDF sink (which is a Tier-2 backend, swapped at the\nbrowser edge). Coordinates are printed to one decimal so the string is backend-stable."
+            },
+            {
+              "sig": "pub fn render_commands(l: Layout, d: Doc) -> text",
+              "doc": "The DOM/Canvas RenderSink R : 𝔅 → paint commands — the reusable engine-level sink PROTOCOL. A\nthin per-target host (browser host.js / native / PDF) paints these; loft owns every coordinate\n(§8.22), so the geometry is identical on every reader and the host only positions boxes it is\nhanded. One `LINE|y|h|right|paraEnd` per laid line (the justified line assignment, D2) then one\n`BOX|x|y|w|h|style|text` per glyph-box (CSS px, 2 decimals so the string is backend-stable). This\nis CONTENT-ONLY: caret/selection overlays are a consumer concern layered on top (cf. ztedit's\n`ed_render`, which adds SCALE/DOC/CARET/SEL around this same LINE/BOX core), so any read surface —\nviewer, editor, print preview — reuses it unchanged. Takes a full Layout (lines + boxes)."
+            },
+            {
+              "sig": "pub fn boxset_height(bs: BoxSet) -> float",
+              "doc": "The total laid-out height (sum of line heights) — the column's content height."
+            },
+            {
+              "sig": "pub fn box_at(bs: BoxSet, x: float, y: float) -> integer",
+              "doc": "box_at(𝔅, x, y) → the index of the box CONTAINING (x,y) (half-open rect), or -1 if the\npoint is in no box (a margin / gap — anchor_at then falls back to the nearest box)."
+            },
+            {
+              "sig": "pub fn anchor_at(bs: BoxSet, d: Doc, x: float, y: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> integer",
+              "doc": "H(q, 𝔅) — the logical anchor for a point: pick the box (containing, else nearest), then\nrefine x WITHIN the box by finding the character split whose prefix width is closest to\nthe local x (via μ, so it is correct for proportional fonts, not just monospace).\n(RTL refinement, where the prefix mapping reverses, is completed with BiDi placement in\nS4.5; this LTR refinement is exact for the flow surface.)"
+            },
+            {
+              "sig": "pub fn sel(bs: BoxSet, a: integer, b: integer) -> vector<integer>",
+              "doc": "Sel(a,b) = { β : κ(β) ∩ [a,b) ≠ ∅ } — the boxes a logical selection [a,b) covers, returned\nas box indices. Defined PURELY by κ-intersection: it never mentions geometry, so a range\ncrossing a direction boundary yields the correct (possibly visually-split) box set with no\nspecial-case code. THIS is the whole BiDi selection story."
+            },
+            {
+              "sig": "pub fn sel_rects(bs: BoxSet, d: Doc, a: integer, b: integer, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> vector<Rect>",
+              "doc": "Sel(a,b) as precise highlight RECTANGLES — character-granular. Each box the range covers is\nCLIPPED to its selected sub-span [max(a,ks), min(b,ke)), the endpoints mapped to x within the\nbox via μ. So a partially-selected word highlights only the selected characters, not the whole\nword (`sel` returns whole boxes; this returns the sub-rects to paint). A fully-selected box\nyields its whole rect; the boundary boxes are the fine ones."
+            },
+            {
+              "sig": "pub fn caret_at(bs: BoxSet, d: Doc, a: integer, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> Rect",
+              "doc": "caret_at(a) — the caret rectangle (zero width) for logical anchor a: the x is refined within\nthe box holding a (a==ke → the box's right edge; a==ks → its left), y/h from that box. The\ndual of anchor_at (point → anchor); this is anchor → point, for drawing the cursor."
+            },
+            {
+              "sig": "pub fn word_at(d: Doc, a: integer) -> (integer, integer)",
+              "doc": "word(a) — the [ts,te) span of the word containing anchor a (what a double-click selects). A\ndiscretionary break does NOT end a word, so a hyphenated word selects whole: expand across\nadjacent word/disc tokens, stopping at glue. a in whitespace returns that glue run."
+            },
+            {
+              "sig": "pub fn line_boxes(bs: BoxSet, a: integer) -> vector<integer>",
+              "doc": "line(a) — the box indices on the VISUAL line containing anchor a. A visual line is the\nmaximal run of boxes sharing box@a's y that is CONTIGUOUS in reading order — not every box\nat that y. This matters for multi-column pages: column 1's line 3 and column 2's line 3\nhave the same absolute y, but they are laid out in reading order (all of column 1, then\ncolumn 2), so a same-y run stays within one column. (A degenerate page with columns only\none line tall would put two columns' first lines adjacent at the same y; real pages are\ntaller, and layout_columns emits boxes column-major, so the run boundary is exact.)"
+            },
+            {
+              "sig": "pub fn doc_chars(d: Doc) -> vector<character>",
+              "doc": "the doc's logical text as a character vector (for the styled-string diff)."
+            },
+            {
+              "sig": "pub fn dirty(old_d: Doc, new_d: Doc) -> (integer, integer, integer)",
+              "doc": "dirty(D, D′) → (lo, hi_old, hi_new): the minimal changed span, computed by diffing the\nSTYLED string (char AND style per position) — common prefix `lo`, common suffix trimmed.\nold[lo,hi_old) was replaced by new[lo,hi_new); the net char change is hi_new - hi_old.\nDiffing the observable styled string (not τ's op structure) gives the tightest range and\nmakes patch independent of HOW the edit was expressed."
+            },
+            {
+              "sig": "pub struct PatchResult { layout: Layout, recomputed: integer, reused: integer }",
+              "doc": "The result of an incremental relayout: the new Layout, plus how many boxes were RECOMPUTED\n(the tail) vs REUSED from the old layout (the prefix). The counts are the bounded-work\nevidence M5 asserts; the layout is what M3's differential checks against a full relayout."
+            },
+            {
+              "sig": "pub fn patch(old_layout: Layout, old_doc: Doc, new_doc: Doc, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> PatchResult",
+              "doc": "patch(L(D), D, D′) → a Layout EQUAL to L(D′) (the differential law I5), computed\nincrementally and with BOUNDED re-measurement (I7): reuse every line strictly before the\nedit verbatim, re-lay lines from there only until the break structure RECONVERGES with the\nold layout, then TRANSLATE the untouched tail (a cheap char+y shift, no re-measure).\n\nTwo correctness hinges:\n· start one line EARLIER than the line containing the edit — that earlier line's content\nis entirely before the edit, so the break INTO it is fixed; re-laying from there catches\na \"backward join\" (a shrunk word rising onto the previous line);\n· reconvergence — once a re-laid line ends at a new-doc char `nsc` past the dirty region\nand some OLD line starts at `nsc − delta`, the token streams from there are identical\n(shifted by delta), so the greedy produces identical lines: reuse the old tail, shifted.\nFirst-line / before-all edits fall back to a full relayout (still trivially I5-correct)."
+            },
+            {
+              "sig": "pub fn render_dump_layout(l: Layout, d: Doc) -> text",
+              "doc": "The BoxSet dump of a Layout (for golden/differential comparison)."
+            },
+            {
+              "sig": "pub fn map_anchor(a: integer, op: Op) -> integer",
+              "doc": "map_anchor(a, op) — where a caret at logical anchor a lands after op. Insert strictly\nbefore a shifts it right (a stays attached to the same following text); insert at/after a\nleaves it (typed text lands after the caret). Delete before a shifts it left; delete after\na leaves it; delete spanning a collapses it to the deletion start. Style ops don't move it."
+            },
+            {
+              "sig": "pub fn map_anchor_txn(a: integer, t: Txn) -> integer",
+              "doc": "map a caret through a whole transaction (op by op, left to right)."
+            },
+            {
+              "sig": "pub struct Page { first_line: integer, last_excl: integer, first_char: integer, top_y: float }",
+              "doc": "A page: the line range [first_line, last_excl) it holds, plus the char and y at which it\nstarts (its π entry — enough to lay the page out from scratch without the pages before it)."
+            },
+            {
+              "sig": "pub fn paginate(layout: Layout, page_h: float) -> vector<Page>",
+              "doc": "paginate a laid-out column: lines stack onto a page until the next line would exceed\npage_h, then a new page begins. The first line of a page always fits (even if taller than\npage_h). The page list IS the break-point index π (each Page.first_char = π(n))."
+            },
+            {
+              "sig": "pub fn seek_page_char(pages: vector<Page>, n: integer) -> integer",
+              "doc": "seek(N) — the first CHARACTER of page N, read directly from π in O(1) (no laying out of\npages 1..N−1). Pairs with layout_page to render page N from scratch (I6)."
+            },
+            {
+              "sig": "pub fn layout_page(d: Doc, start_char: integer, y0: float, page_h: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> Layout",
+              "doc": "Lay out ONE page directly from a page-start (its first_char + top_y) — the same stop rule\npaginate uses, so it reproduces exactly that page's lines. This is \"seek to page N without\nlaying out 1..N−1\": the work is one page of lines, independent of N (I6)."
+            },
+            {
+              "sig": "pub fn apply_bidi(layout: Layout, resolve: fn(integer) -> Style) -> Layout",
+              "doc": "Apply the UAX-9 L2 reorder (LTR/RTL subset) to a laid-out column: within each visual line,\neach maximal run of RTL boxes (resolved dir == 1) has its VISUAL order reversed — the boxes\nkeep their logical κ, only their x changes. So x follows ψ while κ follows logical, and any\nκ-based operation (Sel, hit-test) is unaffected. Base direction is LTR (the flow surface)."
+            },
+            {
+              "sig": "pub fn justify(layout: Layout, d: Doc, w_col: float, justify_last: boolean = false) -> Layout",
+              "doc": "Justify each visual line by distributing its leftover space equally across its glue boxes\n(widen each, shift the rest right). The target right edge is the line's OWN available right\n(`LaidLine.right`) — the column edge, or an image's edge for a line beside one — so it works\nper column AND beside images (falls back to line_left + w_col for a hand-built layout). A\nparagraph's LAST line stays ragged UNLESS `justify_last` (the old-school \"fill every line\"\nlook). Overfull or glue-less lines are left as-is. (Per-glue stretch/shrink BOUNDS are a\nrefinement; this distributes equally.)"
+            },
+            {
+              "sig": "pub fn materialise_viewport(d: Doc, pages: vector<Page>, page_h: float, y_top: float, y_bottom: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, w_col: float) -> Layout",
+              "doc": "Materialise only the pages overlapping the vertical window [y_top, y_bottom) — the boxes a\nviewport (plus its page margin) actually shows. Each page is re-laid from its π entry, so\nthe materialised box count tracks the VIEWPORT, not the document (I7): a 10× larger doc\nwith the same viewport materialises the same boxes."
+            },
+            {
+              "sig": "pub fn piece_count(d: Doc) -> integer",
+              "doc": "How many pieces the document is fragmented into.  Edits split pieces, so this\nrises with editing and `compact_step` is what brings it back down — which makes it\nthe measure to watch when deciding whether compaction is worth running."
+            },
+            {
+              "sig": "pub fn compact_step(d: Doc, budget: integer) -> Doc",
+              "doc": "Coalesce up to `budget` adjacent piece pairs that reference a CONTIGUOUS buffer span with\nthe SAME style (edits fragment the piece vector; those fragments often become mergeable\nagain). Bounded per call (≤ budget merges) so it is interruptible — run it repeatedly in\nidle time. ⌊D⌋ is unchanged (a pure storage-layer coalesce), which is probe P3."
+            },
+            {
+              "sig": "pub struct PageGeom { width: float, height: float, margin_left: float, margin_right: float, margin_top: float, margin_bottom: float, columns: integer, gutter: float, para_gap: float = 0.0 }",
+              "doc": "Page geometry: the physical page, its margins, and its column grid. Column width is\nderived so `columns` equal columns plus `gutter` gaps exactly fill the content box."
+            },
+            {
+              "sig": "pub fn column_width(g: PageGeom) -> float",
+              "doc": "the width of one column: (content width − the inter-column gutters) / columns."
+            },
+            {
+              "sig": "pub fn column_height(g: PageGeom) -> float",
+              "doc": "the usable height of a column (page height minus top/bottom margins)."
+            },
+            {
+              "sig": "pub fn layout_columns(d: Doc, g: PageGeom, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> Layout",
+              "doc": "Lay text out over a multi-column page grid in ABSOLUTE canvas coordinates (pages stacked\ndownward, columns side by side within a page). Lines are broken at the column width and\nstacked down a column; when a line would overflow the column, flow moves to the next\ncolumn, then to column 0 of the next page. Reuses next_line + place_line, so styles,\nper-run boxes, and discretionary hyphenation all carry over unchanged; the produced boxes\nfeed Sel / hit-test / render directly. (Incremental multi-column reflow is a follow-on;\nan edit currently re-runs this full flow, which is fine at document scale.)"
+            },
+            {
+              "sig": "pub struct FlowImage { at: integer, mode: integer, w: float, h: float, id: integer }",
+              "doc": "An in-text (flow) image anchored at content char `at`, with a placement mode and size.\nmode: IMG_LEFT → float left, text wraps right; IMG_FULL → full-width block, text below;\nIMG_RIGHT → float right, text wraps left. Placed at the flow position when reached."
+            },
+            {
+              "sig": "pub fn free_span(left: float, right: float, y: float, h: float, imgs: vector<PlacedImage>) -> (float, float, boolean)",
+              "doc": "free_span(left, right, y, h, imgs) → (flo, fhi, blocked): the WIDEST free horizontal interval\nin [left,right] over the vertical band [y, y+h), after removing every image rectangle that\nintersects that band. `blocked` is true when no free width remains (a full-width obstruction\n— the flow must drop below it). This is the one primitive both image kinds route through.\n\nThe seam for NON-RECTANGULAR page images (arbitrary shapes — deferred until the page-layout\ndesigner makes them usable): this function turns exclusions into a per-band covered interval\n[clo,chi]. A shape only has to report ITS covered interval at (y,h) instead of a rectangle's;\nthe flow above never changes. So \"shapes not just rects\" is a change to the coverage query,\nnot to the layout."
+            },
+            {
+              "sig": "pub fn band_bottom(imgs: vector<PlacedImage>, y: float, h: float, left: float, right: float) -> float",
+              "doc": "the y to drop to when a band is fully blocked: the nearest bottom edge of an obstruction\nintersecting [y, y+h) (so at least one rectangle ends there, opening space). Always > y."
+            },
+            {
+              "sig": "pub fn layout_flow_images(d: Doc, left: float, right: float, y0: float, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float, para_gap: float, line_h: float, page_imgs: vector<PlacedImage>, flow_imgs: vector<FlowImage>) -> Layout",
+              "doc": "Lay text into a single flow region [left,right] starting at top y0, steering around images.\n`page_imgs` are FIXED exclusion rectangles (page-layout images). `flow_imgs` are IN-TEXT\nimages anchored at a content char, placed when the flow reaches them: IMG_FULL blocks the\nwidth (text resumes below), IMG_LEFT/IMG_RIGHT float to a side (text wraps in the free gap).\nEach line's width comes from free_span at its band, so text never overlaps an image; a\nfully-blocked band drops below the obstruction. `line_h` is the nominal line height used for\nthe band test (exact for a uniform surface). Returns the text boxes + the placed images."
+            },
+            {
+              "sig": "pub fn layout_page_columns(d: Doc, g: PageGeom, page_imgs: vector<PlacedImage>, flow_imgs: vector<FlowImage>, resolve: fn(integer) -> Style, measure: fn(text, Style) -> float) -> Layout",
+              "doc": "The full page: multi-column flow (paragraphs + hyphenation) that steers around BOTH image\nkinds. Page images are fixed absolute rectangles (each column avoids the ones over its\nx-range); in-text images are placed in whichever column the flow reaches their anchor in\n(IMG_LEFT/RIGHT float to that column's side, IMG_FULL blocks the column, breaking to the next\ncolumn if it will not fit). The nominal line height is run_height(resolve(0)) — exact for a\nuniform surface. With no images this is identical to layout_columns; that is asserted."
+            }
+          ],
+          "published": "2026-10-07T21:18:18Z"
         }
       }
     },
