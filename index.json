@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-07T21:18:18Z",
+  "updated": "2026-10-07T22:08:25Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -29261,6 +29261,70 @@
             }
           ],
           "published": "2026-10-05T16:53:54Z"
+        },
+        "0.1.8": {
+          "url": "https://github.com/loft-lang/loft-libs-plugins/releases/download/pluginabi-v0.1.8/pluginabi-0.1.8.tar.gz",
+          "sha256": "ea8d6b3036f9d7e197cef571ed47b44cfa823a72e822c1edf226f03911e81c88",
+          "size": 21261,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "pluginabi",
+          "deps": {
+            "cbor": "0.1.12",
+            "crypto": ">=0.3.11"
+          },
+          "api": [
+            {
+              "sig": "pub fn valid_op(op: text) -> boolean",
+              "doc": "Is this one of the six?  THE gate on the host side: an unknown op is a version\nskew between plugin and host, and the only safe answer is to refuse rather\nthan to interpret."
+            },
+            {
+              "sig": "pub fn takes_arg(op: text) -> boolean",
+              "doc": "Which operations read the `arg` slot. Recorded here rather than in each host so the two sides\ncannot drift: a host that sends `arg` for `snapshot` is confused about the contract, and a\nplugin that reads it would be reading whatever the host happened to leave there.\nExample: @PAB-003"
+            },
+            {
+              "sig": "pub fn request(op: text, state_b64: text, arg_b64: text) -> vector<u8>",
+              "doc": "{ \"op\": text, \"state\": bytes, \"arg\": bytes }\n\n`state` is always present (the empty byte string for `initial_state`), so the plugin never has\nto distinguish \"absent\" from \"empty\" — an absent-vs-empty ambiguity across a wire is exactly\nthe kind of thing that produces a plausible wrong answer instead of an error.\n\n⚠ A payload that is not base64 answers an EMPTY frame, which `check_request` refuses as\n`malformed-frame`.  Handing over a raw string by mistake (`\"hello\"` for its base64) is\nthen an error at the front door, not a state that arrives as nothing — only `\"\"` decodes\nto the empty byte string.\nExample: @PAB-001"
+            },
+            {
+              "sig": "pub fn req_op(frame: vector<u8>) -> text",
+              "doc": "Read the operation out of a request frame.  Answers \"\" for a frame that does\nnot decode, which `valid_op` then rejects — so a corrupt frame and an unknown\nop take the same path."
+            },
+            {
+              "sig": "pub fn req_state_b64(frame: vector<u8>) -> text",
+              "doc": "The state the host is handing over, base64.  Always present — the empty byte\nstring for `initial_state` — so a plugin never has to tell absent from empty.\nExample: @PAB-001"
+            },
+            {
+              "sig": "pub fn req_arg_b64(frame: vector<u8>) -> text",
+              "doc": "The operation's argument, base64.  Only `apply_op` and `make_op` carry one;\nask `takes_arg` first, because for the other four this is whatever the host\nleft in the slot."
+            },
+            {
+              "sig": "pub fn reply_ok(out_b64: text) -> vector<u8>",
+              "doc": "success: { \"ok\": true,  \"out\": bytes }\nfailure: { \"ok\": false, \"err\": text }\n\nA failure carries a CODE, not a message: the host shows it to a person, and a free-form string\nfrom the plugin would be the one channel out of the sandbox that is neither bytes-the-host-\ninspects (render) nor a value it asked for: render output stays the only rich channel.\nExample: @PAB-001"
+            },
+            {
+              "sig": "pub fn reply_err(code: text) -> vector<u8>",
+              "doc": "The failure reply.  `code` is a CODE and not a message: a free-form string\nwould be a channel out of the sandbox that nothing inspects, and the host is\nwhat turns a code into words a person reads."
+            },
+            {
+              "sig": "pub fn reply_is_ok(frame: vector<u8>) -> boolean",
+              "doc": "true only for a well-formed success reply. A frame that does not decode, or whose `ok` is not\nthe boolean true, reads as failure — the fail-closed direction.\nExample: @PAB-002"
+            },
+            {
+              "sig": "pub fn reply_out_b64(frame: vector<u8>) -> text",
+              "doc": "The success payload, base64.  Only meaningful once `reply_is_ok` says yes —\non a failure reply it answers \"\", which is indistinguishable from an empty\nsuccess.\nExample: @PAB-002"
+            },
+            {
+              "sig": "pub fn reply_err_code(frame: vector<u8>) -> text",
+              "doc": "The failure code.  The other half of the same pair: check `reply_is_ok`, then\nread exactly one of these two.\nExample: @PAB-002"
+            },
+            {
+              "sig": "pub fn check_request(frame: vector<u8>) -> text",
+              "doc": "Validate an inbound request frame the way a host must, BEFORE dispatching it: decode, then\ncheck the vocabulary. Returns \"\" when the frame is acceptable, else the error code to reply\nwith. Centralised so every host does the same two checks in the same order rather than each\nre-deriving them — the contract has one front door.\nExample: @PAB-003"
+            }
+          ],
+          "published": "2026-10-07T22:08:25Z"
         }
       }
     },
