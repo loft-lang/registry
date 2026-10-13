@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-13T04:28:00Z",
+  "updated": "2026-10-13T04:34:46Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -57727,6 +57727,50 @@
             }
           ],
           "published": "2026-10-06T21:38:20Z"
+        }
+      }
+    },
+    "script": {
+      "description": "What a script reaches for, on demand: a recursive walk, a copy, a glob — each a method on text that loads the library on use.",
+      "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/script",
+      "categories": [
+        "cli"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/script-v0.1.1/script-0.1.1.tar.gz",
+          "sha256": "aa145eabff92191b46f427d1d193092bbbb56101f595d3535f566bb6b051f2d0",
+          "size": 3561,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "script",
+          "deps": {},
+          "triggers": [
+            "walk:text",
+            "copy_to:text",
+            "glob:text"
+          ],
+          "api": [
+            {
+              "sig": "pub fn walk(self: text, suffix: text = \"\") -> vector<text>",
+              "doc": "Every file under the directory `self`, in every subdirectory, as paths joined with `/`\nbelow `self`, in path order.  A symbolic link is never followed, so a loop in the tree is\nnot a loop here.  `suffix` keeps only the names that end with it (`\".loft\"`); `\"\"` keeps\nevery file.  A path that is not a directory answers no files."
+            },
+            {
+              "sig": "pub fn copy_to(self: text, dst: text) -> boolean",
+              "doc": "Copy the file at `self` to `dst`, bytes as they are: true when `dst` now holds them.  A\nsource that cannot be read writes nothing and answers false, as does a write that fails."
+            },
+            {
+              "sig": "pub fn glob(self: text) -> vector<text>",
+              "doc": "The paths that match the pattern `self`, in name order: `*` stands for any run of\ncharacters inside one name, `?` for one character, and everything before the last `/` is\na directory taken as written (`\"default/*.loft\"`, `\"out/??.txt\"`).  A pattern without a\n`/` is matched against the current directory.  An absent directory answers no paths."
+            },
+            {
+              "sig": "pub fn glob_match(pattern: text, name: text) -> boolean",
+              "doc": "Does `name` match `pattern`, with `*` any run and `?` one character?  A plain character\nmatches itself only."
+            }
+          ],
+          "published": "2026-10-13T04:34:46Z"
         }
       }
     }
