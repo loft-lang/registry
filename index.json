@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-08T00:44:33Z",
+  "updated": "2026-10-13T04:15:56Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -18860,6 +18860,29 @@
             }
           ],
           "published": "2026-10-05T16:53:32Z"
+        },
+        "0.1.7": {
+          "url": "https://github.com/loft-lang/loft-libs-assets/releases/download/glb-v0.1.7/glb-0.1.7.tar.gz",
+          "sha256": "b5b49928f741177761dfb0f4e9019ba23d7aa7b21a73beaf84b2a806e1b1556f",
+          "size": 22171,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "glb",
+          "deps": {
+            "mesh3d": ">=0.1.4"
+          },
+          "api": [
+            {
+              "sig": "pub fn save_glb(m: Mesh, path: text)",
+              "doc": "Export a Mesh as a GLB 2.0 file.\nThe output file will contain POSITION, NORMAL, and TEXCOORD_0 vertex attributes\nplus triangle indices.  Readable by Blender, three.js, gltf-validator.\nExample: @GLB-001\nExample: @GLB-003\nExample: @GLB-004"
+            },
+            {
+              "sig": "pub fn save_scene_glb(sc: Scene, path: text)",
+              "doc": "Export a Scene as a GLB 2.0 file.\nAll meshes are packed into one BIN chunk; materials use pbrMetallicRoughness.\nExample: @GLB-002"
+            }
+          ],
+          "published": "2026-10-13T04:15:56Z"
         }
       }
     },
