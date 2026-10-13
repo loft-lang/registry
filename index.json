@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-13T04:15:56Z",
+  "updated": "2026-10-13T04:19:24Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -40117,6 +40117,94 @@
             }
           ],
           "published": "2026-10-02T07:56:11Z"
+        },
+        "0.1.3": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_place-v0.1.3/hex_place-0.1.3.tar.gz",
+          "sha256": "a4f2ea83787d84d1bd8e58f9bcf06896e6b708a41c0f733c435c8e9f5e85f117",
+          "size": 20888,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_place",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_form": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub fn field_union(a: HexSet, b: HexSet) -> HexSet",
+              "doc": "The union footprint of two stencils sharing `a`'s chunk — a fresh HexSet, `a ∪ b`."
+            },
+            {
+              "sig": "pub fn combine_cut(a: HexSet, ma: integer, b: HexSet, mb: integer, e: EdgeSet) -> integer",
+              "doc": "Combine two same-level stencils: union the footprints, cut the boundary of the union ONCE, and\ntag each boundary edge with the material of the source stencil its bordering cell came from.\nOrder-free by construction (reads the finished union + source map, never stamp order); the shared\ninterior edge is never cut, so adjacent stencils fuse.  Returns the number of edges cut.\n\nThe tie-break is INTRINSIC, not positional: a cell in BOTH stencils (an overlap) takes the LOWER\nmaterial id, so `combine_cut(a,b) == combine_cut(b,a)` for overlapping stencils too, not only\ndisjoint ones — otherwise \"order-free\" would quietly hold only for the adjacency case gated here.\n(crawler's full `cut_arb` breaks the same tie by nearest SURFACE then lower id; with no surfaces\nin play the lower id is the whole rule.  Overlap itself is a separate, ungated A8 axis.)\n\nExample: @HXP-001\nExample: @HXP-002"
+            },
+            {
+              "sig": "pub fn combine_cut_level(a: HexSet, la: integer, ma: integer, b: HexSet, lb: integer, mb: integer, at: integer, e: EdgeSet) -> integer",
+              "doc": "Combine two stencils **as seen at level `at`**: only those whose own level matches take part, and\nthe survivors are then cut exactly as `combine_cut` does.  Two stencils on different levels can\ntherefore never fuse, never arbitrate and never contend — at either level, one of them simply is\nnot there.  Returns the number of edges cut at this level.\n\nExample: @HXP-003"
+            },
+            {
+              "sig": "pub fn kappa_at_level(a: HexSet, la: integer, b: HexSet, lb: integer, at: integer, q: integer, r: integer) -> integer",
+              "doc": "The contention degree at one cell, counted **per level**: how many of the two stencils claim it\n*at level `at`*.  This is `κ` (`X53`) made level-aware — two stencils that overlap in `(q,r)` but\nsit on different sheets give `κ = 1` at each level, never `κ = 2` at either.\n\nExample: @HXP-003"
+            },
+            {
+              "sig": "pub fn shared_marked(a: HexSet, b: HexSet, e: EdgeSet) -> integer",
+              "doc": "How many marked edges separate an `a`-cell from a `b`-cell — the \"shared wall\" run.  Zero after\n`combine_cut` (the seam fuses); non-zero after a per-body overlay (a spurious seam wall).  This\nis the measurable form of \"who owns the shared edge?\": nobody, if the parts were combined right.\n\nExample: @HXP-001"
+            },
+            {
+              "sig": "pub struct Pose { ps_cs: float, ps_sn: float, ps_tx: float, ps_ty: float }",
+              "doc": "A pose: a rotation (given as its cos/sin, so a Pythagorean angle can be represented EXACTLY) then\na translation.  Stored as cos/sin rather than θ so a gate can build a rational rotation and check\nthe float pipeline against an exact integer oracle."
+            },
+            {
+              "sig": "pub fn pose_new(cs: float, sn: float, tx: float, ty: float) -> Pose",
+              "doc": "A placement: a rotation given as cos/sin and a translation.  Storing the pair rather than\nan angle keeps `pose_fwd` and `pose_inv` exact inverses with no trig at use time."
+            },
+            {
+              "sig": "pub fn pose_inv_x(p: Pose, wx: float, wy: float) -> float",
+              "doc": "world → local.  THE sole float step (with `pose_fwd_*`).  A cross-frame query calls this once and\nthen tests in the body's own exact frame."
+            },
+            {
+              "sig": "pub fn pose_inv_y(p: Pose, wx: float, wy: float) -> float",
+              "doc": "A world point's y in the pose's frame — the companion of `pose_inv_x`."
+            },
+            {
+              "sig": "pub fn pose_fwd_x(p: Pose, lx: float, ly: float) -> float",
+              "doc": "local → world."
+            },
+            {
+              "sig": "pub fn pose_fwd_y(p: Pose, lx: float, ly: float) -> float",
+              "doc": "A local point's y in the world — the companion of `pose_fwd_x`, and the inverse of\n`pose_inv_y`."
+            },
+            {
+              "sig": "pub fn pose_residual(p: Pose, wx: float, wy: float) -> float",
+              "doc": "The round-trip residual |p(p⁻¹(W)) − W|∞ at one world point — the transform's numerical error,\nwhich is what `ε_seam` bounds.  Exactly 0 in exact arithmetic; ~machine ε in float.\n\nAT ONE WORLD POINT is the load-bearing half: this is a jagged, deterministic function of the\npoint, not a constant.  Near the frame origin it commonly reads exactly 0, and reading it there\nand adopting that as ε_seam is the mistake the number exists to prevent.\n\nExample: @HXP-005"
+            },
+            {
+              "sig": "pub fn disk_hit(p: Pose, cx: float, cy: float, rr: float, wx: float, wy: float) -> boolean",
+              "doc": "Is world point (wx,wy) inside the disk body posed by `p`?  The body is a disk of squared-radius\n`rr` about its LOCAL centre (cx,cy) — a posed tower (its radius is a shell, `X49`).  Routes through\nthe transform, then the exact local test |l − c|² ≤ rr.  This is the general body test in\nminiature: transform once, then decide in the body's own frame."
+            },
+            {
+              "sig": "pub fn arb_solid(a_solid: boolean, b_solid: boolean) -> boolean",
+              "doc": "The fail-safe verdict at a point claimed by two frames: solid if EITHER is solid.  Order-free\n(symmetric) and conservative — a gap only where both agree it is a gap.\n\nExample: @HXP-006"
+            },
+            {
+              "sig": "pub fn arb_owner(a_solid: boolean, a_id: integer, b_solid: boolean, b_id: integer) -> integer",
+              "doc": "Which frame OWNS a contested point — its material/surface wins.  The lowest id among the frames\nclaiming *solid* (a total order on frames), or -1 if none is solid.  Intrinsic, so it does not\ndepend on the order the frames are visited.\n\nExample: @HXP-006"
+            },
+            {
+              "sig": "pub fn seat_height(cells: HexSet, terr: Heights, policy: integer) -> float",
+              "doc": "The height to seat at, under `policy`.  A pure read of the terrain under the footprint.\n\nExample: @HXP-004"
+            },
+            {
+              "sig": "pub fn seat_residual(cells: HexSet, terr: Heights, z: float) -> float",
+              "doc": "THE RESIDUAL, and it is returned rather than swallowed (`G5`): the largest gap between the seat\nheight and the ground under any footprint cell.  Zero on flat ground; on a slope it is the\ncut-and-fill the placement owes, and the editor must show it.\n\nExample: @HXP-004"
+            },
+            {
+              "sig": "pub fn seat_write(cells: HexSet, terr: Heights, z: float) -> integer",
+              "doc": "SEAT THE STENCIL: write the seat height into the `height` slot for every footprint cell.  Cells\nand edges are untouched — that is the whole point, and it is what keeps `rebuild` exact.  Returns\nthe number of cells whose height was written.\n\nExample: @HXP-004"
+            }
+          ],
+          "published": "2026-10-13T04:19:24Z"
         }
       }
     },
