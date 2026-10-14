@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-13T04:34:46Z",
+  "updated": "2026-10-14T19:55:12Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -24051,7 +24051,7 @@
       }
     },
     "regex": {
-      "description": "Small-script regex: `search`, `matches` and a lazy `split_on`, with a thread-local pattern cache.",
+      "description": "Small-script regex: `search`, `matches`, `capture` / `capture_all` with groups, `replace_on` and a lazy `split_on`, with a thread-local pattern cache.",
       "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/regex",
       "categories": [
         "text"
@@ -24476,6 +24476,69 @@
             }
           ],
           "published": "2026-10-05T16:53:57Z"
+        },
+        "0.5.0": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.5.0/regex-0.5.0.tar.gz",
+          "sha256": "6d6dcd32ac9e3dad448b14c05eee2a37dd4e93a9adbee860dec81de55ff407b7",
+          "size": 21225,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.5.0",
+          "data_compatible_with": "0.2.1",
+          "subpath": "regex",
+          "deps": {},
+          "triggers": [
+            "group:Match?",
+            "named:Match?",
+            "search:text",
+            "matches:text",
+            "capture:text",
+            "capture_all:text",
+            "replace_on:text",
+            "split_on:text"
+          ],
+          "api": [
+            {
+              "sig": "pub struct Group { text: text?, start: integer, end: integer }",
+              "doc": "One capture group of a match.  `text` is null when the group did not take\npart (an alternation branch not taken, an optional group that matched\nnothing); `start` and `end` are then -1."
+            },
+            {
+              "sig": "pub struct Match { text: text, start: integer, end: integer, groups: vector<Group>, names: vector<text> }",
+              "doc": "A match of a pattern in a subject: the matched text, its byte span, and its\ngroups in pattern order (group 1 first — `text` IS group 0).  `names` holds\none entry per group, \"\" for an unnamed one, so `named` is a lookup."
+            },
+            {
+              "sig": "pub fn group(self: Match?, i: integer) -> text?",
+              "doc": "Group `i` of the match (1-based, `group(0)` is the whole match), or null\nwhen it did not take part, there is no such group, or there was no match:\nthe receiver is nullable so `line.capture(p).group(1)` reads in one go, a\nmiss answering null all the way down."
+            },
+            {
+              "sig": "pub fn named(self: Match?, name: text) -> text?",
+              "doc": "The group called `name`, or null when the pattern has no such name, the\ngroup did not take part, or there was no match."
+            },
+            {
+              "sig": "pub fn search(self: text, pattern: text) -> integer?",
+              "doc": "Byte offset of the first match of `pattern` in the text, or null when there\nis no match (or the pattern is invalid).  The conventional regex-search verb\n— named `search`, not `find`, because bare `find` on text is the stdlib's\nliteral substring search.  Call as  line.search(\"[0-9]+\").\nExample: @RGX-001 — why this is `search` and not `find`, and what a bare\n`find(pattern, input)` answers instead.\nExample: @RGX-002 — the answer is a BYTE offset (slice with it, compare it to\n`size()` not `len()`), and a miss is null."
+            },
+            {
+              "sig": "pub fn matches(self: text, pattern: text) -> boolean",
+              "doc": "True if `pattern` matches anywhere in the text.  `self` registers this as\nBOTH a method (`line.matches(p)`) and a free function (`matches(line, p)`).\nCollision-free on `text` (the stdlib has `contains`, not `matches`).\nExample: @RGX-003 — a pattern that never compiled answers false, exactly like\ntext that simply did not match — and says so once."
+            },
+            {
+              "sig": "pub fn capture(self: text, pattern: text) -> Match?",
+              "doc": "The first match of `pattern` in the text with its capture groups, or null\nwhen there is none (or the pattern is invalid).  Call as\nm = line.capture(\"^(\\\\w+)=(.+)$\");  if m != null { key = m.group(1)?; }\nExample: @RGX-005 — a group that did not take part is null, not \"\".\nExample: @RGX-006 — every offset is a byte on a code-point boundary."
+            },
+            {
+              "sig": "pub fn capture_all(self: text, pattern: text) -> vector<Match>",
+              "doc": "Every non-overlapping match of `pattern` in the text, in order, each with\nits groups; empty when there is none.  An empty match advances one\ncharacter, so `a*` on `\"baa\"` answers three matches: `\"\"`, `\"aa\"`, `\"\"`.\nExample: @RGX-007 — the walk idiom that replaces `re.sub` with a callback."
+            },
+            {
+              "sig": "pub fn replace_on(self: text, pattern: text, template: text, limit: integer = 0) -> text",
+              "doc": "The text with its matches of `pattern` replaced by `template`, in which\n`$1` / `${name}` stand for a group, `$0` for the whole match and `$$` for a\ndollar.  `limit` bounds how many matches are replaced, from the left; 0\n(the default) replaces every one.  Named `replace_on` beside `split_on`:\nbare `replace` on text is the stdlib's literal replace.\nExample: @RGX-008 — a template is not a format string: `{` is literal there."
+            },
+            {
+              "sig": "pub fn split_on(self: text, pattern: text) -> iterator<text>",
+              "doc": "Split the text on matches of `pattern`, yielding each piece lazily through\nan `iterator<text>` (reuses loft's coroutine channel — nothing is\nmaterialised).  Named `split_on`, not `split`, because bare `split` on text\nis the stdlib character-separator split.  Call as\nfor piece in line.split_on(\"[,;]\") { }.\nExample: @RGX-004 — it yields the gaps between matches, so a separator at\neither end leaves an empty piece and unmatched text comes back as ONE piece."
+            }
+          ],
+          "published": "2026-10-14T19:55:12Z"
         }
       }
     },
