@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-20T09:02:54Z",
+  "updated": "2026-10-20T19:02:33Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -57953,7 +57953,7 @@
       }
     },
     "script": {
-      "description": "What a script reaches for, on demand: a recursive walk, a copy, a glob, a set of texts — each a method that loads the library on use.",
+      "description": "What a script reaches for, on demand: a recursive walk (lazy, or sorted), a copy, a glob, a set of texts — each a method that loads the library on use.",
       "homepage": "https://github.com/loft-lang/loft-libs-core/tree/main/script",
       "categories": [
         "cli"
@@ -58055,6 +58055,74 @@
             }
           ],
           "published": "2026-10-14T23:51:20Z"
+        },
+        "0.4.0": {
+          "url": "https://github.com/loft-lang/loft-libs-core/releases/download/script-v0.4.0/script-0.4.0.tar.gz",
+          "sha256": "40bc17428ee2fa952a1feebcd4b44f224ad21a0f1a18d81482b7261838951617",
+          "size": 6013,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.4.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "script",
+          "deps": {},
+          "triggers": [
+            "walk:text",
+            "walk_sorted:text",
+            "copy_to:text",
+            "glob:text",
+            "has:sorted<Word[key]>",
+            "put:sorted<Word[key]>",
+            "minus:sorted<Word[key]>",
+            "words:sorted<Word[key]>",
+            "set:fn"
+          ],
+          "api": [
+            {
+              "sig": "pub fn walk(self: text, suffix: text = \"\", links: boolean = true) -> iterator<text>",
+              "doc": "The files under the directory `self`, in every subdirectory, one at a time as a `for`\nloop asks for them: `for p in \"src\".walk(\".rs\") { … }`.  Nothing is listed before the loop\nreaches it and nothing is sorted: each directory gives its files in name order, then its\nsubdirectories are walked the same way, depth first.  `suffix` keeps only the names that\nend with it (`\".loft\"`); `\"\"` keeps every file.  A path that is not a directory gives no\nfiles.  Use [`walk_sorted`] when the order matters.\n\nA symbolic link to a DIRECTORY is never entered, so a loop in the tree is not a loop\nhere.  A link to a FILE is given like any file, as `find` and Python's `os.walk` do;\n`links: false` leaves it out, at the cost of one more check per file given.  A library\nplaced out of process should hand its callers `walk_sorted`, the whole answer in one\nvalue, rather than one crossing per file."
+            },
+            {
+              "sig": "pub fn walk_sorted(self: text, suffix: text = \"\", links: boolean = true) -> vector<text>",
+              "doc": "The files [`walk`] gives, as one vector in path order — the same files, at the cost of\nlisting them all before the first is used, and of the sort.  `walk_sorted(suffix,\nlinks: false)` is the walk of 0.2 and before, which never gave a linked file."
+            },
+            {
+              "sig": "pub fn copy_to(self: text, dst: text) -> boolean",
+              "doc": "Copy the file at `self` to `dst`, bytes as they are: true when `dst` now holds them.  A\nsource that cannot be read writes nothing and answers false, as does a write that fails."
+            },
+            {
+              "sig": "pub fn glob(self: text) -> vector<text>",
+              "doc": "The paths that match the pattern `self`, in name order: `*` stands for any run of\ncharacters inside one name, `?` for one character, and everything before the last `/` is\na directory taken as written (`\"default/*.loft\"`, `\"out/??.txt\"`).  A pattern without a\n`/` is matched against the current directory.  An absent directory answers no paths."
+            },
+            {
+              "sig": "pub fn glob_match(pattern: text, name: text) -> boolean",
+              "doc": "Does `name` match `pattern`, with `*` any run and `?` one character?  A plain character\nmatches itself only.  A name that starts with `.` matches only a pattern that starts with\n`.`, as a shell's and Python's glob have it: `*.loft` is not `.loft`, a hidden entry."
+            },
+            {
+              "sig": "pub struct Word { key: text }",
+              "doc": "One element of a set of texts: the text is the key."
+            },
+            {
+              "sig": "pub fn set(words: vector<text>) -> sorted<Word[key]>",
+              "doc": "A set of the texts in `words`: each once, in key order.  `set([])` is the empty set."
+            },
+            {
+              "sig": "pub fn has(self: sorted<Word[key]>, w: text) -> boolean",
+              "doc": "Is `w` in the set?"
+            },
+            {
+              "sig": "pub fn put(self: sorted<Word[key]>, w: text)",
+              "doc": "Put `w` in the set; a text already there stays once."
+            },
+            {
+              "sig": "pub fn minus(self: sorted<Word[key]>, other: sorted<Word[key]>) -> vector<text>",
+              "doc": "The texts of `self` that are not in `other`, in key order."
+            },
+            {
+              "sig": "pub fn words(self: sorted<Word[key]>) -> vector<text>",
+              "doc": "The texts of the set as a vector, in key order."
+            }
+          ],
+          "published": "2026-10-20T19:02:33Z"
         }
       }
     }
