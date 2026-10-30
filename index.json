@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-30T17:43:41Z",
+  "updated": "2026-10-30T22:48:08Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -17659,6 +17659,499 @@
             }
           ],
           "published": "2026-10-08T00:44:33Z"
+        },
+        "0.10.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.10.0/graphics-0.10.0.tar.gz",
+          "sha256": "f14551efafc8b210b459f75e12545d8efa6e1aed0e137715048f9fc774761f34",
+          "size": 197955,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.10.0",
+          "data_compatible_with": "0.4.2",
+          "subpath": "graphics",
+          "deps": {
+            "mesh3d": ">=0.1.1",
+            "glb": ">=0.1.1",
+            "imaging": ">=0.5.1"
+          },
+          "api": [
+            {
+              "sig": "pub fn rgba(cr: integer, cg: integer, cb: integer, ca: integer) -> integer",
+              "doc": "Pack RGBA channels into a single integer using bitwise ops.\nLayout: bits 24..31 = alpha, 16..23 = red, 8..15 = green, 0..7 = blue.\nLoft integers are 64-bit signed post-2c, so the packed value fits\ndirectly — no widening cast needed.  Each channel is MASKED to 8 bits, so an\nout-of-range argument wraps rather than saturating or being refused.\nExample: @GFX-001 — the alpha byte is the one a hand-written hex literal\nleaves at zero, and a zero alpha is fully transparent."
+            },
+            {
+              "sig": "pub fn rgb(cr: integer, cg: integer, cb: integer) -> integer",
+              "doc": "Opaque colour: the same pack with alpha 255.  `rgb(255, 0, 0)` is 0xFFFF0000 —\nNOT the 0xFF0000 a reader reaches for, which has alpha 0.\nExample: @GFX-001 — why the literal and this call are different colours, and\nwhat each compositing path does with the difference."
+            },
+            {
+              "sig": "pub fn color_r(color: integer) -> integer",
+              "doc": "The channels back out of a packed colour, matching `rgba`'s layout — red,\ngreen, blue, then alpha off the high byte."
+            },
+            {
+              "sig": "pub fn color_g(color: integer) -> integer",
+              "doc": "Green."
+            },
+            {
+              "sig": "pub fn color_b(color: integer) -> integer",
+              "doc": "Blue."
+            },
+            {
+              "sig": "pub fn color_a(color: integer) -> integer",
+              "doc": "Alpha.  255 is opaque; a colour written as a bare 0xRRGGBB literal reads 0\nhere, which is what makes it composite to nothing."
+            },
+            {
+              "sig": "pub struct Canvas { const width: integer, const height: integer, const data: vector<integer> }",
+              "doc": "A 2D pixel canvas backed by a flat vector of RGBA integers.\nPixels are stored row-major: data[y * width + x]."
+            },
+            {
+              "sig": "pub fn canvas(cw: integer, ch: integer, fill_color: integer) -> Canvas",
+              "doc": "Create a canvas filled with a solid color."
+            },
+            {
+              "sig": "pub fn get_pixel(self: const Canvas, gx: integer, gy: integer) -> integer",
+              "doc": "Get pixel color at (x, y). Returns 0 if out of bounds — and 0 is a COLOUR the\ncanvas can hold (`rgba(0, 0, 0, 0)`), so the answer cannot serve as a bounds\ntest.  Bound with `width`/`height`.\nExample: @GFX-003 — a neighbourhood scan that tests the returned colour\nmiscounts its own transparent pixels as off-canvas."
+            },
+            {
+              "sig": "pub fn set_pixel(self: Canvas, sx: integer, sy: integer, color: integer)",
+              "doc": "Set pixel color at (x, y). No-op if out of bounds.  STORES the colour byte for\nbyte, alpha included — it does not composite; `blend_pixel` does.\nExample: @GFX-002 — storing a half-transparent colour replaces what was under\nit, rather than showing through it.\nExample: @GFX-003 — an out-of-range coordinate is declined in silence, so a\nwrong index is a missing part of the drawing, never a message."
+            },
+            {
+              "sig": "pub fn clear(self: Canvas, color: integer)",
+              "doc": "Fill the entire canvas with a solid color."
+            },
+            {
+              "sig": "pub fn blend(dst: integer, src: integer) -> integer",
+              "doc": "Alpha-blend src over dst. Both are 0xAARRGGBB packed integers.\nUses standard \"src over\" compositing: out = src * alpha + dst * (1 - alpha)."
+            },
+            {
+              "sig": "pub fn blend_pixel(self: Canvas, bx: integer, by: integer, color: integer)",
+              "doc": "Draw a pixel with alpha blending at (x, y) — the compositing counterpart to\n`set_pixel`, and the one a caller reaching for alpha usually meant.\nExample: @GFX-002 — store versus composite, side by side."
+            },
+            {
+              "sig": "pub fn fill_rect(self: Canvas, rx: integer, ry: integer, rw: integer, rh: integer, color: integer)",
+              "doc": "Fill a rectangle with a solid color. Clipped to canvas bounds.  Like every\nsolid primitive here it STORES the colour (see `set_pixel`); a rectangle drawn\nin a half-transparent colour is not a translucent overlay.\nExample: @GFX-002 — what the buffer holds afterwards."
+            },
+            {
+              "sig": "pub fn hline(self: Canvas, hx0: integer, hx1: integer, hy: integer, color: integer)",
+              "doc": "Draw a horizontal line from (x0, y) to (x1, y). Clipped.  The end is\nEXCLUSIVE — `[x0, x1)` — and a reversed span draws nothing rather than being\nnormalised.\nExample: @GFX-004 — where a span starts and stops, and what silence looks like."
+            },
+            {
+              "sig": "pub fn vline(self: Canvas, vx: integer, vy0: integer, vy1: integer, color: integer)",
+              "doc": "Draw a vertical line from (x, y0) to (x, y1). Clipped.  Exclusive end and\nno normalisation, exactly like `hline`.\nExample: @GFX-004 — the half-open span rule on both axes."
+            },
+            {
+              "sig": "pub fn draw_rect(self: Canvas, drx: integer, dry: integer, drw: integer, drh: integer, color: integer)",
+              "doc": "Draw a rectangle outline (1px border). Clipped.  Built from four half-open\nspans, so (x, y, w, h) covers x .. x + w - 1 by y .. y + h - 1.\nExample: @GFX-004 — the exact pixels, and the hollow interior."
+            },
+            {
+              "sig": "pub fn draw_line(self: Canvas, lx0: integer, ly0: integer, lx1: integer, ly1: integer, color: integer)",
+              "doc": "Draw a line from (x0, y0) to (x1, y1) using Bresenham's algorithm.\nHandles all octants. Each pixel is set (no blending)."
+            },
+            {
+              "sig": "pub fn draw_circle(self: Canvas, ccx: integer, ccy: integer, radius: integer, color: integer)",
+              "doc": "Draw a circle outline using the midpoint algorithm.\nCenter at (cx, cy) with the given radius. Clipped via set_pixel."
+            },
+            {
+              "sig": "pub fn fill_circle(self: Canvas, fcx: integer, fcy: integer, radius: integer, color: integer)",
+              "doc": "Fill a circle (solid disk). Center at (cx, cy), given radius."
+            },
+            {
+              "sig": "pub fn fill_ellipse(self: Canvas, fex: integer, fey: integer, ferx: integer, fery: integer, color: integer)",
+              "doc": "Fill an axis-aligned ellipse (solid). Center (cx, cy), radii (rx, ry)."
+            },
+            {
+              "sig": "pub fn draw_ellipse(self: Canvas, ecx: integer, ecy: integer, erx: integer, ery: integer, color: integer)",
+              "doc": "Draw an axis-aligned ellipse outline. Center (cx, cy), radii (rx, ry)."
+            },
+            {
+              "sig": "pub fn draw_bezier(self: Canvas, bx0: integer, by0: integer, bx1: integer, by1: integer, bx2: integer, by2: integer, bx3: integer, by3: integer, color: integer)",
+              "doc": "Draw a cubic Bezier curve from (bx0,by0) to (bx3,by3) with control points\n(bx1,by1) and (bx2,by2). Uses adaptive subdivision — splits until segments\nare flat enough, then draws with Bresenham lines.\nFlatness threshold: max deviation of control points from the chord."
+            },
+            {
+              "sig": "pub fn draw_aa_line(self: Canvas, ax0: integer, ay0: integer, ax1: integer, ay1: integer, color: integer)",
+              "doc": "Draw an anti-aliased line using Xiaolin Wu's algorithm.\nUses blend_pixel for sub-pixel coverage."
+            },
+            {
+              "sig": "pub fn fill_triangle(self: Canvas, tx0: integer, ty0: integer, tx1: integer, ty1: integer, tx2: integer, ty2: integer, color: integer)",
+              "doc": "Fill a triangle with vertices (tx0,ty0), (tx1,ty1), (tx2,ty2).\nUses flat-top/flat-bottom decomposition with scanline fill."
+            },
+            {
+              "sig": "pub struct Coord { px: integer, py: integer }",
+              "doc": "A point on the canvas, in pixels.\n\nExists because a polygon is a LIST of them and `fill_triangle`'s six loose\nintegers do not generalise — six is already the edge of what a caller gets\nright in order, and a polygon has no fixed count.\n\nNOT called `Point`: `mesh3d::LightType` has a `Point` variant and `graphics`\ndepends on mesh3d, so the name is taken and the collision is a hard error\n(\"struct 'Point' conflicts with a enumvalue of the same name\"). `Vertex` is\nmesh3d's too. Reach for `Coord` in 2-D graphics code and the 3-D names stay\nwhere they belong."
+            },
+            {
+              "sig": "pub fn fill_polygon(self: Canvas, pts: const vector<Coord>, color: integer)",
+              "doc": "Fill a closed polygon under the EVEN-ODD rule.\n\nThe polygon closes itself: the last point joins the first, so a triangle is\nthree points and not four. Fewer than three points draws nothing.\n\nEven-odd means a point is inside when a ray from it crosses the outline an odd\nnumber of times, so a self-intersecting outline leaves its overlap EMPTY — the\nclassic five-point star is a pentagon-shaped hole with five filled arms. That\nis a choice, not a bug: the alternative (non-zero winding) fills the middle,\nand the two disagree on exactly the shapes people draw deliberately.\n\nMatches `fill_triangle` pixel for pixel on a triangle, which is the reason the\nrow rule below is inclusive rather than the half-open rule a scanline filler\nusually takes. See the note on `polygon_crossings`.\nExample: @GFX-006 — the star's hollow middle, and the triangle agreement."
+            },
+            {
+              "sig": "pub fn resize_lanczos(self: const Canvas, ow: integer, oh: integer) -> Canvas",
+              "doc": "Resample this canvas to `ow` x `oh` with a Lanczos-3 filter.\n\nByte-identical to Pillow's `Image.resize(..., Image.LANCZOS)`, which is the\npoint: the `.draw` corpus renders at 3x and downscales with exactly that, so a\nrenderer that resamples any other way cannot be pixel-compared against it\nhowever good it looks (@PLN146 W0 finding 5).\n\n**Alpha is premultiplied across the resample and undone after**, because\nPillow defines `resize` on an image with alpha as\n`convert(\"RGBa\") -> resize -> convert(\"RGBA\")`. That is a contract, not an\noptimisation: resampling straight RGBA lets a transparent texel's colour bleed\ninto its neighbours, and the two disagree on any edge where alpha varies.\nBoth roundings are Pillow's and neither is the obvious one — `(v*a + 127)/255`\ngoing in, a TRUNCATING divide coming out, and alpha 0 passes its colour\nthrough untouched rather than going black.\nExample: @GFX-007 — why a 3x supersample plus this is not the same picture as\ndrawing once at final size."
+            },
+            {
+              "sig": "pub fn resize_bicubic(self: const Canvas, ow: integer, oh: integer) -> Canvas",
+              "doc": "Resample with a BICUBIC filter — Pillow's `Image.resize` default.\n\nThe default is the reason this exists: `resize(size)` with no `resample=`\nargument is bicubic, and code that builds a small image and enlarges it (a\ngradient computed at 100x100, say) takes that path without naming it. Read\nthe call site's filter off the ARGUMENT LIST and it looks like there isn't\none.\n\n⚠ Bicubic has negative lobes, so an ENLARGEMENT overshoots: a hard 40→200\nstep upscaled 4x spans 28..212 in Pillow and here alike. That is the filter,\nnot a defect — clamping it away would be the defect."
+            },
+            {
+              "sig": "pub fn save_png(self: const Canvas, path: text) -> boolean",
+              "doc": "Save canvas as a PNG file. Automatically uses RGBA if any pixel has alpha < 255,\notherwise uses RGB. Returns true on success.\nExample: @GFX-005 — the choice is read off the pixels, so ONE alpha-0 pixel\n(a hand-written hex literal — @GFX-001) makes the whole file RGBA and that\npixel a transparent hole.\n\nThe PNG is imaging's (a C shim over lodepng), so it is the same file on every target.  A\nrelative path resolves against the program's own directory, as loft's file I/O does.  False\nwhen the canvas is not whole (fewer pixels than width x height) or the file cannot be written."
+            },
+            {
+              "sig": "pub enum Event { KeyDown { pub key: integer, pub mods: integer, pub repeat: boolean }, KeyUp { pub key: integer, pub mods: integer }, Text { pub content: text }, MouseDown { pub button: integer, pub x: float, pub y: float }, MouseUp { pub button: integer, pub x: float, pub y: float }, MouseMove { pub x: float, pub y: float }, Wheel { pub delta: integer, pub x: float, pub y: float }, TouchBegin { pub id: integer, pub x: float, pub y: float }, TouchMove { pub id: integer, pub x: float, pub y: float }, TouchEnd { pub id: integer, pub x: float, pub y: float }, Resize { pub width: integer, pub height: integer } }",
+              "doc": "A window's `events()` answers what arrived since its last poll as a vector of `Event`s, oldest\nfirst.  Each variant carries its own fields, so nothing is latched and nothing is read through\na separate accessor: `match ev { KeyDown { key, mods, repeat } => …, Text { content } => … }`.\n`key` is a KEY_* code (ASCII lower-cased for a character key), `mods` a MOD_* bitmask,\n`button` 1 = left, 2 = right, 4 = middle, `delta` positive scrolls up, positions are pixels\nfrom the window's top-left corner."
+            },
+            {
+              "sig": "pub struct Window { handle: integer }",
+              "doc": "An open window.  `close` ends it early; otherwise it closes when its owner dies."
+            },
+            {
+              "sig": "pub fn open_window(width: integer, height: integer, title: text) -> Window?",
+              "doc": "Open a window of `width` x `height` pixels titled `title`, with an OpenGL 3.3 core context\ncurrent on this thread.  Null when no window can open here."
+            },
+            {
+              "sig": "pub fn open_fullscreen(title: text) -> Window?",
+              "doc": "Open a borderless window covering the screen; read its size with `width()` and `height()`."
+            },
+            {
+              "sig": "pub fn poll(self: const Window) -> boolean",
+              "doc": "Take the window's pending input and apply a resize; false once the window was asked to close\n(or was closed).  Call once per frame, then read `events()`."
+            },
+            {
+              "sig": "pub fn events(self: const Window) -> vector<Event>",
+              "doc": "What arrived since the previous `events()`, oldest first."
+            },
+            {
+              "sig": "pub fn key_down(self: const Window, key: integer) -> boolean",
+              "doc": "Whether key `key` (a KEY_* code) is held down, as of the last `poll`."
+            },
+            {
+              "sig": "pub fn mouse_x(self: const Window) -> float",
+              "doc": "The pointer's position in pixels from the window's top-left corner, as of the last `poll`."
+            },
+            {
+              "sig": "pub fn mouse_y(self: const Window) -> float",
+              "doc": "And its vertical position."
+            },
+            {
+              "sig": "pub fn mouse_buttons(self: const Window) -> integer",
+              "doc": "The mouse buttons held down: 1 left, 2 right, 4 middle, or'ed together."
+            },
+            {
+              "sig": "pub fn clear(self: const Window, color: integer)",
+              "doc": "Clear the frame to `color` (packed 0xAARRGGBB, as `rgba` packs it) and the depth buffer."
+            },
+            {
+              "sig": "pub fn swap(self: const Window)",
+              "doc": "Present the frame.  Its alpha is forced opaque first, so a compositor never shows through it."
+            },
+            {
+              "sig": "pub fn width(self: const Window) -> integer",
+              "doc": "The drawable's size in pixels; it follows a resize at `poll`."
+            },
+            {
+              "sig": "pub fn height(self: const Window) -> integer",
+              "doc": "And its height."
+            },
+            {
+              "sig": "pub fn capture(self: const Window) -> Canvas",
+              "doc": "The frame drawn so far, as a canvas — read it after the draws and before `swap`."
+            },
+            {
+              "sig": "pub fn close(self: Window)",
+              "doc": "Close the window now.  Its death later does nothing more."
+            },
+            {
+              "sig": "pub struct Shader { handle: integer }",
+              "doc": "A linked GLSL program."
+            },
+            {
+              "sig": "pub fn shader(self: const Window, vertex: text, fragment: text) -> Shader?",
+              "doc": "Compile and link a GLSL 3.30 program for this window.  Null when either stage does not compile\nor the program does not link; the driver's log says why, on stderr."
+            },
+            {
+              "sig": "pub fn set_float(self: const Shader, name: text, v: float)",
+              "doc": "Set uniform `name` of this shader; a name the program does not use is ignored."
+            },
+            {
+              "sig": "pub fn set_vec2(self: const Shader, name: text, x: float, y: float)",
+              "doc": "A `vec2` uniform."
+            },
+            {
+              "sig": "pub fn set_vec3(self: const Shader, name: text, x: float, y: float, z: float)",
+              "doc": "A `vec3` uniform."
+            },
+            {
+              "sig": "pub fn set_vec4(self: const Shader, name: text, x: float, y: float, z: float, w: float)",
+              "doc": "A `vec4` uniform."
+            },
+            {
+              "sig": "pub fn set_mat4(self: const Shader, name: text, m: const vector<float>)",
+              "doc": "A `mat4` uniform from 16 floats, column-major; fewer than 16 is ignored."
+            },
+            {
+              "sig": "pub fn set_int(self: const Shader, name: text, v: integer)",
+              "doc": "An `int` (or sampler) uniform."
+            },
+            {
+              "sig": "pub struct GpuMesh { handle: integer }",
+              "doc": "Vertices on the GPU, `stride` floats each: position (location 0); from 6 floats a normal (1);\nat exactly 8 a texture coordinate (2); from 10 a colour, RGBA (2); from 14 an anchor (3) and a\nbirth time (4)."
+            },
+            {
+              "sig": "pub fn upload(self: const Window, data: const vector<single>, stride: integer) -> GpuMesh",
+              "doc": "Upload `data` as a mesh of `len(data) / stride` vertices."
+            },
+            {
+              "sig": "pub fn draw(self: const GpuMesh, shader: const Shader)",
+              "doc": "Draw every vertex of this mesh as triangles with `shader`."
+            },
+            {
+              "sig": "pub fn draw_mode(self: const GpuMesh, shader: const Shader, mode: integer)",
+              "doc": "Draw every vertex of this mesh as `mode`: `DRAW_TRIANGLES`, `DRAW_LINES` or `DRAW_POINTS`."
+            },
+            {
+              "sig": "pub fn update(self: const GpuMesh, data: const vector<single>)",
+              "doc": "Replace the vertices, in the same layout; the count follows `len(data) / stride`.  For data that\nchanges every frame."
+            },
+            {
+              "sig": "pub fn indices(self: const GpuMesh, list: const vector<integer>)",
+              "doc": "Give the mesh an index list (a second call replaces the first); `draw_indexed` then draws the\nvertices it names, in its order."
+            },
+            {
+              "sig": "pub fn draw_indexed(self: const GpuMesh, shader: const Shader, mode: integer)",
+              "doc": "Draw the vertices the index list names, as `mode`."
+            },
+            {
+              "sig": "pub fn draw_instanced(self: const GpuMesh, shader: const Shader, count: integer)",
+              "doc": "Draw the mesh's triangles `count` times; attributes fed by `instance_attrib` advance once per\ncopy."
+            },
+            {
+              "sig": "pub fn instance_attrib( self: const GpuMesh, instances: const InstanceBuffer, location: integer, components: integer, stride: integer, offset: integer )",
+              "doc": "Feed attribute `location` (use 5 and up: the vertex layout takes 0-4) from `instances`, once per\ncopy: `components` floats at `offset` floats into each record of `stride` floats."
+            },
+            {
+              "sig": "pub struct InstanceBuffer { handle: integer }",
+              "doc": "Floats read once per drawn copy of a mesh — a position, a colour — through `instance_attrib`."
+            },
+            {
+              "sig": "pub fn instances(self: const Window, data: const vector<single>) -> InstanceBuffer",
+              "doc": "Upload per-copy data, for a mesh to read through `instance_attrib`."
+            },
+            {
+              "sig": "pub fn update(self: const InstanceBuffer, data: const vector<single>)",
+              "doc": "Replace the data; meshes reading it see the new values at their next draw."
+            },
+            {
+              "sig": "pub fn enable(self: const Window, cap: integer)",
+              "doc": "Turn a capability on: `GL_DEPTH_TEST`, `GL_BLEND`, `GL_CULL_FACE` or `GL_SCISSOR_TEST`."
+            },
+            {
+              "sig": "pub fn disable(self: const Window, cap: integer)",
+              "doc": "And off."
+            },
+            {
+              "sig": "pub fn enabled(self: const Window, cap: integer) -> boolean",
+              "doc": "Whether `GL_DEPTH_TEST`, `GL_BLEND`, `GL_CULL_FACE` or `GL_SCISSOR_TEST` is on — for a pass that\nchanges one and hands the window back as it found it.  A window opens with depth testing on."
+            },
+            {
+              "sig": "pub fn blend(self: const Window, src: integer, dst: integer)",
+              "doc": "How a blended draw combines with the frame: `w.blend(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA)`."
+            },
+            {
+              "sig": "pub fn cull(self: const Window, face: integer)",
+              "doc": "Which faces `GL_CULL_FACE` drops: 0 the back (counter-clockwise is the front), 1 the front."
+            },
+            {
+              "sig": "pub fn depth_write(self: const Window, on: boolean)",
+              "doc": "Whether draws write the depth buffer (they still test it while `GL_DEPTH_TEST` is on)."
+            },
+            {
+              "sig": "pub fn viewport(self: const Window, x: integer, y: integer, width: integer, height: integer)",
+              "doc": "The rectangle draws map onto, origin bottom-left.  `poll` resets it to the whole window on a\nresize."
+            },
+            {
+              "sig": "pub fn scissor(self: const Window, x: integer, y: integer, width: integer, height: integer)",
+              "doc": "The rectangle `GL_SCISSOR_TEST` clips to, origin bottom-left."
+            },
+            {
+              "sig": "pub fn finish(self: const Window)",
+              "doc": "Wait until every draw so far has finished.  A stall: for a test or a screenshot, not a frame."
+            },
+            {
+              "sig": "pub fn line_width(self: const Window, width: float)",
+              "doc": "The width of lines drawn with `DRAW_LINES`."
+            },
+            {
+              "sig": "pub fn point_size(self: const Window, size: float)",
+              "doc": "The size of points drawn with `DRAW_POINTS`."
+            },
+            {
+              "sig": "pub struct Texture { handle: integer }",
+              "doc": "An image on the GPU: colour (RGBA, 8 bits a channel) or depth (32-bit float)."
+            },
+            {
+              "sig": "pub fn texture(self: const Window, width: integer, height: integer) -> Texture",
+              "doc": "An empty colour texture, filtered linearly — a render target."
+            },
+            {
+              "sig": "pub fn depth_texture(self: const Window, width: integer, height: integer) -> Texture",
+              "doc": "An empty depth texture, filtered to the nearest texel and clamped at its edges — the depth of a\nrender target, or a shadow map."
+            },
+            {
+              "sig": "pub fn texture_from(self: const Window, image: const Canvas) -> Texture",
+              "doc": "A colour texture holding a canvas's pixels, filtered linearly and clamped at its edges.  The\ncanvas's row 0 is the texture's row 0, which GL places at the bottom (texture coordinate 0)."
+            },
+            {
+              "sig": "pub fn width(self: const Texture) -> integer",
+              "doc": "Its width in texels."
+            },
+            {
+              "sig": "pub fn height(self: const Texture) -> integer",
+              "doc": "And its height."
+            },
+            {
+              "sig": "pub fn put(self: const Texture, x: integer, y: integer, image: const Canvas)",
+              "doc": "Replace the region at (`x`, `y`) — origin bottom-left — with a canvas's pixels."
+            },
+            {
+              "sig": "pub fn filter(self: const Texture, nearest: boolean)",
+              "doc": "Sample the nearest texel (pixel art), or interpolate between texels (the default)."
+            },
+            {
+              "sig": "pub fn mipmaps(self: const Texture)",
+              "doc": "Build mipmaps from the current pixels and minify through them; call again after `put`."
+            },
+            {
+              "sig": "pub fn bind(self: const Texture, unit: integer)",
+              "doc": "Bind to texture unit `unit`; a `sampler2D` uniform set to `unit` then reads it."
+            },
+            {
+              "sig": "pub struct Framebuffer { handle: integer }",
+              "doc": "A target for draws other than the window: textures attached as its colour and depth."
+            },
+            {
+              "sig": "pub fn framebuffer(self: const Window) -> Framebuffer",
+              "doc": "An empty framebuffer; attach textures before drawing into it."
+            },
+            {
+              "sig": "pub fn attach(self: const Framebuffer, t: const Texture)",
+              "doc": "Attach `t`: a depth texture as the depth buffer, a colour texture as the colour.  With only a\ndepth texture the framebuffer draws no colour (a depth-only pass)."
+            },
+            {
+              "sig": "pub fn render_to(self: const Window, target: const Framebuffer)",
+              "doc": "Draw into `target` from now on — set the viewport to its size.  Dropping the framebuffer that\nis the target sends the draws back to the window."
+            },
+            {
+              "sig": "pub fn render_to_window(self: const Window)",
+              "doc": "Draw into the window again."
+            },
+            {
+              "sig": "pub fn load_texture(self: const Window, path: text) -> Texture?",
+              "doc": "Load a PNG file as a colour texture (filtered linearly, clamped at its edges), its top row at\ntexture coordinate 0 as a canvas uploads.  Any PNG colour type loads; 16-bit channels keep their\nhigh byte.  A relative path resolves against the program's own directory, as `load_font`'s.\nNull when the file is missing or is not a PNG this decoder reads."
+            },
+            {
+              "sig": "pub fn text_texture(self: const Window, font: const Font, content: text, size: float, color: integer) -> Texture",
+              "doc": "`content` drawn with `font` at `size` pixels to the em, in `color`, as a texture: the text with\n2 pixels of transparent margin around it — what 0.9's `create_text_texture` made, for\n`Painter.image`."
+            },
+            {
+              "sig": "pub fn quad(self: const Window) -> GpuMesh",
+              "doc": "Two triangles covering the whole target: a `vec2` position at location 0 and a `vec2` texture\ncoordinate at location 1 — for a post-processing pass, or to show a texture."
+            },
+            {
+              "sig": "pub struct Painter { flat: Shader, tex: Shader, quad: GpuMesh, proj: vector<float> }",
+              "doc": "Shaders and a unit quad for drawing at pixel positions."
+            },
+            {
+              "sig": "pub fn painter(self: const Window) -> Painter?",
+              "doc": "A painter for this window, sized to it.  Null when its shaders do not compile."
+            },
+            {
+              "sig": "pub fn resize(self: Painter, width: integer, height: integer)",
+              "doc": "Draw for a target of `width` x `height` pixels from now on — after a `Resize`."
+            },
+            {
+              "sig": "pub fn rect( self: const Painter, x: float, y: float, w: float, h: float, r: float, g: float, b: float, a: float )",
+              "doc": "A filled rectangle at (x, y) of `w` x `h` pixels, channels 0.0-1.0; the alpha blends where the\nwindow has `GL_BLEND` on."
+            },
+            {
+              "sig": "pub fn image(self: const Painter, t: const Texture, x: float, y: float, w: float, h: float)",
+              "doc": "A texture stretched over (x, y) of `w` x `h` pixels; fully transparent texels are not drawn."
+            },
+            {
+              "sig": "pub fn sprite( self: const Painter, sheet: const Sprites, x: float, y: float, w: float, h: float, index: integer )",
+              "doc": "Sprite `index` of `sheet` over (x, y) of `w` x `h` pixels."
+            },
+            {
+              "sig": "pub struct Sprites { texture: Texture, shader: Shader, quad: GpuMesh, const cols: integer, const rows: integer }",
+              "doc": "A canvas atlas on the GPU, cut into a grid of `cols` x `rows` sprites; sprite 0 is the top left,\ncounting along the rows."
+            },
+            {
+              "sig": "pub fn sprites(self: const Window, atlas: const Canvas, cols: integer, rows: integer) -> Sprites?",
+              "doc": "Upload `atlas` as a sprite sheet of `cols` x `rows` cells.  Null when its shader does not\ncompile."
+            },
+            {
+              "sig": "pub fn draw(self: const Sprites, mvp: const vector<float>, index: integer)",
+              "doc": "Draw sprite `index` through `mvp`, which maps the unit quad onto the target (16 floats,\ncolumn-major)."
+            },
+            {
+              "sig": "pub struct GroupMeshes { slots: hash<GroupSlot[gk]>, meshes: vector<GpuMesh>, const stride: integer, const mode: integer }",
+              "doc": "A mesh in groups, each re-uploaded on its own: after an edit only the groups whose geometry\nchanged go to the GPU again (`upsert`), every other keeps its buffer.  All groups share one\nvertex layout (`stride` floats) and one draw mode.  Each group records its world XZ bounds."
+            },
+            {
+              "sig": "pub fn group_meshes(stride: integer, mode: integer) -> GroupMeshes",
+              "doc": "An empty set for vertices of `stride` floats, drawn as `mode` (`DRAW_TRIANGLES`, …)."
+            },
+            {
+              "sig": "pub fn upsert( self: GroupMeshes, w: const Window, gk: integer, verts: const vector<single>, min_x: single, min_z: single, max_x: single, max_z: single )",
+              "doc": "Upload group `gk`'s vertices — a new group, or new geometry for one already there (its buffer is\nreused).  No vertices empties the group."
+            },
+            {
+              "sig": "pub fn has(self: const GroupMeshes, gk: integer) -> boolean",
+              "doc": "Whether group `gk` has been uploaded."
+            },
+            {
+              "sig": "pub fn count(self: const GroupMeshes) -> integer",
+              "doc": "How many groups the set holds."
+            },
+            {
+              "sig": "pub fn draw_all(self: const GroupMeshes, shader: const Shader)",
+              "doc": "Draw every group with `shader`."
+            },
+            {
+              "sig": "pub struct Font { units_per_em: integer, ascender: integer, descender: integer, line_gap: integer, advances: vector<integer>, cmap: vector<CmapRange>, kern: hash<KernPair[key]>, data: vector<u8> }",
+              "doc": "A TrueType face.  Obtain one from `load_font`; its fields are the font's own numbers, in font\nunits (`units_per_em` of them to the em)."
+            },
+            {
+              "sig": "pub fn load_font(path: text) -> Font?",
+              "doc": "Read a TrueType font file.  Null when the file is missing or is not a TrueType font.\nA relative path resolves against the program's own directory (`source_dir()`), as\n`gl_load_font` does, so a bundled font travels with the program."
+            },
+            {
+              "sig": "pub fn measure(self: const Font, content: text, size: float) -> float",
+              "doc": "The width of `content` in pixels at `size` pixels to the em: each glyph's advance plus the\nkerning between neighbours, as text drawn at that size lays out."
+            },
+            {
+              "sig": "pub fn ascent(self: const Font, size: float) -> float",
+              "doc": "The distance in pixels from the baseline up to the top of the glyphs at `size` pixels to the\nem.  Text drawn top-anchored at `y` has its baseline at `y + ascent(size)`."
+            },
+            {
+              "sig": "pub fn line_height(self: const Font, size: float) -> integer",
+              "doc": "The distance in pixels from one baseline to the next at `size` pixels to the em: ascent,\ndescent and line gap, rounded up to whole pixels."
+            },
+            {
+              "sig": "pub struct Glyph { xmin: integer, ymin: integer, width: integer, height: integer, advance: single, coverage: vector<integer> }",
+              "doc": "The coverage of one glyph at one size: `width` x `height` bytes 0-255 from its top-left, placed\n`xmin` right of the pen and its bottom `ymin` above the baseline."
+            },
+            {
+              "sig": "pub fn rasterize(self: const Font, c: character, size: float) -> Glyph",
+              "doc": "The coverage of character `c` at `size` pixels to the em."
+            },
+            {
+              "sig": "pub fn rasterize_text(self: const Font, content: text, size: float) -> Glyph",
+              "doc": "`content` as one coverage bitmap, `width` x `height` from its top-left: glyphs on one baseline\n(`ascent` down), each kerned against the one before it — the layout 0.9 drew text with."
+            },
+            {
+              "sig": "pub fn draw_text( self: Canvas, font: const Font, content: text, size: float, x: integer, y: integer, color: integer )",
+              "doc": "Draw `content` with `font` at `size` pixels to the em, its top-left at (x, y), blending `color`\nby each pixel's coverage."
+            }
+          ],
+          "published": "2026-10-30T22:48:08Z"
         }
       }
     },
