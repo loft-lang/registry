@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-10-30T15:53:41Z",
+  "updated": "2026-10-30T17:43:41Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -58535,6 +58535,132 @@
             }
           ],
           "published": "2026-10-20T19:02:33Z"
+        }
+      }
+    },
+    "tiles": {
+      "description": "Tile sheets, map layers and sprites on a small 16-bit surface, scaled up once per frame",
+      "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/tiles",
+      "categories": [
+        "graphics",
+        "game"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.5.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/tiles-v0.5.1/tiles-0.5.1.tar.gz",
+          "sha256": "2af2fdf49e5b3d7e3eeaa398dd8614e9a876b0aeb91e252822aa3d8741250143",
+          "size": 24024,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "tiles",
+          "deps": {
+            "imaging": ">=0.4.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn rgb(r: integer, g: integer, b: integer) -> integer",
+              "doc": "An RGB565 colour from 8-bit channels: 5 bits of red, 6 of green, 5 of blue."
+            },
+            {
+              "sig": "pub fn sheet(rgba: const vector<u8>, width: integer, height: integer, tile_w: integer, tile_h: integer, spacing: integer = 0, margin: integer = 0) -> integer?",
+              "doc": "A sheet from `width * height` RGBA bytes, cut into `tile_w * tile_h` tiles with `margin`\npixels round the sheet and `spacing` between tiles (Tiled's names).  A pixel with alpha\nbelow 128 is transparent.  Tiles are numbered from 0, row by row.  Null when the sizes do not\nfit or the sheet has more than 255 colours once in RGB565."
+            },
+            {
+              "sig": "pub fn sheet_from_image(img: const imaging::Image, tile_w: integer, tile_h: integer, spacing: integer = 0, margin: integer = 0) -> integer?",
+              "doc": "A sheet from a decoded image (`imaging::png`)."
+            },
+            {
+              "sig": "pub fn sheet_from_png(path: text, tile_w: integer, tile_h: integer, spacing: integer = 0, margin: integer = 0) -> integer?",
+              "doc": "A sheet from a PNG file."
+            },
+            {
+              "sig": "pub fn tile_count(sheet: integer) -> integer",
+              "doc": "How many tiles a sheet holds, and how many colours (at most 255)."
+            },
+            {
+              "sig": "pub fn colour_count(sheet: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn free_sheet(sheet: integer)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn surface(width: integer, height: integer) -> integer?",
+              "doc": "A 1x RGB565 surface to compose a frame on, cleared to black."
+            },
+            {
+              "sig": "pub fn free_surface(surface: integer)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn clear(surface: integer, colour: integer)",
+              "doc": "Fill a surface with one RGB565 colour."
+            },
+            {
+              "sig": "pub fn rect(surface: integer, x: integer, y: integer, w: integer, h: integer, colour: integer)",
+              "doc": "Fill the `w * h` rectangle with its top-left at (x, y) with one RGB565 colour.  What falls\noff the surface is skipped, and a rectangle with no width or height draws nothing."
+            },
+            {
+              "sig": "pub fn frame(surface: integer, x: integer, y: integer, w: integer, h: integer, colour: integer)",
+              "doc": "The one-pixel outline of that rectangle, inside it: a cursor, a selection, the frame round\na palette.  Clipped like `rect`."
+            },
+            {
+              "sig": "pub fn draw(surface: integer, sheet: integer, tile: integer, x: integer, y: integer, flip_h: boolean = false, flip_v: boolean = false, flip_d: boolean = false, shade: integer = 0)",
+              "doc": "Draw tile `tile` of `sheet` with its top-left at (x, y), in any of the eight orientations.\nA sprite is a tile drawn this way.  Transparent pixels and whatever falls off the surface\nare skipped.  `shade` darkens it: 0 is the tile as it is, and each shade up to\n`SHADES - 1` is darker, down to about a quarter of the light, so the darkest still shows\nwhat is there.  A shade costs nothing: each sheet keeps its palette at every shade."
+            },
+            {
+              "sig": "pub fn draw_turned(surface: integer, sheet: integer, tile: integer, x: integer, y: integer, degrees: integer, pivot: (integer, integer), flip_h: boolean = false, flip_v: boolean = false, flip_d: boolean = false, shade: integer = 0)",
+              "doc": "Draw tile `tile` of `sheet` turned `degrees` clockwise about its pixel `pivot` (x, y within\nthe tile): placed as `draw` places it at (x, y), oriented by the flips first, then turned —\na character's slight lean as it walks, a weapon held at an angle or swung.  Every pixel of\nthe tile lands on exactly one pixel of the surface (the turn is whole quarter turns and three\nshears of whole rows and columns), so the pixel art keeps its pixels and colours at any angle;\n0 degrees is `draw`, and 90, 180 and 270 are its quarter turns.  The shade, transparency\nand clipping are `draw`'s."
+            },
+            {
+              "sig": "pub fn draw_ground(surface: integer, sheet: integer, tile: integer, x: integer, y: integer, lift: (integer, integer, integer, integer), shade: (integer, integer, integer, integer) = (0, 0, 0, 0), flip_h: boolean = false, flip_v: boolean = false, flip_d: boolean = false)",
+              "doc": "Draw tile `tile` of `sheet` as a piece of ground that slopes and is lit gradually: its place\nis the plain `draw`'s at (x, y), with its corners — top-left, top-right, bottom-left,\nbottom-right — lifted `lift` pixels (up is positive, so (4, 4, 0, 0) leans its far edge up\na step) and darkened `shade` sixteenths of a shade (`SHADE_PARTS` is one whole shade darker;\npast `SHADES - 1` whole shades it stays the darkest).\n\nEach column of the tile stays a column of pixels, stretched or squeezed between its top and\nbottom edges, whose lifts are interpolated from the corners at the column's centre.  So two\ntiles that give their shared corners the same lifts meet exactly, with no gap — a slope, a\nmound, a ramp onto a higher floor; and a drop between them shows as the gap a wall tile (or a\ndarker one) fills, drawn the same way.  The darkness is interpolated across the tile and\nshared between the two nearest shades by a fixed 4x4 dither, so light fades smoothly within\na tile and the pattern stays with the ground as the view moves.  Over a plain `draw` it costs\na little per column and a table lookup per pixel; a tile with every lift and shade 0 draws\nexactly what `draw` draws.  Orientation, transparency and clipping are `draw`'s."
+            },
+            {
+              "sig": "pub fn pixels(surface: integer, width: integer, height: integer) -> vector<i32>",
+              "doc": "The surface's pixels, row by row, each an RGB565 value."
+            },
+            {
+              "sig": "pub fn present(surface: integer, width: integer, height: integer, scale: integer, rotate: boolean = false) -> vector<i32>",
+              "doc": "The surface scaled by the integer `scale`, as `present` hands it to a display: row by row,\n(width * scale) x (height * scale) RGB565 values — or, `rotate`d a quarter turn clockwise\nfor a portrait panel, (height * scale) x (width * scale), the surface's top-left at the\ntop-right."
+            },
+            {
+              "sig": "pub fn cell(tile: integer, flip_h: boolean = false, flip_v: boolean = false, flip_d: boolean = false) -> integer",
+              "doc": "A layer cell: tile `tile` (from 0) in one of the eight orientations.  0 is an empty cell."
+            },
+            {
+              "sig": "pub fn from_tiled(gid: integer, firstgid: integer = 1) -> integer",
+              "doc": "A Tiled global tile id (with its flip bits: 31 horizontal, 30 vertical, 29 diagonal) as a\ncell of a sheet whose first id is `firstgid`; 0 for an empty one or a tile of another sheet\n(an id below `firstgid`)."
+            },
+            {
+              "sig": "pub fn layer(cells: const vector<integer>, cols: integer, rows: integer) -> integer?",
+              "doc": "A map layer of `cols * rows` cells, row by row.  Null when the cell count does not match."
+            },
+            {
+              "sig": "pub fn layer_from_tiled_csv(csv: text, cols: integer, rows: integer, firstgid: integer = 1) -> integer?",
+              "doc": "A layer from a Tiled layer's CSV data (`<data encoding=\"csv\">`), its gids read by `from_tiled`."
+            },
+            {
+              "sig": "pub fn free_layer(layer: integer)",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn set_cell(layer: integer, x: integer, y: integer, cell: integer)",
+              "doc": "Set or read one cell; a position off the map is ignored, and reads 0."
+            },
+            {
+              "sig": "pub fn get_cell(layer: integer, x: integer, y: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn draw_layer(surface: integer, layer: integer, sheet: integer, cam_x: integer = 0, cam_y: integer = 0)",
+              "doc": "Draw every cell of `layer` that shows on `surface` when the layer's pixel (cam_x, cam_y) is\nthe surface's top-left — one call per layer, scrolling to the pixel.  Draw layers back to\nfront."
+            }
+          ],
+          "published": "2026-10-30T17:43:41Z"
         }
       }
     }
