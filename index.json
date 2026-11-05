@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-05T14:41:34Z",
+  "updated": "2026-11-05T14:46:50Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -62015,6 +62015,111 @@
             }
           ],
           "published": "2026-10-31T09:17:21Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-game/releases/download/audio-v0.2.1/audio-0.2.1.tar.gz",
+          "sha256": "9dd74bc5e0ad4867e9c8c13c3ab6e678c3e8d8b94267bd4f97dcc3d1c180b729",
+          "size": 719599,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "audio",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn init(rate: integer = 44100)",
+              "doc": "Set the output rate (frames per second, 44100 unless set) and stop every voice; the\nloaded clips stay.  A platform's output layer calls this with the rate its device runs at."
+            },
+            {
+              "sig": "pub fn rate() -> integer",
+              "doc": "The output rate the mix renders at."
+            },
+            {
+              "sig": "pub fn has_vorbis() -> boolean",
+              "doc": "Does this build decode OGG Vorbis?  Every target but the two wasm builds does."
+            },
+            {
+              "sig": "pub fn load(path: text) -> integer?",
+              "doc": "Load a clip from a WAV (PCM 8/16/24/32-bit or float, mono or stereo) or OGG Vorbis file.\nNull when the file cannot be read or decoded."
+            },
+            {
+              "sig": "pub fn load_bytes(bytes: const vector<u8>) -> integer?",
+              "doc": "Load a clip from a file's bytes already in memory."
+            },
+            {
+              "sig": "pub fn load_samples(samples: const vector<single>, sample_rate: integer) -> integer?",
+              "doc": "A mono clip from samples in [-1, 1] at `sample_rate` — a sound made in loft, kept to be\nplayed again."
+            },
+            {
+              "sig": "pub fn unload(clip: integer)",
+              "doc": "Unload a clip; every voice playing it stops."
+            },
+            {
+              "sig": "pub fn clip_frames(clip: integer) -> integer",
+              "doc": "A clip's length in frames, its rate and its channel count (1 or 2); 0 for no clip."
+            },
+            {
+              "sig": "pub fn clip_rate(clip: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn clip_channels(clip: integer) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn play(clip: integer, volume: float, looping: boolean = false, pan: float = 0.0, start: float = 0.0) -> integer?",
+              "doc": "Play a clip: `volume` 0.0-1.0, `looping` repeats it until it is stopped, `pan` places it\nfrom -1 (left) through 0 (centre) to 1 (right), `start` begins that many seconds in.\nAnswers the voice, or null when the clip is unknown or every voice is busy (64 play at once)."
+            },
+            {
+              "sig": "pub fn play_raw(samples: const vector<single>, sample_rate: integer, volume: float) -> integer?",
+              "doc": "Play mono samples in [-1, 1] at `sample_rate` once; the samples are released when it ends."
+            },
+            {
+              "sig": "pub fn stop(voice: integer)",
+              "doc": "Stop a voice.  A voice that already ended is left alone, as is whatever plays in its place."
+            },
+            {
+              "sig": "pub fn stop_all()",
+              "doc": "Stop every voice — a pause menu, a scene change, a game over."
+            },
+            {
+              "sig": "pub fn playing(voice: integer) -> boolean",
+              "doc": "Is this voice still playing?"
+            },
+            {
+              "sig": "pub fn set_volume(voice: integer, volume: float)",
+              "doc": "Set a playing voice's volume, 0.0-1.0."
+            },
+            {
+              "sig": "pub fn set_pan(voice: integer, pan: float)",
+              "doc": "Move a playing voice across the stereo field, -1 (left) to 1 (right)."
+            },
+            {
+              "sig": "pub fn seek(voice: integer, seconds: float) -> boolean",
+              "doc": "Jump a playing voice to `seconds` into its clip.  False for a voice that ended, and for a\nposition past the end of a clip that does not loop (a looping clip wraps)."
+            },
+            {
+              "sig": "pub fn render(frames: integer) -> vector<i32>",
+              "doc": "The next `frames` frames of the mix: 2 * frames samples, left and right interleaved, each\na 16-bit value (-32767 to 32767).  Advances every voice; a voice that reaches the end of a\nclip it does not loop ends."
+            },
+            {
+              "sig": "pub fn start(silent: boolean = false) -> boolean",
+              "doc": "Start the output, so every voice is heard: the system's sound device on a desktop, the\nboard's I2S stream on a Tanmatsu.  `silent` plays at real-time pace into no device at all,\nfor a test or a server.  Answers whether it runs: false where this machine has no output\n(no sound device, or a browser build), and the engine then only renders.  Starting twice\nis starting once.  Set the rate with `init` before this."
+            },
+            {
+              "sig": "pub fn stop_output()",
+              "doc": "Stop the output; the voices keep their place and play on from it after the next `start`."
+            },
+            {
+              "sig": "pub fn output_running() -> boolean",
+              "doc": "Is the output running?"
+            },
+            {
+              "sig": "pub fn output_frames() -> integer",
+              "doc": "How many stereo frames the output has taken since it started — the clock of what was heard."
+            }
+          ],
+          "published": "2026-11-05T14:46:50Z"
         }
       }
     },
