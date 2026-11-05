@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-05T13:16:05Z",
+  "updated": "2026-11-05T13:16:37Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -31722,6 +31722,63 @@
             }
           ],
           "published": "2026-10-05T16:54:00Z"
+        },
+        "0.1.5": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/ssh-v0.1.5/ssh-0.1.5.tar.gz",
+          "sha256": "5b9e92cc4b43310e05374d8061743392fc0c0b6001269e5e2d4994b116431c5a",
+          "size": 9562,
+          "loft": ">=2026.10.20261030",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "ssh",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct Session { handle: integer }",
+              "doc": "A live SSH session.  `handle >= 0` once the TCP connect + transport handshake\nsucceed; `< 0` means the connect failed.  Obtain one from `connect`."
+            },
+            {
+              "sig": "pub fn byte_at(idx: integer, data: text) -> integer",
+              "doc": "Read the byte at `idx` (0..size) of a `recv` result.  A terminal stream is raw\nbytes, so read it byte-by-byte rather than as UTF-8.  Out of range returns -1 —\nnot 0, which the stream itself may legitimately carry.\nExample: @SSH-002 — bound the loop with `size`, and test the end with `< 0`."
+            },
+            {
+              "sig": "pub fn connect(host: text, port: integer) -> Session",
+              "doc": "Open a TCP connection to `host:port` and run the SSH transport handshake.\nCheck `ok()` before authenticating.\nExample: @SSH-001 — a failed session stays callable and silent, so `ok()` is the\nonly thing that reports it."
+            },
+            {
+              "sig": "pub fn ok(self: Session) -> boolean",
+              "doc": "True when the session connected and completed the transport handshake.\nExample: @SSH-001 — skip this and the whole session ladder runs, quietly, on nothing."
+            },
+            {
+              "sig": "pub fn login(self: Session, user: text, password: text) -> boolean",
+              "doc": "Authenticate with a password.  Returns true on success.  The password is used\nonly for this handshake and is never stored by the library."
+            },
+            {
+              "sig": "pub fn open_shell(self: Session, term: text, cols: integer, rows: integer) -> boolean",
+              "doc": "Request a pseudo-terminal of `cols` x `rows` (terminal type `term`, e.g.\n\"xterm-256color\") and start the login shell.  Returns true on success."
+            },
+            {
+              "sig": "pub fn send(self: Session, data: text)",
+              "doc": "Send bytes to the remote shell (keystrokes, escape sequences).  Binary-safe."
+            },
+            {
+              "sig": "pub fn recv(self: Session) -> text",
+              "doc": "Return the bytes the remote shell produced since the last call, or \"\" when\nnothing is pending (non-blocking).  Binary-safe: iterate 0..size(result) and\nread each byte with `byte_at` — `size` is the BYTE count, which is what\n`byte_at` is indexed against; `len` counts characters and would truncate.\nExample: @SSH-002 — the byte a `len`-bounded loop drops, and why -1 is not 0."
+            },
+            {
+              "sig": "pub fn resize(self: Session, cols: integer, rows: integer)",
+              "doc": "Tell the remote the terminal resized to `cols` x `rows` so it re-flows.  Call\nafter a zoom / rotate / window resize."
+            },
+            {
+              "sig": "pub fn is_open(self: Session) -> boolean",
+              "doc": "True while the shell channel is open (the remote has not closed it)."
+            },
+            {
+              "sig": "pub fn close(self: Session)",
+              "doc": "Close the shell channel and disconnect."
+            }
+          ],
+          "published": "2026-11-05T13:16:37Z"
         }
       }
     },
