@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-05T14:39:52Z",
+  "updated": "2026-11-05T14:40:46Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -61582,6 +61582,55 @@
             }
           ],
           "published": "2026-11-05T07:26:10Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-game/releases/download/screen-v0.1.1/screen-0.1.1.tar.gz",
+          "sha256": "48153631a80c1ca036e9b333acc50aaa04068d64880a28ef2f9f4243068a9cc2",
+          "size": 8336,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "screen",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn open(width: integer, height: integer, scale: integer = 1, title: text = \"loft\", offscreen: boolean = false) -> boolean",
+              "doc": "Open the screen for frames of `width` by `height` pixels, each shown as a `scale` by\n`scale` block.  On a desktop that is a window of that size titled `title`; on a device it is\nthe whole display, the frame centred.  `offscreen` keeps only the scaled image in memory —\nfor tests, and for a machine with no screen.  False where this machine has no screen (no\ndisplay, a browser build).  Opening again closes the screen that was open."
+            },
+            {
+              "sig": "pub fn show(pixels: const vector<i32>, width: integer, height: integer)",
+              "doc": "Show a frame: `width * height` RGB565 values, row by row, as `tiles::pixels` answers them.\nA frame with fewer values than that shows nothing."
+            },
+            {
+              "sig": "pub fn poll(wait_ms: integer = 0) -> boolean",
+              "doc": "Take what happened since the last call — keys, the window being closed — waiting up to\n`wait_ms` milliseconds for something to happen.  False once the window was closed."
+            },
+            {
+              "sig": "pub fn has_keys() -> boolean",
+              "doc": "Does this screen have keys of its own (a desktop window)?  A device's keys are `input`'s."
+            },
+            {
+              "sig": "pub fn keys() -> vector<boolean>",
+              "doc": "Which of the window's keys are down, by graphics' key codes (`KEY_W` = 119, `KEY_UP` =\n128, ...): 256 flags, the form `input::input_tick_from_state` takes.  All false where the\nscreen has no keys."
+            },
+            {
+              "sig": "pub fn shown(x: integer, y: integer) -> integer",
+              "doc": "The RGB565 value shown at screen pixel (x, y), or -1 outside the screen — what a test\nreads back."
+            },
+            {
+              "sig": "pub fn width() -> integer",
+              "doc": "The size of the screen in pixels: the window's, or the device's display turned landscape."
+            },
+            {
+              "sig": "pub fn height() -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn close()",
+              "doc": "Close the screen."
+            }
+          ],
+          "published": "2026-11-05T14:40:46Z"
         }
       }
     },
