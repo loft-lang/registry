@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-05T13:15:34Z",
+  "updated": "2026-11-05T13:16:05Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -20380,7 +20380,7 @@
       }
     },
     "web": {
-      "description": "HTTP client + WebSocket client for loft — ureq + tungstenite via cdylib.",
+      "description": "HTTP client + WebSocket client for loft — the natives are loft's `net` component, so the package builds no crate.",
       "homepage": "https://github.com/loft-lang/loft-libs-net/tree/main/web",
       "categories": [
         "net"
@@ -22341,6 +22341,155 @@
             }
           ],
           "published": "2026-10-06T21:39:36Z"
+        },
+        "0.5.0": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.5.0/web-0.5.0.tar.gz",
+          "sha256": "2fe16ea63260bf6d4d50546988b13687273884ba8769768c10910c0c01c4185e",
+          "size": 17110,
+          "loft": ">=2026.10.20261029",
+          "api_compatible_with": "0.4.0",
+          "data_compatible_with": "0.3.0",
+          "subpath": "web",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct HttpResponse { status: integer, body: text, headers: vector<text> }",
+              "doc": "The result of an HTTP request."
+            },
+            {
+              "sig": "pub fn ok(self: HttpResponse) -> boolean",
+              "doc": "Returns true when the status code is in the 200-299 range."
+            },
+            {
+              "sig": "pub fn http_get(url: text) -> HttpResponse",
+              "doc": "Send a GET request."
+            },
+            {
+              "sig": "pub fn http_post(url: text, body: text) -> HttpResponse",
+              "doc": "Send a POST request with a body."
+            },
+            {
+              "sig": "pub fn http_put(url: text, body: text) -> HttpResponse",
+              "doc": "Send a PUT request with a body."
+            },
+            {
+              "sig": "pub fn http_delete(url: text) -> HttpResponse",
+              "doc": "Send a DELETE request."
+            },
+            {
+              "sig": "pub fn http_get_h(url: text, headers: vector<text>) -> HttpResponse",
+              "doc": "GET with custom headers."
+            },
+            {
+              "sig": "pub fn http_post_h(url: text, body: text, headers: vector<text>) -> HttpResponse",
+              "doc": "POST with custom headers."
+            },
+            {
+              "sig": "pub fn http_put_h(url: text, body: text, headers: vector<text>) -> HttpResponse",
+              "doc": "PUT with custom headers."
+            },
+            {
+              "sig": "pub fn http_delete_h(url: text, headers: vector<text>) -> HttpResponse",
+              "doc": "DELETE with custom headers."
+            },
+            {
+              "sig": "pub fn http_get_range(url: text, offset: integer, len: integer) -> HttpResponse",
+              "doc": "Read the byte range [offset, offset+len) of a remote file via a Range\nrequest. Returns status 206 (Partial Content) with the raw bytes in `body`\nwhen the server honours ranges; a server that ignores Range returns 200 with\nthe full body. Read the bytes with `byte_at(i, response.body)`."
+            },
+            {
+              "sig": "pub fn http_get_range_h(url: text, offset: integer, len: integer, headers: vector<text>) -> HttpResponse",
+              "doc": "Byte-range read with extra custom headers (e.g. If-Range / If-None-Match)."
+            },
+            {
+              "sig": "pub fn http_size(url: text) -> integer",
+              "doc": "Resolve a URL's total byte size without downloading it. Tries a HEAD request\n(Content-Length); if the server omits the length on HEAD (some CDNs — e.g.\ngithub-raw — only report it on GET), falls back to a 1-byte range read and\ntakes the total from the Content-Range header. Returns -1 if size is\nunavailable."
+            },
+            {
+              "sig": "pub struct WsHandler { id: integer }",
+              "doc": "An open WebSocket session, from `ws_handler`.  It is a slot number on the\nnative side; the connection behind it reconnects on its own."
+            },
+            {
+              "sig": "pub fn ws_handler(url: text) -> WsHandler?",
+              "doc": "Open a WebSocket session.  Returns null only if the URL is\nmalformed; transient connection failures (server not yet up,\nnetwork blip) are absorbed by the auto-reconnect loop in the Rust\nlayer, so this call always returns a usable handle for any\nwell-formed `ws://...` or `wss://...` URL.\n\n`wss://` (TLS) works on BOTH targets: the browser uses the platform\nWebSocket, and the native client dials TLS through rustls with\ncertificate validation ON by default (default port 443).  For a self-signed dev endpoint,\nset `LOFT_WS_INSECURE_SKIP_VERIFY=1` in the native process — an\nexplicit opt-out, never a URL option, so it cannot be baked into a\ndeployed config by accident.\nExample: @WEB-003 — a handle is not a connection; ask the traffic, not the handle.\n\n⚠ The return is `WsHandler?` because null is the one distinction this call\nexists to make: test it with `== null`."
+            },
+            {
+              "sig": "pub fn send(self: WsHandler, msg: text) -> boolean",
+              "doc": "Send a text message to the server.  Returns true on success; false\nmeans the connection is currently in backoff / reconnecting and the\ncaller may retry after the next `pump()`.\nExample: @WEB-003 — this false, not a null handle, is what reports the link down."
+            },
+            {
+              "sig": "pub fn send_binary(self: WsHandler, msg: text) -> boolean",
+              "doc": "Send `msg` as a binary WebSocket frame (opcode 2).  Loft `text`\nis a byte buffer — build it with `pack_reset` / `pack_u8` / … /\n`pack_take`, then ship it.  Returns true on success; false means\nthe connection is currently in backoff / reconnecting."
+            },
+            {
+              "sig": "pub fn last_opcode(self: WsHandler) -> integer",
+              "doc": "Opcode of the last frame surfaced by `try_recv` / `pump` on this\nhandler.  Use after a successful read to decide whether to\ninterpret the payload as utf-8 text or as a binary blob."
+            },
+            {
+              "sig": "pub fn pump(self: WsHandler, on_message: fn(text)) -> integer",
+              "doc": "Drain any pending received messages, firing `on_message` for each.\nReturns the count of messages delivered this call.  Call this from\na main loop (and yield to the host between iterations on the browser\ntarget) to drive event delivery without async."
+            },
+            {
+              "sig": "pub fn try_recv(self: WsHandler) -> text?",
+              "doc": "Non-blocking single-message receive.  Returns the next pending\nmessage text if one is available, null otherwise.  Equivalent to a\nsingle iteration of pump without the callback — useful when the\nreceiver wants to drive its own loop and accumulate messages\nlocally without capturing state inside a closure."
+            },
+            {
+              "sig": "pub fn close(self: WsHandler)",
+              "doc": "Permanently close the session (no further reconnect attempts)."
+            },
+            {
+              "sig": "pub fn sleep_ms(ms: integer)",
+              "doc": "Block the calling thread for `ms` milliseconds.  Convenience for\ntests and pacing loops; non-positive values are a no-op.  In the\nbrowser it returns at once — the host event loop paces there, so\ncall `frame_yield` instead."
+            },
+            {
+              "sig": "pub fn pack_reset()",
+              "doc": "Empty the per-thread pack buffer.  Call before each blob.\nExample: @WEB-001 — reset, append in wire order, take (which moves, not reads)."
+            },
+            {
+              "sig": "pub fn pack_u8(b: integer)",
+              "doc": "Append a single byte to the pack buffer: the low 8 bits of `b`."
+            },
+            {
+              "sig": "pub fn pack_u16_le(v: integer)",
+              "doc": "Append the low 16 bits of `v`, little-endian."
+            },
+            {
+              "sig": "pub fn pack_u32_le(v: integer)",
+              "doc": "Append the low 32 bits of `v`, little-endian — so -1 packs as\nFF FF FF FF, the same bytes as 0xFFFFFFFF."
+            },
+            {
+              "sig": "pub fn pack_take() -> text",
+              "doc": "Take the contents of the pack buffer and return them as a `text`\nwhose UTF-8 bytes are exactly the buffer bytes.  Resets the buffer.\nExample: @WEB-001 — the three-step protocol, and the NUL that interpolation drops."
+            },
+            {
+              "sig": "pub fn byte_at(idx: integer, t: text) -> integer",
+              "doc": "Read the byte at `idx` of the text payload.  Out-of-range (negative\nor past the end) returns -1.  Use to decode binary frames received\nvia `try_recv` / `pump`.  Argument order is (idx, t), unlike the\n(text, index) order elsewhere.\nExample: @WEB-002 — why the bounds test is `< 0` and never `== 0`."
+            },
+            {
+              "sig": "pub struct WsGroupEvent { handle: integer, message: text }",
+              "doc": "What one `poll` found: the handler slot that had a message and the\nmessage, or `handle == -1` and \"\" when none had."
+            },
+            {
+              "sig": "pub struct WsGroup { _dummy: integer }",
+              "doc": "A set of handlers to receive from in one scan; see above."
+            },
+            {
+              "sig": "pub fn ws_group() -> WsGroup",
+              "doc": "Create a new (empty) group."
+            },
+            {
+              "sig": "pub fn add(self: WsGroup, h: WsHandler)",
+              "doc": "Add a handler to the group."
+            },
+            {
+              "sig": "pub fn poll(self: WsGroup) -> WsGroupEvent",
+              "doc": "Poll all handles round-robin.  Returns a WsGroupEvent with\nhandle >= 0 and the message if one is ready; handle == -1\nmeans nothing is available right now."
+            },
+            {
+              "sig": "pub fn frame_yield()",
+              "doc": "Yield one frame to the host event loop: a no-op natively, and in the\nbrowser the suspend point that lets the event loop run.  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
+            }
+          ],
+          "published": "2026-11-05T13:16:05Z"
         }
       }
     },
