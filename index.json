@@ -22414,7 +22414,8 @@
           "loft": ">=0.8",
           "subpath": "web",
           "deps": {},
-          "published": "2026-05-24T20:00:00Z"
+          "published": "2026-05-24T20:00:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.1.1/web-0.1.1.tar.gz",
@@ -22423,7 +22424,8 @@
           "loft": ">=0.8",
           "subpath": "web",
           "deps": {},
-          "published": "2026-05-31T08:48:00Z"
+          "published": "2026-05-31T08:48:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.2.0/web-0.2.0.tar.gz",
@@ -22432,7 +22434,8 @@
           "loft": ">=0.8",
           "subpath": "web",
           "deps": {},
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.2.1/web-0.2.1.tar.gz",
@@ -22441,7 +22444,8 @@
           "loft": ">=0.8",
           "subpath": "web",
           "deps": {},
-          "published": "2026-06-21T18:43:07Z"
+          "published": "2026-06-21T18:43:07Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.2.3/web-0.2.3.tar.gz",
@@ -22576,7 +22580,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-03T06:14:17Z"
+          "published": "2026-07-03T06:14:17Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.0/web-0.3.0.tar.gz",
@@ -22723,7 +22728,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-07T12:14:20Z"
+          "published": "2026-07-07T12:14:20Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.1/web-0.3.1.tar.gz",
@@ -22870,7 +22876,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-22T05:47:29Z"
+          "published": "2026-07-22T05:47:29Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.2/web-0.3.2.tar.gz",
@@ -23017,7 +23024,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-24T21:21:15Z"
+          "published": "2026-07-24T21:21:15Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.3/web-0.3.3.tar.gz",
@@ -23166,7 +23174,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-28T16:34:13Z"
+          "published": "2026-07-28T16:34:13Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.4": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.4/web-0.3.4.tar.gz",
@@ -23315,7 +23324,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-29T18:00:28Z"
+          "published": "2026-07-29T18:00:28Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.5": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.5/web-0.3.5.tar.gz",
@@ -23464,7 +23474,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-08-18T09:13:04Z"
+          "published": "2026-08-18T09:13:04Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.0/web-0.4.0.tar.gz",
@@ -23613,7 +23624,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-09-09T19:47:39Z"
+          "published": "2026-09-09T19:47:39Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.1/web-0.4.1.tar.gz",
@@ -23762,7 +23774,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-09-09T20:37:31Z"
+          "published": "2026-09-09T20:37:31Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.2/web-0.4.2.tar.gz",
@@ -23911,7 +23924,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-09-29T06:10:42Z"
+          "published": "2026-09-29T06:10:42Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.3/web-0.4.3.tar.gz",
@@ -24060,7 +24074,8 @@
               "doc": "Yield one frame to the host event loop: a no-op natively, and in the\nbrowser the suspend point that lets the event loop run.  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-10-02T07:39:25Z"
+          "published": "2026-10-02T07:39:25Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.4": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.4/web-0.4.4.tar.gz",
@@ -24209,7 +24224,8 @@
               "doc": "Yield one frame to the host event loop: a no-op natively, and in the\nbrowser the suspend point that lets the event loop run.  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-10-05T16:54:06Z"
+          "published": "2026-10-05T16:54:06Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.5": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.5/web-0.4.5.tar.gz",
@@ -24358,7 +24374,8 @@
               "doc": "Yield one frame to the host event loop: a no-op natively, and in the\nbrowser the suspend point that lets the event loop run.  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-10-06T21:39:36Z"
+          "published": "2026-10-06T21:39:36Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.5.0/web-0.5.0.tar.gz",
