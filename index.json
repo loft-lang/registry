@@ -474,7 +474,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-05-24T15:13:34Z"
+          "published": "2026-05-24T15:13:34Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.2.1/crypto-0.2.1.tar.gz",
@@ -483,7 +484,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-14T14:42:31Z"
+          "published": "2026-06-14T14:42:31Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.1/crypto-0.3.1.tar.gz",
@@ -492,7 +494,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.2": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.2/crypto-0.3.2.tar.gz",
@@ -501,7 +504,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-21T14:34:05Z"
+          "published": "2026-06-21T14:34:05Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.3": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.3/crypto-0.3.3.tar.gz",
@@ -510,7 +514,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-22T05:53:34Z"
+          "published": "2026-06-22T05:53:34Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.4": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.4/crypto-0.3.4.tar.gz",
@@ -519,7 +524,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-24T19:53:23Z"
+          "published": "2026-06-24T19:53:23Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.5": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.5/crypto-0.3.5.tar.gz",
@@ -626,7 +632,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-07-04T21:53:27Z"
+          "published": "2026-07-04T21:53:27Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.6": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.6/crypto-0.3.6.tar.gz",
@@ -733,7 +740,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-07-24T17:21:01Z"
+          "published": "2026-07-24T17:21:01Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.7": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.7/crypto-0.3.7.tar.gz",
@@ -858,7 +866,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-07-29T18:00:24Z"
+          "published": "2026-07-29T18:00:24Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.8": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.8/crypto-0.3.8.tar.gz",
@@ -983,7 +992,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-08-18T09:12:46Z"
+          "published": "2026-08-18T09:12:46Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.9": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.9/crypto-0.3.9.tar.gz",
@@ -1108,7 +1118,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-09-09T22:23:03Z"
+          "published": "2026-09-09T22:23:03Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.10": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.10/crypto-0.3.10.tar.gz",
@@ -1233,7 +1244,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-09-29T06:09:53Z"
+          "published": "2026-09-29T06:09:53Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.11": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.11/crypto-0.3.11.tar.gz",
@@ -1358,7 +1370,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-10-02T00:56:03Z"
+          "published": "2026-10-02T00:56:03Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.12": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.12/crypto-0.3.12.tar.gz",
@@ -1483,7 +1496,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-10-05T16:53:28Z"
+          "published": "2026-10-05T16:53:28Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.13": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.13/crypto-0.3.13.tar.gz",
@@ -1608,7 +1622,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-10-06T22:11:25Z"
+          "published": "2026-10-06T22:11:25Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.14": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.14/crypto-0.3.14.tar.gz",
@@ -1733,7 +1748,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-10-20T09:02:54Z"
+          "published": "2026-10-20T09:02:54Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.4.0/crypto-0.4.0.tar.gz",
