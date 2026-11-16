@@ -474,7 +474,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-05-24T15:13:34Z"
+          "published": "2026-05-24T15:13:34Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.2.1/crypto-0.2.1.tar.gz",
@@ -483,7 +484,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-14T14:42:31Z"
+          "published": "2026-06-14T14:42:31Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.1/crypto-0.3.1.tar.gz",
@@ -492,7 +494,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.2": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.2/crypto-0.3.2.tar.gz",
@@ -501,7 +504,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-21T14:34:05Z"
+          "published": "2026-06-21T14:34:05Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.3": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.3/crypto-0.3.3.tar.gz",
@@ -510,7 +514,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-22T05:53:34Z"
+          "published": "2026-06-22T05:53:34Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.4": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.4/crypto-0.3.4.tar.gz",
@@ -519,7 +524,8 @@
           "loft": ">=0.8",
           "subpath": "crypto",
           "deps": {},
-          "published": "2026-06-24T19:53:23Z"
+          "published": "2026-06-24T19:53:23Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.5": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.5/crypto-0.3.5.tar.gz",
@@ -626,7 +632,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-07-04T21:53:27Z"
+          "published": "2026-07-04T21:53:27Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.6": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.6/crypto-0.3.6.tar.gz",
@@ -733,7 +740,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-07-24T17:21:01Z"
+          "published": "2026-07-24T17:21:01Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.7": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.7/crypto-0.3.7.tar.gz",
@@ -858,7 +866,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-07-29T18:00:24Z"
+          "published": "2026-07-29T18:00:24Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.8": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.8/crypto-0.3.8.tar.gz",
@@ -983,7 +992,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-08-18T09:12:46Z"
+          "published": "2026-08-18T09:12:46Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.9": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.9/crypto-0.3.9.tar.gz",
@@ -1108,7 +1118,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-09-09T22:23:03Z"
+          "published": "2026-09-09T22:23:03Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.10": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.10/crypto-0.3.10.tar.gz",
@@ -1233,7 +1244,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-09-29T06:09:53Z"
+          "published": "2026-09-29T06:09:53Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.11": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.11/crypto-0.3.11.tar.gz",
@@ -1358,7 +1370,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-10-02T00:56:03Z"
+          "published": "2026-10-02T00:56:03Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.12": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.12/crypto-0.3.12.tar.gz",
@@ -1483,7 +1496,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-10-05T16:53:28Z"
+          "published": "2026-10-05T16:53:28Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.13": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.13/crypto-0.3.13.tar.gz",
@@ -1608,7 +1622,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-10-06T22:11:25Z"
+          "published": "2026-10-06T22:11:25Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.14": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.3.14/crypto-0.3.14.tar.gz",
@@ -1733,7 +1748,8 @@
               "doc": "Expose deterministic Encap for KAT assertions — TEST ONLY.  Returns\n(shared_secret_b64, enc_b64)."
             }
           ],
-          "published": "2026-10-20T09:02:54Z"
+          "published": "2026-10-20T09:02:54Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/crypto-v0.4.0/crypto-0.4.0.tar.gz",
@@ -5093,7 +5109,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-05-31T18:00:00Z"
+          "published": "2026-05-31T18:00:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.2.0/graphics-0.2.0.tar.gz",
@@ -5102,7 +5119,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-06-14T08:47:45Z"
+          "published": "2026-06-14T08:47:45Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.2.1/graphics-0.2.1.tar.gz",
@@ -5111,7 +5129,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-06-14T12:53:26Z"
+          "published": "2026-06-14T12:53:26Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.3.0/graphics-0.3.0.tar.gz",
@@ -5120,7 +5139,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.0/graphics-0.4.0.tar.gz",
@@ -5129,7 +5149,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-07-14T13:34:30Z"
+          "published": "2026-07-14T13:34:30Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.1/graphics-0.4.1.tar.gz",
@@ -5138,7 +5159,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-07-14T16:41:22Z"
+          "published": "2026-07-14T16:41:22Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.2": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.2/graphics-0.4.2.tar.gz",
@@ -5147,7 +5169,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-07-15T18:27:02Z"
+          "published": "2026-07-15T18:27:02Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.3": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.3/graphics-0.4.3.tar.gz",
@@ -5159,7 +5182,8 @@
             "mesh3d": ">=0.1.1",
             "glb": ">=0.1.1"
           },
-          "published": "2026-07-18T10:19:34Z"
+          "published": "2026-07-18T10:19:34Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.0/graphics-0.5.0.tar.gz",
@@ -5697,7 +5721,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-07-21T06:35:51Z"
+          "published": "2026-07-21T06:35:51Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.1/graphics-0.5.1.tar.gz",
@@ -6237,7 +6262,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-12T09:34:56Z"
+          "published": "2026-08-12T09:34:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.2": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.2/graphics-0.5.2.tar.gz",
@@ -6777,7 +6803,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-12T21:13:13Z"
+          "published": "2026-08-12T21:13:13Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.3": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.3/graphics-0.5.3.tar.gz",
@@ -7317,7 +7344,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-18T05:46:00Z"
+          "published": "2026-08-18T05:46:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.4": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.4/graphics-0.5.4.tar.gz",
@@ -7857,7 +7885,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-18T08:07:11Z"
+          "published": "2026-08-18T08:07:11Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.5": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.5/graphics-0.5.5.tar.gz",
@@ -8397,7 +8426,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-18T08:49:07Z"
+          "published": "2026-08-18T08:49:07Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.6": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.6/graphics-0.5.6.tar.gz",
@@ -8941,7 +8971,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-21T10:48:07Z"
+          "published": "2026-08-21T10:48:07Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.6.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.6.0/graphics-0.6.0.tar.gz",
@@ -9493,7 +9524,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-23T07:30:26Z"
+          "published": "2026-08-23T07:30:26Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.7.0/graphics-0.7.0.tar.gz",
@@ -10049,7 +10081,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-23T11:48:14Z"
+          "published": "2026-08-23T11:48:14Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.8.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.8.0/graphics-0.8.0.tar.gz",
@@ -10609,7 +10642,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-24T11:07:25Z"
+          "published": "2026-08-24T11:07:25Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.8.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.8.1/graphics-0.8.1.tar.gz",
@@ -11169,7 +11203,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-29T19:40:21Z"
+          "published": "2026-08-29T19:40:21Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.0/graphics-0.9.0.tar.gz",
@@ -11741,7 +11776,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-29T20:49:39Z"
+          "published": "2026-08-29T20:49:39Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.1/graphics-0.9.1.tar.gz",
@@ -12313,7 +12349,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-09-09T23:06:32Z"
+          "published": "2026-09-09T23:06:32Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.2": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.2/graphics-0.9.2.tar.gz",
@@ -12885,7 +12922,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-09-23T06:31:53Z"
+          "published": "2026-09-23T06:31:53Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.3": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.3/graphics-0.9.3.tar.gz",
@@ -13457,7 +13495,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-09-23T20:11:26Z"
+          "published": "2026-09-23T20:11:26Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.4": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.4/graphics-0.9.4.tar.gz",
@@ -14029,7 +14068,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-09-29T06:17:01Z"
+          "published": "2026-09-29T06:17:01Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.5": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.5/graphics-0.9.5.tar.gz",
@@ -14601,7 +14641,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-02T03:03:24Z"
+          "published": "2026-10-02T03:03:24Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.6": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.6/graphics-0.9.6.tar.gz",
@@ -15173,7 +15214,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-02T03:28:40Z"
+          "published": "2026-10-02T03:28:40Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.7": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.7/graphics-0.9.7.tar.gz",
@@ -15745,7 +15787,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-02T13:04:04Z"
+          "published": "2026-10-02T13:04:04Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.9": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.9/graphics-0.9.9.tar.gz",
@@ -16317,7 +16360,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-05T16:53:39Z"
+          "published": "2026-10-05T16:53:39Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.10": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.10/graphics-0.9.10.tar.gz",
@@ -16889,7 +16933,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-06T21:38:33Z"
+          "published": "2026-10-06T21:38:33Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.11": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.11/graphics-0.9.11.tar.gz",
@@ -17461,7 +17506,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-07T21:18:14Z"
+          "published": "2026-10-07T21:18:14Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.12": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.12/graphics-0.9.12.tar.gz",
@@ -18033,7 +18079,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-08T00:44:33Z"
+          "published": "2026-10-08T00:44:33Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.10.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.10.0/graphics-0.10.0.tar.gz",
@@ -20528,7 +20575,8 @@
           "loft": ">=0.8",
           "subpath": "imaging",
           "deps": {},
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.2.1/imaging-0.2.1.tar.gz",
@@ -20559,7 +20607,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null if the file is not in text format.\nUse to load sprite sheets or textures."
             }
           ],
-          "published": "2026-07-21T06:35:53Z"
+          "published": "2026-07-21T06:35:53Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.2": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.2.2/imaging-0.2.2.tar.gz",
@@ -20592,7 +20641,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: RGBA, greyscale\nand palette files are folded to RGB, alpha discarded.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGB; alpha is DISCARDED, so a\nsprite sheet needs a colour key rather than a transparency test."
             }
           ],
-          "published": "2026-08-18T05:46:05Z"
+          "published": "2026-08-18T05:46:05Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.3.0/imaging-0.3.0.tar.gz",
@@ -20633,7 +20683,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
             }
           ],
-          "published": "2026-08-23T04:08:10Z"
+          "published": "2026-08-23T04:08:10Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.3.1/imaging-0.3.1.tar.gz",
@@ -20674,7 +20725,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
             }
           ],
-          "published": "2026-08-29T18:28:02Z"
+          "published": "2026-08-29T18:28:02Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.2": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.3.2/imaging-0.3.2.tar.gz",
@@ -20715,7 +20767,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
             }
           ],
-          "published": "2026-08-29T18:36:49Z"
+          "published": "2026-08-29T18:36:49Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.3": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.3.3/imaging-0.3.3.tar.gz",
@@ -20756,7 +20809,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
             }
           ],
-          "published": "2026-09-23T20:09:35Z"
+          "published": "2026-09-23T20:09:35Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.4.0/imaging-0.4.0.tar.gz",
@@ -20797,7 +20851,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
             }
           ],
-          "published": "2026-09-28T16:22:57Z"
+          "published": "2026-09-28T16:22:57Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.4.1/imaging-0.4.1.tar.gz",
@@ -20838,7 +20893,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
             }
           ],
-          "published": "2026-09-29T06:10:23Z"
+          "published": "2026-09-29T06:10:23Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.2": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.4.2/imaging-0.4.2.tar.gz",
@@ -20879,7 +20935,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
             }
           ],
-          "published": "2026-10-02T02:37:44Z"
+          "published": "2026-10-02T02:37:44Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.3": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.4.3/imaging-0.4.3.tar.gz",
@@ -20920,7 +20977,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
             }
           ],
-          "published": "2026-10-05T16:53:51Z"
+          "published": "2026-10-05T16:53:51Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.4": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.4.4/imaging-0.4.4.tar.gz",
@@ -20961,7 +21019,8 @@
               "doc": "Decodes a PNG file and returns an Image.\nReturns null when there is nothing to decode — the path does not exist, names\na directory, or holds bytes this decoder cannot read.  So the answer is either\na complete image (`len(data) == width * height`) or null; there is no\nhalf-filled Image to guard against.  Any PNG colour type loads: greyscale and\npalette files are expanded to RGBA, and **alpha is carried** — a file with no\nalpha channel arrives fully opaque (`a == 255`), never transparent.\nUse to load sprite sheets or textures.\nExample: @IMG-001 — the three ways to get null, and the completeness the null\ncheck buys past it.\nExample: @IMG-002 — every colour type arrives as RGBA, and a source without an\nalpha channel is opaque rather than invisible."
             }
           ],
-          "published": "2026-10-06T21:39:06Z"
+          "published": "2026-10-06T21:39:06Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/imaging-v0.5.0/imaging-0.5.0.tar.gz",
@@ -22355,7 +22414,8 @@
           "loft": ">=0.8",
           "subpath": "web",
           "deps": {},
-          "published": "2026-05-24T20:00:00Z"
+          "published": "2026-05-24T20:00:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.1.1/web-0.1.1.tar.gz",
@@ -22364,7 +22424,8 @@
           "loft": ">=0.8",
           "subpath": "web",
           "deps": {},
-          "published": "2026-05-31T08:48:00Z"
+          "published": "2026-05-31T08:48:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.2.0/web-0.2.0.tar.gz",
@@ -22373,7 +22434,8 @@
           "loft": ">=0.8",
           "subpath": "web",
           "deps": {},
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.2.1/web-0.2.1.tar.gz",
@@ -22382,7 +22444,8 @@
           "loft": ">=0.8",
           "subpath": "web",
           "deps": {},
-          "published": "2026-06-21T18:43:07Z"
+          "published": "2026-06-21T18:43:07Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.2.3/web-0.2.3.tar.gz",
@@ -22517,7 +22580,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-03T06:14:17Z"
+          "published": "2026-07-03T06:14:17Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.0/web-0.3.0.tar.gz",
@@ -22664,7 +22728,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-07T12:14:20Z"
+          "published": "2026-07-07T12:14:20Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.1/web-0.3.1.tar.gz",
@@ -22811,7 +22876,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-22T05:47:29Z"
+          "published": "2026-07-22T05:47:29Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.2/web-0.3.2.tar.gz",
@@ -22958,7 +23024,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-24T21:21:15Z"
+          "published": "2026-07-24T21:21:15Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.3/web-0.3.3.tar.gz",
@@ -23107,7 +23174,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-28T16:34:13Z"
+          "published": "2026-07-28T16:34:13Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.4": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.4/web-0.3.4.tar.gz",
@@ -23256,7 +23324,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-07-29T18:00:28Z"
+          "published": "2026-07-29T18:00:28Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.5": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.3.5/web-0.3.5.tar.gz",
@@ -23405,7 +23474,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-08-18T09:13:04Z"
+          "published": "2026-08-18T09:13:04Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.0/web-0.4.0.tar.gz",
@@ -23554,7 +23624,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-09-09T19:47:39Z"
+          "published": "2026-09-09T19:47:39Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.1/web-0.4.1.tar.gz",
@@ -23703,7 +23774,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-09-09T20:37:31Z"
+          "published": "2026-09-09T20:37:31Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.2/web-0.4.2.tar.gz",
@@ -23852,7 +23924,8 @@
               "doc": "Yield one frame to the host event loop (@PLN84 ZT-C); native no-op,\nbrowser asyncify suspend (loft_web.ws_yield).  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-09-29T06:10:42Z"
+          "published": "2026-09-29T06:10:42Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.3/web-0.4.3.tar.gz",
@@ -24001,7 +24074,8 @@
               "doc": "Yield one frame to the host event loop: a no-op natively, and in the\nbrowser the suspend point that lets the event loop run.  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-10-02T07:39:25Z"
+          "published": "2026-10-02T07:39:25Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.4": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.4/web-0.4.4.tar.gz",
@@ -24150,7 +24224,8 @@
               "doc": "Yield one frame to the host event loop: a no-op natively, and in the\nbrowser the suspend point that lets the event loop run.  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-10-05T16:54:06Z"
+          "published": "2026-10-05T16:54:06Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.5": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.4.5/web-0.4.5.tar.gz",
@@ -24299,7 +24374,8 @@
               "doc": "Yield one frame to the host event loop: a no-op natively, and in the\nbrowser the suspend point that lets the event loop run.  Call once per WS poll\niteration so the browser event loop can deliver WebSocket messages."
             }
           ],
-          "published": "2026-10-06T21:39:36Z"
+          "published": "2026-10-06T21:39:36Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/web-v0.5.0/web-0.5.0.tar.gz",
@@ -24469,7 +24545,8 @@
           "deps": {
             "web": ">=0.1"
           },
-          "published": "2026-05-24T20:00:00Z"
+          "published": "2026-05-24T20:00:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.1.1/server-0.1.1.tar.gz",
@@ -24480,7 +24557,8 @@
           "deps": {
             "web": ">=0.1"
           },
-          "published": "2026-05-31T08:48:00Z"
+          "published": "2026-05-31T08:48:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.1.2/server-0.1.2.tar.gz",
@@ -24491,7 +24569,8 @@
           "deps": {
             "web": ">=0.1"
           },
-          "published": "2026-06-14T15:59:36Z"
+          "published": "2026-06-14T15:59:36Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.2.0/server-0.2.0.tar.gz",
@@ -24502,7 +24581,8 @@
           "deps": {
             "web": ">=0.1"
           },
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.2.1/server-0.2.1.tar.gz",
@@ -24631,7 +24711,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-02T11:59:45Z"
+          "published": "2026-07-02T11:59:45Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.2.2/server-0.2.2.tar.gz",
@@ -24760,7 +24841,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-03T06:14:17Z"
+          "published": "2026-07-03T06:14:17Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.3.0/server-0.3.0.tar.gz",
@@ -24909,7 +24991,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-07T12:14:17Z"
+          "published": "2026-07-07T12:14:17Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.3.1/server-0.3.1.tar.gz",
@@ -25058,7 +25141,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-12T20:22:13Z"
+          "published": "2026-07-12T20:22:13Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.4.0/server-0.4.0.tar.gz",
@@ -25215,7 +25299,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-22T05:47:26Z"
+          "published": "2026-07-22T05:47:26Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.5.0/server-0.5.0.tar.gz",
@@ -25374,7 +25459,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed for reuse by future accepts."
             }
           ],
-          "published": "2026-07-24T21:47:55Z"
+          "published": "2026-07-24T21:47:55Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.5.1/server-0.5.1.tar.gz",
@@ -25553,7 +25639,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-08-18T09:12:59Z"
+          "published": "2026-08-18T09:12:59Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.6.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.6.0/server-0.6.0.tar.gz",
@@ -25736,7 +25823,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-08-21T20:13:45Z"
+          "published": "2026-08-21T20:13:45Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.6.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.6.1/server-0.6.1.tar.gz",
@@ -25919,7 +26007,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-08-29T22:22:51Z"
+          "published": "2026-08-29T22:22:51Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.0/server-0.7.0.tar.gz",
@@ -26102,7 +26191,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-09-09T19:50:04Z"
+          "published": "2026-09-09T19:50:04Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.1/server-0.7.1.tar.gz",
@@ -26285,7 +26375,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-09-29T06:10:34Z"
+          "published": "2026-09-29T06:10:34Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.2/server-0.7.2.tar.gz",
@@ -26468,7 +26559,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-10-02T13:04:59Z"
+          "published": "2026-10-02T13:04:59Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.3/server-0.7.3.tar.gz",
@@ -26651,7 +26743,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-10-05T17:34:49Z"
+          "published": "2026-10-05T17:34:49Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.4": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.4/server-0.7.4.tar.gz",
@@ -26834,7 +26927,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-10-06T21:39:18Z"
+          "published": "2026-10-06T21:39:18Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.5": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.5/server-0.7.5.tar.gz",
@@ -27017,7 +27111,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-10-08T00:11:03Z"
+          "published": "2026-10-08T00:11:03Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.6": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.6/server-0.7.6.tar.gz",
@@ -27527,7 +27622,8 @@
           "loft": ">=0.8",
           "subpath": "random",
           "deps": {},
-          "published": "2026-05-24T15:13:38Z"
+          "published": "2026-05-24T15:13:38Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.2.0/random-0.2.0.tar.gz",
@@ -27536,7 +27632,8 @@
           "loft": ">=0.8",
           "subpath": "random",
           "deps": {},
-          "published": "2026-06-14T14:42:37Z"
+          "published": "2026-06-14T14:42:37Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.2.1/random-0.2.1.tar.gz",
@@ -27545,7 +27642,8 @@
           "loft": ">=0.8",
           "subpath": "random",
           "deps": {},
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.0/random-0.3.0.tar.gz",
@@ -27584,7 +27682,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit. Empty when n is 0, negative or null (the same contract as rand_indices())."
             }
           ],
-          "published": "2026-07-04T21:53:29Z"
+          "published": "2026-07-04T21:53:29Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.1/random-0.3.1.tar.gz",
@@ -27625,7 +27724,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-08-18T09:12:52Z"
+          "published": "2026-08-18T09:12:52Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.2": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.2/random-0.3.2.tar.gz",
@@ -27666,7 +27766,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-08-29T18:26:46Z"
+          "published": "2026-08-29T18:26:46Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.3": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.3/random-0.3.3.tar.gz",
@@ -27707,7 +27808,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-09-29T06:10:29Z"
+          "published": "2026-09-29T06:10:29Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.4": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.4/random-0.3.4.tar.gz",
@@ -27748,7 +27850,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-10-02T00:56:07Z"
+          "published": "2026-10-02T00:56:07Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.5": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.5/random-0.3.5.tar.gz",
@@ -27789,7 +27892,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-10-05T16:53:55Z"
+          "published": "2026-10-05T16:53:55Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.6": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.6/random-0.3.6.tar.gz",
@@ -27830,7 +27934,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-10-06T22:11:29Z"
+          "published": "2026-10-06T22:11:29Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.5.1/random-0.5.1.tar.gz",
@@ -28024,7 +28129,8 @@
             "regex_find:text",
             "regex_split:text"
           ],
-          "published": "2026-05-31T22:38:53Z"
+          "published": "2026-05-31T22:38:53Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.2.0/regex-0.2.0.tar.gz",
@@ -28041,7 +28147,8 @@
             "regex_replace:text",
             "regex_replace_all:text"
           ],
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.2.1/regex-0.2.1.tar.gz",
@@ -28077,7 +28184,8 @@
               "doc": "Split the text on matches of `pattern`, yielding pieces lazily.  Prefixed\nbecause bare `split` collides with stdlib `text.split` (character\nseparator).  Call as  for piece in line.regex_split(\"[,;]\") { }."
             }
           ],
-          "published": "2026-07-04T21:53:32Z"
+          "published": "2026-07-04T21:53:32Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.0/regex-0.3.0.tar.gz",
@@ -28125,7 +28233,8 @@
               "doc": ""
             }
           ],
-          "published": "2026-08-18T09:12:55Z"
+          "published": "2026-08-18T09:12:55Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.1/regex-0.3.1.tar.gz",
@@ -28173,7 +28282,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-09-09T21:16:19Z"
+          "published": "2026-09-09T21:16:19Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.2": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.2/regex-0.3.2.tar.gz",
@@ -28221,7 +28331,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-09-23T06:30:01Z"
+          "published": "2026-09-23T06:30:01Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.3": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.3/regex-0.3.3.tar.gz",
@@ -28269,7 +28380,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-09-29T06:10:31Z"
+          "published": "2026-09-29T06:10:31Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.4.0/regex-0.4.0.tar.gz",
@@ -28309,7 +28421,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-10-01T12:46:50Z"
+          "published": "2026-10-01T12:46:50Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.4.1/regex-0.4.1.tar.gz",
@@ -28349,7 +28462,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-10-01T14:54:09Z"
+          "published": "2026-10-01T14:54:09Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.2": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.4.2/regex-0.4.2.tar.gz",
@@ -28389,7 +28503,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-10-02T00:56:39Z"
+          "published": "2026-10-02T00:56:39Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.3": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.4.3/regex-0.4.3.tar.gz",
@@ -28429,7 +28544,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-10-05T16:53:57Z"
+          "published": "2026-10-05T16:53:57Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.5.0/regex-0.5.0.tar.gz",
@@ -28492,7 +28608,8 @@
               "doc": "Split the text on matches of `pattern`, yielding each piece lazily through\nan `iterator<text>` (reuses loft's coroutine channel — nothing is\nmaterialised).  Named `split_on`, not `split`, because bare `split` on text\nis the stdlib character-separator split.  Call as\nfor piece in line.split_on(\"[,;]\") { }.\nExample: @RGX-004 — it yields the gaps between matches, so a separator at\neither end leaves an empty piece and unmatched text comes back as ONE piece."
             }
           ],
-          "published": "2026-10-14T19:55:12Z"
+          "published": "2026-10-14T19:55:12Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.6.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.6.0/regex-0.6.0.tar.gz",
@@ -33748,7 +33865,8 @@
           "loft": ">=0.8",
           "subpath": "ssh",
           "deps": {},
-          "published": "2026-07-14T13:34:30Z"
+          "published": "2026-07-14T13:34:30Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/ssh-v0.1.1/ssh-0.1.1.tar.gz",
@@ -33805,7 +33923,8 @@
               "doc": "Close the shell channel and disconnect."
             }
           ],
-          "published": "2026-08-18T09:13:01Z"
+          "published": "2026-08-18T09:13:01Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/ssh-v0.1.2/ssh-0.1.2.tar.gz",
@@ -33862,7 +33981,8 @@
               "doc": "Close the shell channel and disconnect."
             }
           ],
-          "published": "2026-09-29T06:10:36Z"
+          "published": "2026-09-29T06:10:36Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/ssh-v0.1.3/ssh-0.1.3.tar.gz",
@@ -33919,7 +34039,8 @@
               "doc": "Close the shell channel and disconnect."
             }
           ],
-          "published": "2026-10-02T07:39:21Z"
+          "published": "2026-10-02T07:39:21Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.4": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/ssh-v0.1.4/ssh-0.1.4.tar.gz",
@@ -33976,7 +34097,8 @@
               "doc": "Close the shell channel and disconnect."
             }
           ],
-          "published": "2026-10-05T16:54:00Z"
+          "published": "2026-10-05T16:54:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.5": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/ssh-v0.1.5/ssh-0.1.5.tar.gz",
