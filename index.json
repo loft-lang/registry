@@ -27586,7 +27586,8 @@
           "loft": ">=0.8",
           "subpath": "random",
           "deps": {},
-          "published": "2026-05-24T15:13:38Z"
+          "published": "2026-05-24T15:13:38Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.2.0/random-0.2.0.tar.gz",
@@ -27595,7 +27596,8 @@
           "loft": ">=0.8",
           "subpath": "random",
           "deps": {},
-          "published": "2026-06-14T14:42:37Z"
+          "published": "2026-06-14T14:42:37Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.2.1/random-0.2.1.tar.gz",
@@ -27604,7 +27606,8 @@
           "loft": ">=0.8",
           "subpath": "random",
           "deps": {},
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.0/random-0.3.0.tar.gz",
@@ -27643,7 +27646,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit. Empty when n is 0, negative or null (the same contract as rand_indices())."
             }
           ],
-          "published": "2026-07-04T21:53:29Z"
+          "published": "2026-07-04T21:53:29Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.1/random-0.3.1.tar.gz",
@@ -27684,7 +27688,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-08-18T09:12:52Z"
+          "published": "2026-08-18T09:12:52Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.2": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.2/random-0.3.2.tar.gz",
@@ -27725,7 +27730,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-08-29T18:26:46Z"
+          "published": "2026-08-29T18:26:46Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.3": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.3/random-0.3.3.tar.gz",
@@ -27766,7 +27772,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-09-29T06:10:29Z"
+          "published": "2026-09-29T06:10:29Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.4": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.4/random-0.3.4.tar.gz",
@@ -27807,7 +27814,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-10-02T00:56:07Z"
+          "published": "2026-10-02T00:56:07Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.5": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.5/random-0.3.5.tar.gz",
@@ -27848,7 +27856,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-10-05T16:53:55Z"
+          "published": "2026-10-05T16:53:55Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.6": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.3.6/random-0.3.6.tar.gz",
@@ -27889,7 +27898,8 @@
               "doc": "A random permutation of [0, 1, ..., n-1] from THIS stream (Fisher-Yates), advancing\nit by exactly n - 1 draws. Empty when n is 0, negative or null (the same contract\nas rand_indices()).\nExample: @RND-003 — a shuffle is a countable number of draws, so inserting one\nshifts the rest of the sequence by a known amount rather than adding noise."
             }
           ],
-          "published": "2026-10-06T22:11:29Z"
+          "published": "2026-10-06T22:11:29Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/random-v0.5.1/random-0.5.1.tar.gz",
