@@ -28093,7 +28093,8 @@
             "regex_find:text",
             "regex_split:text"
           ],
-          "published": "2026-05-31T22:38:53Z"
+          "published": "2026-05-31T22:38:53Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.2.0/regex-0.2.0.tar.gz",
@@ -28110,7 +28111,8 @@
             "regex_replace:text",
             "regex_replace_all:text"
           ],
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.2.1/regex-0.2.1.tar.gz",
@@ -28146,7 +28148,8 @@
               "doc": "Split the text on matches of `pattern`, yielding pieces lazily.  Prefixed\nbecause bare `split` collides with stdlib `text.split` (character\nseparator).  Call as  for piece in line.regex_split(\"[,;]\") { }."
             }
           ],
-          "published": "2026-07-04T21:53:32Z"
+          "published": "2026-07-04T21:53:32Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.0/regex-0.3.0.tar.gz",
@@ -28194,7 +28197,8 @@
               "doc": ""
             }
           ],
-          "published": "2026-08-18T09:12:55Z"
+          "published": "2026-08-18T09:12:55Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.1/regex-0.3.1.tar.gz",
@@ -28242,7 +28246,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-09-09T21:16:19Z"
+          "published": "2026-09-09T21:16:19Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.2": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.2/regex-0.3.2.tar.gz",
@@ -28290,7 +28295,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-09-23T06:30:01Z"
+          "published": "2026-09-23T06:30:01Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.3": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.3.3/regex-0.3.3.tar.gz",
@@ -28338,7 +28344,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-09-29T06:10:31Z"
+          "published": "2026-09-29T06:10:31Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.4.0/regex-0.4.0.tar.gz",
@@ -28378,7 +28385,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-10-01T12:46:50Z"
+          "published": "2026-10-01T12:46:50Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.1": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.4.1/regex-0.4.1.tar.gz",
@@ -28418,7 +28426,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-10-01T14:54:09Z"
+          "published": "2026-10-01T14:54:09Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.2": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.4.2/regex-0.4.2.tar.gz",
@@ -28458,7 +28467,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-10-02T00:56:39Z"
+          "published": "2026-10-02T00:56:39Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.3": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.4.3/regex-0.4.3.tar.gz",
@@ -28498,7 +28508,8 @@
               "doc": "`split` as a method, and superseded by `split_on` for the same reason.  The\ndistinction that matters: this splits on a PATTERN, while the stdlib's bare\n`split` splits on a character."
             }
           ],
-          "published": "2026-10-05T16:53:57Z"
+          "published": "2026-10-05T16:53:57Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.5.0/regex-0.5.0.tar.gz",
@@ -28561,7 +28572,8 @@
               "doc": "Split the text on matches of `pattern`, yielding each piece lazily through\nan `iterator<text>` (reuses loft's coroutine channel — nothing is\nmaterialised).  Named `split_on`, not `split`, because bare `split` on text\nis the stdlib character-separator split.  Call as\nfor piece in line.split_on(\"[,;]\") { }.\nExample: @RGX-004 — it yields the gaps between matches, so a separator at\neither end leaves an empty piece and unmatched text comes back as ONE piece."
             }
           ],
-          "published": "2026-10-14T19:55:12Z"
+          "published": "2026-10-14T19:55:12Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.6.0": {
           "url": "https://github.com/loft-lang/loft-libs-core/releases/download/regex-v0.6.0/regex-0.6.0.tar.gz",
