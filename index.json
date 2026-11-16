@@ -5109,7 +5109,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-05-31T18:00:00Z"
+          "published": "2026-05-31T18:00:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.2.0/graphics-0.2.0.tar.gz",
@@ -5118,7 +5119,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-06-14T08:47:45Z"
+          "published": "2026-06-14T08:47:45Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.2.1/graphics-0.2.1.tar.gz",
@@ -5127,7 +5129,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-06-14T12:53:26Z"
+          "published": "2026-06-14T12:53:26Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.3.0/graphics-0.3.0.tar.gz",
@@ -5136,7 +5139,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.0/graphics-0.4.0.tar.gz",
@@ -5145,7 +5149,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-07-14T13:34:30Z"
+          "published": "2026-07-14T13:34:30Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.1/graphics-0.4.1.tar.gz",
@@ -5154,7 +5159,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-07-14T16:41:22Z"
+          "published": "2026-07-14T16:41:22Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.2": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.2/graphics-0.4.2.tar.gz",
@@ -5163,7 +5169,8 @@
           "loft": ">=0.8",
           "subpath": "graphics",
           "deps": {},
-          "published": "2026-07-15T18:27:02Z"
+          "published": "2026-07-15T18:27:02Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.3": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.4.3/graphics-0.4.3.tar.gz",
@@ -5175,7 +5182,8 @@
             "mesh3d": ">=0.1.1",
             "glb": ">=0.1.1"
           },
-          "published": "2026-07-18T10:19:34Z"
+          "published": "2026-07-18T10:19:34Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.0/graphics-0.5.0.tar.gz",
@@ -5713,7 +5721,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-07-21T06:35:51Z"
+          "published": "2026-07-21T06:35:51Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.1/graphics-0.5.1.tar.gz",
@@ -6253,7 +6262,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-12T09:34:56Z"
+          "published": "2026-08-12T09:34:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.2": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.2/graphics-0.5.2.tar.gz",
@@ -6793,7 +6803,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-12T21:13:13Z"
+          "published": "2026-08-12T21:13:13Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.3": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.3/graphics-0.5.3.tar.gz",
@@ -7333,7 +7344,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-18T05:46:00Z"
+          "published": "2026-08-18T05:46:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.4": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.4/graphics-0.5.4.tar.gz",
@@ -7873,7 +7885,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-18T08:07:11Z"
+          "published": "2026-08-18T08:07:11Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.5": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.5/graphics-0.5.5.tar.gz",
@@ -8413,7 +8426,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-18T08:49:07Z"
+          "published": "2026-08-18T08:49:07Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.6": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.5.6/graphics-0.5.6.tar.gz",
@@ -8957,7 +8971,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-21T10:48:07Z"
+          "published": "2026-08-21T10:48:07Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.6.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.6.0/graphics-0.6.0.tar.gz",
@@ -9509,7 +9524,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-23T07:30:26Z"
+          "published": "2026-08-23T07:30:26Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.7.0/graphics-0.7.0.tar.gz",
@@ -10065,7 +10081,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-23T11:48:14Z"
+          "published": "2026-08-23T11:48:14Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.8.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.8.0/graphics-0.8.0.tar.gz",
@@ -10625,7 +10642,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-24T11:07:25Z"
+          "published": "2026-08-24T11:07:25Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.8.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.8.1/graphics-0.8.1.tar.gz",
@@ -11185,7 +11203,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-29T19:40:21Z"
+          "published": "2026-08-29T19:40:21Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.0/graphics-0.9.0.tar.gz",
@@ -11757,7 +11776,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-08-29T20:49:39Z"
+          "published": "2026-08-29T20:49:39Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.1": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.1/graphics-0.9.1.tar.gz",
@@ -12329,7 +12349,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-09-09T23:06:32Z"
+          "published": "2026-09-09T23:06:32Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.2": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.2/graphics-0.9.2.tar.gz",
@@ -12901,7 +12922,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-09-23T06:31:53Z"
+          "published": "2026-09-23T06:31:53Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.3": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.3/graphics-0.9.3.tar.gz",
@@ -13473,7 +13495,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-09-23T20:11:26Z"
+          "published": "2026-09-23T20:11:26Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.4": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.4/graphics-0.9.4.tar.gz",
@@ -14045,7 +14068,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-09-29T06:17:01Z"
+          "published": "2026-09-29T06:17:01Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.5": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.5/graphics-0.9.5.tar.gz",
@@ -14617,7 +14641,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-02T03:03:24Z"
+          "published": "2026-10-02T03:03:24Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.6": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.6/graphics-0.9.6.tar.gz",
@@ -15189,7 +15214,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-02T03:28:40Z"
+          "published": "2026-10-02T03:28:40Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.7": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.7/graphics-0.9.7.tar.gz",
@@ -15761,7 +15787,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-02T13:04:04Z"
+          "published": "2026-10-02T13:04:04Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.9": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.9/graphics-0.9.9.tar.gz",
@@ -16333,7 +16360,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-05T16:53:39Z"
+          "published": "2026-10-05T16:53:39Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.10": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.10/graphics-0.9.10.tar.gz",
@@ -16905,7 +16933,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-06T21:38:33Z"
+          "published": "2026-10-06T21:38:33Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.11": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.11/graphics-0.9.11.tar.gz",
@@ -17477,7 +17506,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-07T21:18:14Z"
+          "published": "2026-10-07T21:18:14Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.9.12": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.9.12/graphics-0.9.12.tar.gz",
@@ -18049,7 +18079,8 @@
               "doc": "Destroy GPU resources and close the window."
             }
           ],
-          "published": "2026-10-08T00:44:33Z"
+          "published": "2026-10-08T00:44:33Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.10.0": {
           "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/graphics-v0.10.0/graphics-0.10.0.tar.gz",
