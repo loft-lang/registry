@@ -24528,7 +24528,8 @@
           "deps": {
             "web": ">=0.1"
           },
-          "published": "2026-05-24T20:00:00Z"
+          "published": "2026-05-24T20:00:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.1.1/server-0.1.1.tar.gz",
@@ -24539,7 +24540,8 @@
           "deps": {
             "web": ">=0.1"
           },
-          "published": "2026-05-31T08:48:00Z"
+          "published": "2026-05-31T08:48:00Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.1.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.1.2/server-0.1.2.tar.gz",
@@ -24550,7 +24552,8 @@
           "deps": {
             "web": ">=0.1"
           },
-          "published": "2026-06-14T15:59:36Z"
+          "published": "2026-06-14T15:59:36Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.2.0/server-0.2.0.tar.gz",
@@ -24561,7 +24564,8 @@
           "deps": {
             "web": ">=0.1"
           },
-          "published": "2026-06-18T21:25:56Z"
+          "published": "2026-06-18T21:25:56Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.2.1/server-0.2.1.tar.gz",
@@ -24690,7 +24694,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-02T11:59:45Z"
+          "published": "2026-07-02T11:59:45Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.2.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.2.2/server-0.2.2.tar.gz",
@@ -24819,7 +24824,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-03T06:14:17Z"
+          "published": "2026-07-03T06:14:17Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.3.0/server-0.3.0.tar.gz",
@@ -24968,7 +24974,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-07T12:14:17Z"
+          "published": "2026-07-07T12:14:17Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.3.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.3.1/server-0.3.1.tar.gz",
@@ -25117,7 +25124,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-12T20:22:13Z"
+          "published": "2026-07-12T20:22:13Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.4.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.4.0/server-0.4.0.tar.gz",
@@ -25274,7 +25282,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-07-22T05:47:26Z"
+          "published": "2026-07-22T05:47:26Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.5.0/server-0.5.0.tar.gz",
@@ -25433,7 +25442,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed for reuse by future accepts."
             }
           ],
-          "published": "2026-07-24T21:47:55Z"
+          "published": "2026-07-24T21:47:55Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.5.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.5.1/server-0.5.1.tar.gz",
@@ -25612,7 +25622,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-08-18T09:12:59Z"
+          "published": "2026-08-18T09:12:59Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.6.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.6.0/server-0.6.0.tar.gz",
@@ -25795,7 +25806,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-08-21T20:13:45Z"
+          "published": "2026-08-21T20:13:45Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.6.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.6.1/server-0.6.1.tar.gz",
@@ -25978,7 +25990,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-08-29T22:22:51Z"
+          "published": "2026-08-29T22:22:51Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.0": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.0/server-0.7.0.tar.gz",
@@ -26161,7 +26174,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-09-09T19:50:04Z"
+          "published": "2026-09-09T19:50:04Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.1": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.1/server-0.7.1.tar.gz",
@@ -26344,7 +26358,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-09-29T06:10:34Z"
+          "published": "2026-09-29T06:10:34Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.2": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.2/server-0.7.2.tar.gz",
@@ -26527,7 +26542,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-10-02T13:04:59Z"
+          "published": "2026-10-02T13:04:59Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.3": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.3/server-0.7.3.tar.gz",
@@ -26710,7 +26726,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-10-05T17:34:49Z"
+          "published": "2026-10-05T17:34:49Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.4": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.4/server-0.7.4.tar.gz",
@@ -26893,7 +26910,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-10-06T21:39:18Z"
+          "published": "2026-10-06T21:39:18Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.5": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.5/server-0.7.5.tar.gz",
@@ -27076,7 +27094,8 @@
               "doc": "Forcefully close one client's connection.  The slot is freed\nfor reuse by future accepts."
             }
           ],
-          "published": "2026-10-08T00:11:03Z"
+          "published": "2026-10-08T00:11:03Z",
+          "deprecated": "its native part is Rust only, which loft does not build"
         },
         "0.7.6": {
           "url": "https://github.com/loft-lang/loft-libs-net/releases/download/server-v0.7.6/server-0.7.6.tar.gz",
