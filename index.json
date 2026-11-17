@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-17T17:26:30Z",
+  "updated": "2026-11-17T17:26:54Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -66711,6 +66711,79 @@
             }
           ],
           "published": "2026-11-05T14:40:46Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-game/releases/download/screen-v0.2.1/screen-0.2.1.tar.gz",
+          "sha256": "da09f760ec6aa58522ce52ab4c9f41426247bd61cdcfaf86a4da514aa022cfc2",
+          "size": 22648,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "screen",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn open(width: integer, height: integer, scale: integer = 1, title: text = \"loft\", offscreen: boolean = false, fill: boolean = false) -> boolean",
+              "doc": "Open the screen for frames of `width` by `height` pixels, each shown as a `scale` by\n`scale` block.  On a desktop that is a window of that size titled `title`; on a device it is\nthe whole display, the frame centred.  `fill` asks for the whole display where there is a\nchoice: in a page the canvas fills the window and follows it when it is resized (read\n`width()` and `height()` each frame to draw at its size).  `offscreen` keeps only the scaled\nimage in memory — for tests, and for a machine with no screen.  False where this machine has\nno screen (no display).  Opening again closes the screen that was open."
+            },
+            {
+              "sig": "pub fn show(pixels: const vector<i32>, width: integer, height: integer)",
+              "doc": "Show a frame: `width * height` RGB565 values, row by row, as `tiles::pixels` answers them.\nIt is shown at the scale `open` asked for, or the largest whole scale that fits: a frame of\nthe screen's own size (`width()` x `height()`, drawn at the screen's resolution) is shown as\nit is.  A frame with fewer values than that shows nothing."
+            },
+            {
+              "sig": "pub fn poll(wait_ms: integer = 0) -> boolean",
+              "doc": "Take what happened since the last call — keys, the window being closed — waiting up to\n`wait_ms` milliseconds for something to happen.  False once the window was closed."
+            },
+            {
+              "sig": "pub fn has_keys() -> boolean",
+              "doc": "Does this screen have keys of its own (a desktop window)?  A device's keys are `input`'s."
+            },
+            {
+              "sig": "pub fn program_keys() -> boolean",
+              "doc": "True where the keys this screen reads are the program's, whichever of its windows is in\nfront (macOS: one event queue for the application).  False where every window has its own\n(X11): a second window in front then takes the keys, and this screen reads none.  A game\nthat opens a second window — a GPU view beside its frame — asks this before it relies on\n`keys()` while that window is in front."
+            },
+            {
+              "sig": "pub fn keys() -> vector<boolean>",
+              "doc": "Which of the window's keys are down, by graphics' key codes (`KEY_W` = 119, `KEY_UP` =\n128, ...): 256 flags, the form `input::input_tick_from_state` takes.  All false where the\nscreen has no keys."
+            },
+            {
+              "sig": "pub fn shown(x: integer, y: integer) -> integer",
+              "doc": "The RGB565 value shown at screen pixel (x, y), or -1 outside the screen — what a test\nreads back."
+            },
+            {
+              "sig": "pub fn width() -> integer",
+              "doc": "The size of the screen in pixels: the window's, or the device's display turned landscape."
+            },
+            {
+              "sig": "pub fn height() -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn close()",
+              "doc": "Close the screen."
+            },
+            {
+              "sig": "pub fn has_pointer() -> boolean",
+              "doc": "Whether this screen has a pointer: a desktop window's mouse, a page's mouse or touch.  The\nTanmatsu has none — a program for it works from the keyboard alone."
+            },
+            {
+              "sig": "pub fn pointer() -> (integer, integer)",
+              "doc": "Where the pointer is, in the screen's pixels (`width()` x `height()`), as `poll` last saw it."
+            },
+            {
+              "sig": "pub fn buttons() -> integer",
+              "doc": "The pointer's buttons held down: 1 the left, 2 the right, 4 the middle, added together."
+            },
+            {
+              "sig": "pub fn wheel() -> integer",
+              "doc": "The wheel's notches since this was last asked (up is positive)."
+            },
+            {
+              "sig": "pub fn typed() -> text",
+              "doc": "The text typed since this was last asked — what the keys wrote, with the keyboard's layout\nand shift applied, as opposed to which keys are down."
+            }
+          ],
+          "published": "2026-11-17T17:26:54Z"
         }
       }
     },
