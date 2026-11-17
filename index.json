@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-17T17:32:48Z",
+  "updated": "2026-11-17T17:33:05Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -68227,6 +68227,36 @@
             }
           ],
           "published": "2026-11-17T17:32:48Z"
+        }
+      }
+    },
+    "gpu_gl": {
+      "description": "The OpenGL backend of gpu: OpenGL 3.3 on Linux and macOS, OpenGL ES 3 on Android, WebGL2 in a page",
+      "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/gpu_gl",
+      "categories": [
+        "graphics",
+        "game"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_gl-v0.2.0/gpu_gl-0.2.0.tar.gz",
+          "sha256": "02c3fbbd877325b4be2194b5c906c338d0b331e74443632fa253c9685201b57f",
+          "size": 44879,
+          "loft": ">=2026.11.20261116",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "gpu_gl",
+          "deps": {
+            "gpu": ">=0.2.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn table() -> i64",
+              "doc": "This backend's table, for `gpu::open`; 0 on a machine it has no window host for.  `open`\nanswers null where the machine has no OpenGL."
+            }
+          ],
+          "published": "2026-11-17T17:33:05Z"
         }
       }
     }
