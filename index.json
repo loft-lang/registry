@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-17T17:29:41Z",
+  "updated": "2026-11-17T17:30:58Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -67832,6 +67832,51 @@
             }
           ],
           "published": "2026-11-15T19:49:25Z"
+        }
+      }
+    },
+    "gpu_host": {
+      "description": "Opens a gpu device on the backend this machine has: Metal on a Mac, OpenGL elsewhere and where Metal is absent, Vulkan on Linux by name",
+      "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/gpu_host",
+      "categories": [
+        "graphics",
+        "game"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_host-v0.1.0/gpu_host-0.1.0.tar.gz",
+          "sha256": "1e4b149849a26d3fa2dea156f1b722311b4bfb19582d681607a2258bc94d8d7c",
+          "size": 5446,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "gpu_host",
+          "deps": {
+            "gpu": ">=0.3.0",
+            "gpu_gl": ">=0.2.0",
+            "gpu_metal": ">=0.1.0",
+            "gpu_vulkan": ">=0.1.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn backends() -> vector<text>",
+              "doc": "The names of the backends this machine has a table for, in the order they are asked.  One\nthat is listed may still open no window: its stack is looked for when a device opens."
+            },
+            {
+              "sig": "pub fn open(width: integer, height: integer, title: text) -> gpu::Device?",
+              "doc": "Open a window of `width` x `height` pixels on the first backend that has one to give.  Null\nwhen none does: the machine has no GPU this library knows, or no display."
+            },
+            {
+              "sig": "pub fn open_fullscreen(title: text) -> gpu::Device?",
+              "doc": "Open a window over the whole screen, as `gpu::open_fullscreen` does, on the first backend\nthat has one to give."
+            },
+            {
+              "sig": "pub fn open_on(backend: text, width: integer, height: integer, title: text) -> gpu::Device?",
+              "doc": "Open a window on the backend named `backend` alone (a name `backends()` lists).  For a test\nor a measurement that compares two backends; a game calls `open`."
+            }
+          ],
+          "published": "2026-11-17T17:30:58Z"
         }
       }
     }
