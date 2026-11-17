@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-17T17:31:54Z",
+  "updated": "2026-11-17T17:32:48Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -68181,6 +68181,52 @@
             }
           ],
           "published": "2026-11-17T17:31:35Z"
+        }
+      }
+    },
+    "gpu_record": {
+      "description": "A GPU backend that draws nothing and writes down every call it receives: for testing a program's drawing on a machine with no display",
+      "homepage": "https://github.com/loft-lang/loft-libs-graphics/tree/main/gpu_record",
+      "categories": [
+        "graphics",
+        "development-tools"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_record-v0.2.0/gpu_record-0.2.0.tar.gz",
+          "sha256": "1f35f314442cd67e36cef577c2ed73496fe7890b4443a7aab9c0e0b051a9abea",
+          "size": 8574,
+          "loft": ">=2026.11.20261116",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "gpu_record",
+          "deps": {
+            "gpu": ">=0.2.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn table() -> i64",
+              "doc": "This backend's table, for `gpu::open`.  It is there on every machine."
+            },
+            {
+              "sig": "pub fn log() -> text",
+              "doc": "Every call received since the last `reset`, one line each."
+            },
+            {
+              "sig": "pub fn reset()",
+              "doc": "Forget the log and every object, number handles from 1 again, and take sources again."
+            },
+            {
+              "sig": "pub fn live() -> integer",
+              "doc": "How many buffers, textures, targets and pipelines are held now: 0 once their owners died."
+            },
+            {
+              "sig": "pub fn refuse_source(on: boolean)",
+              "doc": "Refuse (or take again) a pipeline whose shader arrives as text — what a machine that compiles\nno shader while a program runs does.  A source with empty text passes: it stands for a shader\ncompiled ahead."
+            }
+          ],
+          "published": "2026-11-17T17:32:48Z"
         }
       }
     }
