@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-17T17:26:05Z",
+  "updated": "2026-11-17T17:26:30Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -47492,6 +47492,253 @@
             }
           ],
           "published": "2026-10-08T00:10:50Z"
+        },
+        "0.1.9": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_draw-v0.1.9/hex_draw-0.1.9.tar.gz",
+          "sha256": "84c5eae77b6c6d216e4c914793c392f22377ab7664be5c2cbd72ea2ec968cadb",
+          "size": 60012,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_draw",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_grid": ">=0.1",
+            "hex_form": ">=0.1",
+            "hex_way": ">=0.1",
+            "hex_roof": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct OpeningSizes { os_door: float, os_window: float, os_corner: float }",
+              "doc": "The measurements openings are placed and drawn with, in world units: a door's and a window's\nwidth, and how far an opening's edge keeps from its wall's corner."
+            },
+            {
+              "sig": "pub fn opening_sizes(door: float, window: float, corner: float) -> OpeningSizes",
+              "doc": "The three measurements, in world units (one unit is 0.866 m)."
+            },
+            {
+              "sig": "pub fn opening_sizes_default() -> OpeningSizes",
+              "doc": "A door and a window one unit wide (one hex edge, 0.87 m), an opening's edge sqrt(3)/2 unit\nfrom the corner."
+            },
+            {
+              "sig": "pub fn opening_size(kind: integer, sz: OpeningSizes) -> float",
+              "doc": "The width an opening of `kind` is drawn at: a door's for `OPEN_DOOR`, a window's for any other."
+            },
+            {
+              "sig": "pub struct CellOpening { op_kind: integer, op_wall: integer, op_edges: vector<integer>, op_cx: float, op_cy: float, op_ax: float, op_ay: float, op_bx: float, op_by: float }",
+              "doc": "A door or a window on a built structure: its kind, the wall it is in (an index into the\nstructure's walls), its edges (indices into the boundary, in order along the wall), its centre\non the wall's line and the span it is drawn over, from a to b, in world units."
+            },
+            {
+              "sig": "pub fn cells_openings(b: const vector<WallEdge>, rs: const vector<vector<integer>>, walls: const vector<WallSurface>, marks: EdgeSet, sz: OpeningSizes) -> vector<CellOpening>",
+              "doc": "@FR-HO-Point: the walls are solved first, the openings are points on them\nThe openings `marks` holds on the walls of a structure (its boundary, runs and walls, as\n`cells_built` gives them): along each wall's run, each stretch of edges marked with one kind\n(`OPEN_DOOR` or `OPEN_WINDOW`) is one opening."
+            },
+            {
+              "sig": "pub fn cells_place_opening(cw: const CellWalls, marks: EdgeSet, kind: integer, x: float, y: float, sz: OpeningSizes) -> boolean",
+              "doc": "@FR-HO-Place: an opening at a point marks the nearest wall's edges within half its width\nMark an opening of `kind` in `marks` at the point (x, y) (world units) of the built structure\n`cw`: on the wall nearest the point, its centre where the point falls along the wall, kept\nclear of the wall's ends by half the opening's width and the corner clearance; the edges of\nthat wall whose midpoints, along it, lie within half the opening's width of the centre, or the\nnearest one when none does.  False when the structure has no wall.\n\nThe walls do not depend on the marks, so one `cells_built` serves any number of openings."
+            },
+            {
+              "sig": "pub struct CellRooms { cr_of: Labels, cr_n: integer }",
+              "doc": "The rooms of a structure: a number per inside cell (0 .. `cr_n` - 1), -1 outside it, the rooms\nnumbered as their first cells come row by row."
+            },
+            {
+              "sig": "pub fn cells_rooms(cells: HexSet, edges: EdgeSet) -> CellRooms",
+              "doc": "The rooms of `cells`, parted by the edges marked in `edges` between two of its cells.  With\nnothing marked inside it a structure of one piece is one room."
+            },
+            {
+              "sig": "pub fn room_cells(cells: HexSet, rooms: const CellRooms, ri: integer) -> HexSet",
+              "doc": "The cells of room `ri` as a set of their own, over the structure's window."
+            },
+            {
+              "sig": "pub struct InnerWall { iw_a: integer, iw_b: integer, iw_mat: integer, iw_edges: integer, iw_surface: WallSurface, iw_ax: float, iw_ay: float, iw_bx: float, iw_by: float }",
+              "doc": "An inner wall: the two rooms it lies between (the lower number first), its material (the most\ncommon on its edges that is a wall's own, not a door's or a window's), how many edges it is,\nits line (a surface, as an outer wall's) and the stretch of that line it covers, from a to b in\nworld units."
+            },
+            {
+              "sig": "pub struct InnerOpening { io_wall: integer, io_kind: integer, io_cx: float, io_cy: float, io_ax: float, io_ay: float, io_bx: float, io_by: float }",
+              "doc": "A door or a window in an inner wall: which wall (an index into the inner walls), its kind, and\nthe span it is drawn over, its kind's width about its centre on the wall's line."
+            },
+            {
+              "sig": "pub struct InnerWalls { in_rooms: integer, in_walls: vector<InnerWall>, in_opens: vector<InnerOpening>, in_lost: integer }",
+              "doc": "A structure's inner walls and the openings in them.  `in_lost` is how many marked edges had\none room on both sides: they bound no room and are no wall."
+            },
+            {
+              "sig": "pub fn cells_inner_walls(cells: HexSet, edges: EdgeSet, hint: integer = -1, sz: OpeningSizes = opening_sizes_default()) -> InnerWalls",
+              "doc": "The inner walls of `cells` as straight walls, from the edges marked between its cells.  `hint`\n(a heading, -1 for none) is asked for a room whose cells show no direction; `sz` gives a door's\nand a window's width.\n\nEach room's outline is solved (`cells_outlines`), and along each of its walls every unbroken\nstretch of edges that borders ONE other room is an inner wall on that wall's line — taken from\nthe room of the lower number, so each is found once.  Its extent is its edges' corners brought\nonto the line, and the wall's own corner where the stretch runs to an end of the wall.  A stretch of fewer than three edges is the turn of a corner, as on an outer\nwall, and no wall of its own."
+            },
+            {
+              "sig": "pub struct WallEdge { we_qa: integer, we_ra: integer, we_qb: integer, we_rb: integer, we_ak: integer, we_am: integer, we_bk: integer, we_bm: integer }",
+              "doc": "One edge of a boundary: the structure's cell (qa, ra) and the outside one (qb, rb), and its\ncorners from (ak, am) to (bk, bm) in doubled coordinates, the structure on the left."
+            },
+            {
+              "sig": "pub fn cells_loops(cells: HexSet) -> vector<vector<WallEdge>>",
+              "doc": "@FR-HW-Loops: every loop of an outline, a courtyard's and a block's too\nEvery loop of the boundary of `cells`, each in walking order with the cells on its left: the\nouter loop of each piece and one round each hole in it (a courtyard, the block a ring of road\ngoes round).  `hex_field::trace_edges`, an edge at a time: its loops, their order and starts."
+            },
+            {
+              "sig": "pub fn cells_boundary(cells: HexSet) -> vector<WallEdge>",
+              "doc": "The boundary of a structure of one piece without a courtyard: its first loop."
+            },
+            {
+              "sig": "pub fn cells_runs(turn: integer, b: const vector<WallEdge>) -> vector<vector<integer>>",
+              "doc": "The boundary cut into runs, one per straight wall, in order round the house.  A run shorter\nthan 2 edges is the turn of a corner, not a wall: it joins the run before it.\n@FR-HW-Runs: one run per straight wall; a run under two edges joins the one before"
+            },
+            {
+              "sig": "pub fn lattice_turned(k: integer, m: integer, steps: integer) -> (integer, integer)",
+              "doc": "Turned `steps` × 60° anticlockwise."
+            },
+            {
+              "sig": "pub fn cells_wall_tops(b: const vector<WallEdge>, run: const vector<integer>, h: integer) -> WallSurface",
+              "doc": "A TOPS wall (heading `h` even) through the run's edges.\n@FR-HW-Tops"
+            },
+            {
+              "sig": "pub fn cells_wall_sides(b: const vector<WallEdge>, run: const vector<integer>, h: integer) -> WallSurface",
+              "doc": "A SIDES wall (heading `h` odd) through the run's edges.\n@FR-HW-Sides"
+            },
+            {
+              "sig": "pub fn cells_wall(b: const vector<WallEdge>, run: const vector<integer>, h: integer) -> WallSurface",
+              "doc": "The straight wall through a run of wall edges running along heading `h`: a tops wall on an\neven heading, a sides wall on an odd one.\n@FR-HW-Straight: a wall's direction is its heading's step, exactly"
+            },
+            {
+              "sig": "pub fn cells_run_heading(turn: integer, b: const vector<WallEdge>, run: const vector<integer>) -> integer",
+              "doc": "The heading a run of the boundary travels along: the way most of its edges travel (`edge_travel`),\nas a heading of the house (`turn` for +u, three steps on for +v, and so on)."
+            },
+            {
+              "sig": "pub fn cells_axes(b: const vector<WallEdge>) -> integer",
+              "doc": "The axes a boundary's walls run along, read off the boundary itself: 0 for the headings 0, 3,\n6 and 9 (0°, 90°, …), 1 for 1, 4, 7 and 10, 2 for 2, 5, 8 and 11.  Each edge votes for the\nheading nearest the way the boundary travels round it (`CELLS_AROUND` edges either side); the axes\nwith the most votes win, and -1 answers a tie: cells that show no direction (the smallest\nhouse, one hex and its six neighbours, is the same seven cells at every angle).  Exact: a\nheading step is √3 or 3 long, so the projections compare as squares, scaled by 9 or 3.\n@FR-HW-Axes, @FR-HX-Size: the axes read off the cells; a tie is cells that show no direction"
+            },
+            {
+              "sig": "pub struct CellWalls { cw_cells: HexSet, cw_edges: EdgeSet, cw_boundary: vector<WallEdge>, cw_runs: vector<vector<integer>>, cw_walls: vector<WallSurface>, cw_kinds: vector<integer>, cw_corners: vector<(float, float)> }",
+              "doc": "A structure as built from its cells: the cells, its thin walls (an `EdgeSet` over the cells'\nwindow and a cell round it, every boundary edge of material `wall_mat`), the boundary in\nwalking order, the runs (each a list of indices into the boundary, in order round the\nstructure), a surface and a kind per run, and the corners (corner i is where wall i meets\nwall i + 1, in world units)."
+            },
+            {
+              "sig": "pub fn cells_no_marks(cells: HexSet) -> EdgeSet",
+              "doc": "An edge set over the cells' window and a cell round it, with nothing marked."
+            },
+            {
+              "sig": "pub fn cells_built(cells: HexSet, wall_mat: integer, hint: integer = -1) -> CellWalls",
+              "doc": "@FR-HX-Cells, @FR-HX-Editor: the walls from the cells alone, no plan and no angle\nA structure from its cells alone: the thin walls, the boundary, the axes it runs along, a run\nper straight wall, the wall solved for each and the corners.  The axes are read off the\ncells; `hint` (a heading, -1 for none) is asked only when the cells show no direction.  One\npiece without a courtyard, big enough for its cells to carry its walls (@FR-HX-Size);\n`cells_outlines` takes anything."
+            },
+            {
+              "sig": "pub struct CellOutline { co_boundary: vector<WallEdge>, co_walls: vector<WallSurface>, co_corners: vector<(float, float)>, co_runs: vector<vector<integer>> = [] }",
+              "doc": "One loop of an outline drawn as straight walls: its boundary, its walls (in order round it)\nand their corners (corner i where wall i meets wall i + 1, world units)."
+            },
+            {
+              "sig": "pub fn cells_outline(b: const vector<WallEdge>, hint: integer = -1) -> CellOutline",
+              "doc": "@FR-HW-Step: two walls in a row that run the same way are joined by a step\nA loop's straight walls, as `cells_built` draws a house's, with one thing more: where two walls\nin a row run along the same axis (a street stepping over by a row, a lane's dead end), a short\nwall across joins them, through the midpoint of the edge where the boundary changes row, so\nevery corner is a right angle and the step's line lies between two hex centres.  None (no walls) for a loop of fewer than three walls: too small\nto carry walls (HX-Size)."
+            },
+            {
+              "sig": "pub fn cells_split_by_line(b: const vector<WallEdge>, run: const vector<integer>, h: integer) -> vector<vector<integer>>",
+              "doc": "@FR-HW-Step: a run is cut where its line steps over by a row\nA run cut where the line it runs along steps over: along a tops wall each edge's midpoint is on\nthe line, along a sides wall each slanted connector's is, so where that midpoint moves to\nanother row (and stays there for two edges or more), a new part begins.  A single edge off the\nline (the next wall's, caught at a corner) stays with its part, and so does a part of fewer\nthan three edges at either end of the run."
+            },
+            {
+              "sig": "pub fn cells_outlines(cells: HexSet, hint: integer = -1) -> vector<CellOutline>",
+              "doc": "Every loop of `cells` as straight walls (`outline_of`): a structure with courtyards, a road\nnetwork with the blocks it goes round."
+            },
+            {
+              "sig": "pub struct WallSurface { ws_dk: integer, ws_dm: integer, ws_num_k: integer, ws_num_m: integer, ws_den: integer, ws_n: integer }",
+              "doc": "The averaged surface of one wall run.  Direction is exact integer; position is an exact\nrational held as `(num_k, num_m) / den`."
+            },
+            {
+              "sig": "pub fn surface_of(p: Plan, cells: HexSet, side: integer) -> WallSurface",
+              "doc": "THE DERIVATION.  Sum the edge vectors; sum the doubled midpoints.  Both are integer sums, so the\nsurface is exact before any float is involved.\n\nExample: @HXD-001"
+            },
+            {
+              "sig": "pub fn surface_heading(w: WallSurface) -> integer",
+              "doc": "Which of the 12 HEADINGS is the mean direction an exact positive multiple of?  -1 if none.\n\nThis is the exactness claim: the averaged direction equals the nominal side direction EXACTLY,\nas an integer multiple of a heading step.  Any other value would mean the average had drifted\noff the lattice, which is what a fit would do and an average must not.\n\nPARALLEL, not an integer multiple, and not \"one component is zero\".  Both of those tests\nreject geometry that is exact:\n\n\"one component is zero\"   only 4 of the 12 headings have one — a side running NE is `(1,3)`,\nboth components non-zero and perfectly exact.  Failed 16 of 24.\n\"an integer multiple\"     the summed vector is `(0,14)` where the heading step is `(0,6)`;\nthe SUM over a run is not a whole number of steps.  Failed 12 of 24.\n\nWhat §6.1 actually claims is that the DIRECTION is exact — no residual perpendicular component —\nwhich is a zero CROSS PRODUCT against the heading step, in exact integers.  The magnitude is the\nrun's length and carries no claim.\n\nExample: @HXD-002"
+            },
+            {
+              "sig": "pub fn surface_is_exact(w: WallSurface) -> boolean",
+              "doc": "Does this surface run along one of the exact headings?  An inexact one is still drawable\nbut cannot be reasoned about on the lattice, so ask before treating it as integer."
+            },
+            {
+              "sig": "pub fn surface_mean_x(w: WallSurface) -> float",
+              "doc": "World position of the mean, and the unit perpendicular to the mean direction."
+            },
+            {
+              "sig": "pub fn surface_mean_y(w: WallSurface) -> float",
+              "doc": "The surface's mean point in world y — the companion of `surface_mean_x`, and where a\nlabel or a normal is anchored."
+            },
+            {
+              "sig": "pub fn surface_dir(w: WallSurface) -> (float, float)",
+              "doc": "The surface's direction as a unit vector in world units ((0, 0) for a surface of no edges)."
+            },
+            {
+              "sig": "pub fn surface_band_corners(p: Plan, cells: HexSet, side: integer) -> float",
+              "doc": "The perpendicular extent of the run's CORNERS about the mean line — the band of §6.2.\n\nExample: @HXD-001"
+            },
+            {
+              "sig": "pub fn surface_span(p: Plan, cells: HexSet, side: integer) -> (float, float, float, float)",
+              "doc": "── G2: THE WALL AS *ONE* QUAD ─────────────────────────────────────────────\n\n`G2` asks that every wall render as **one flat quad — its analytic surface — not the strip**.\nToday the shot draws the wall *as it is stored*: one strip per boundary edge, so a side that is\nnine edges long is nine quads that zigzag by the band `X47` measured.  The surface is already\nexact (direction exactly a heading, position an exact rational); what was missing is its EXTENT,\nso a renderer can emit the segment instead of the strip.\n\nThe span is the run's corners **projected onto the mean line**, taking the extremes.  The two\npoints returned lie ON the line by construction, so the quad the renderer builds from them has\nperpendicular spread exactly **0** — which is `G2`'s check — while the strip it replaces spreads\nby `surface_band_corners`.\n\nExample: @HXD-003"
+            },
+            {
+              "sig": "pub fn surface_fitted_spread(p: Plan, cells: HexSet, side: integer) -> float",
+              "doc": "The perpendicular spread of the FITTED quad's own corners about its line — `G2`'s check.  Both\nendpoints come off the line, so this is the number `eave_spread(fitted) = 0` names.  Measured\nrather than asserted, so that if the span ever stops lying on the line the gate says so.\n\n⚠ *EXACTLY* 0 IS A CLAIM ABOUT FLOATS, AND IT IS ORIENTATION-DEPENDENT.  The derivation above is\nexact — integer sums and rationals — but the span is projected through world coordinates, and on\nthe orientations where that arithmetic does not cancel the round trip costs an ulp.  Measured\nover 12 orientations x 4 sides: 32 read exactly 0 and 16 read 2.22e-16.  So `== 0.0` passes only\non the orientations it was tried on; what holds everywhere is the comparison that means\nsomething — flat against the STRIP's band, which is fifteen orders of magnitude larger.\n\nExample: @HXD-001"
+            },
+            {
+              "sig": "pub fn surface_miter(p: Plan, cells: HexSet, sa: integer, sb: integer) -> (float, float, boolean)",
+              "doc": "THE MITER POINT (`I-CORNER` part 4): where two adjacent fitted surfaces intersect.  This is the\ncorner the RENDER should use — each quad running miter-to-miter, so consecutive sides share an\nendpoint exactly and the outline closes with no gap.  That closure is the invariant, and it is\nexact.\n\n⚠ IT IS NOT THE `Plan`'S CORNER, and it never can be.  An earlier note here claimed the\nintersection *\"must land on the exact model corner, or the surfaces have drifted off the shape\nthey were fitted to\"* — a check nobody ran.  Measured, it misses by 0.47 world units on the 5x4\ncottage, and swept over plan sizes the miss is neither constant (0.465 .. 0.827) nor even\nconsistently outward.  The reason is structural rather than numerical: what these surfaces\nrecover is the face of the wall AS DRAWN, and the drawn footprint is the plan quantised to\ncells, so the recovered corner is an exact rational of the lattice while the plan's half-depth\nis an irrational multiple of `sqrt(3)/2`.  Two number systems that meet only at the origin.\n\nSo a caller must never diff a recovered outline against plan geometry, and must not try to\ncorrect for the offset either.  Use the recovered corner for anything that has to line up with\nwhat was drawn.\n\n`ok` is false when the two lines are parallel, which for adjacent sides of a closed form cannot\nhappen — so a false here is a real defect, not a degenerate input to be shrugged at.\n\nExample: @HXD-003"
+            },
+            {
+              "sig": "pub fn surface_meet(wa: WallSurface, wb: WallSurface) -> (float, float, boolean)",
+              "doc": "Where two surfaces' lines meet, in world units: `surface_miter` for surfaces that are not two\nsides of one `Plan` — the walls of a structure known only by its cells, an L's, a road's.\n`ok` is false when the lines are parallel."
+            },
+            {
+              "sig": "pub fn surface_quad(p: Plan, cells: HexSet, side: integer, nsides: integer) -> (float, float, float, float)",
+              "doc": "THE MITERED QUAD (`G2` + `I-CORNER` part 4): the side's segment running MITER TO MITER, so\nconsecutive sides share an endpoint exactly and the outline closes with no corner gap.  This is\nwhat a renderer should draw; `surface_span` (the projected extent) leaves the gaps the fitted\nrender made visible.\n\nExample: @HXD-003"
+            },
+            {
+              "sig": "pub fn surface_edge_span(p: Plan, cells: HexSet, side: integer, i: integer) -> (float, float, float, float)",
+              "doc": "One stored edge's INTERVAL along the fitted line — where edge `i` of the run projects onto the\nsurface.  This is what makes a feature renderable as `FEATURES` describes it: *\"a door is\n`[s0,s1]` along an exact straight or arc\"*, an interval on the analytic surface rather than a\nstored edge.  The renderer draws the wall as one quad (`surface_span`) and each feature as a\nsub-interval of it, so the zigzag never reaches the picture.\n\nExample: @HXD-006"
+            },
+            {
+              "sig": "pub fn surface_edge_mat(p: Plan, cells: HexSet, edges: EdgeSet, side: integer, i: integer) -> integer",
+              "doc": "The material on stored edge `i` of a side — so the renderer can find the features on a run\nwithout re-deriving the run's order."
+            },
+            {
+              "sig": "pub fn surface_band_mids(p: Plan, cells: HexSet, side: integer) -> float",
+              "doc": "The perpendicular extent of the MIDPOINTS about the mean line.  Not in §6.2, and it is not the\nsame as the corner band: on the east family the midpoints are exactly COLINEAR (0), while on the\nnorth family they span the full band — the row stagger, which the corners hide.\n\nExample: @HXD-001"
+            },
+            {
+              "sig": "pub fn surface_lsq_residual(p: Plan, cells: HexSet, side: integer) -> float",
+              "doc": "The scatter a LEAST-SQUARES formulation would have to threshold: the sum of squared\nperpendicular deviations of the midpoints from the derived mean line.  Averaging names the same\ngeometry as an exact band constant and has nothing to tune; this is the control that the\ndistinction is real rather than rhetorical.\n\nExample: @HXD-001"
+            },
+            {
+              "sig": "pub fn feature_t_num(sr: SideRun, i: integer, n: integer) -> integer",
+              "doc": "The exact `t` of stored edge `i`, as the numerator over `2n`: an odd integer in `1 .. 2n-1`.\n`sr_t` is a float only because `SideRun` holds it that way; the value is an exact rational and\nthis recovers the numerator without a tolerance being involved in the answer.\n\nExample: @HXD-006"
+            },
+            {
+              "sig": "pub fn feature_t_admissible(num: integer, n: integer) -> boolean",
+              "doc": "Is `num/2n` a legal feature position — an edge centre, i.e. an ODD numerator in range?"
+            },
+            {
+              "sig": "pub fn feature_find(p: Plan, cells: HexSet, edges: EdgeSet, side: integer, kind: integer) -> vector<integer>",
+              "doc": "Recover a feature from the field: the `t` numerators of every edge on `side` carrying `kind`,\nin ascending `t` order (C2's ordering, not the storage order).\n\nExample: @HXD-006"
+            },
+            {
+              "sig": "pub fn wall_edge_count(cells: HexSet, edges: EdgeSet) -> integer",
+              "doc": "How many boundary edges carry a wall material at all — the run's length, which a re-materialled\nfeature must leave UNCHANGED.  Deleting an edge instead is what fragments a run.\n\nExample: @HXD-005"
+            },
+            {
+              "sig": "pub fn draw_floor(p: Plan, cells: HexSet, types: Labels, floor_type: integer) -> integer",
+              "doc": "── 1. THE FLOOR ────────────────────────────────────────────────────────────\n\nThe massing is filled FIRST and walled second.  Comparisons are inclusive (<= bound\n+ eps) so the fill never loses a column of cells to the structural tie: along u every\ncell-to-side distance is an exact multiple of sqrt(3)/2, which is exactly the default\nhalfwidth, so a strict comparison sits on the last bit of a float for a whole column."
+            },
+            {
+              "sig": "pub fn draw_walls(cells: HexSet, edges: EdgeSet, wall_mat: integer) -> integer",
+              "doc": "── 2. THE WALLS ────────────────────────────────────────────────────────────\n\nEvery edge between a cell of the region and one outside it.  Closed by construction,\nand it costs no floor at all: a 7.5 x 6.0 m cottage keeps all 27 of its cells, where\na wall drawn as a band of cells would eat 16 of them — 59% of the house.\n\nExample: @HXD-005"
+            },
+            {
+              "sig": "pub fn place_opening(p: Plan, cells: HexSet, edges: EdgeSet, side: integer, t: float, nedges: integer, kind: integer) -> integer",
+              "doc": "── 3. OPENINGS ─────────────────────────────────────────────────────────────\n\nA door is N EDGES centred at t, not a t-interval erased with a segment: erasing\nover-erases by ~halfwidth at EACH end (a 3.00 m interval opens 4.50 m of wall) and\nshrinking the segment over-corrects.  One hex edge is 1.0 world unit = 0.87 m of\nclear width — a real domestic door, which a cell-thick wall could not express at all.\n\nThe opening material REPLACES the wall material on those edges (the slot holds one).\nWith any kind but `OPEN_NONE` nothing is deleted, so the wall still fits as one run.\nReturns how many edges it wrote: fewer than `nedges` when the side is shorter.\n\nExample: @HXD-004"
+            },
+            {
+              "sig": "pub fn grow_ring(src: HexSet, dst: HexSet)",
+              "doc": "── 4. THE ROOF ─────────────────────────────────────────────────────────────\n\nOne ring of halo around the massing, because that ring is what makes the EAVE\ninterpolable: without it 38 of the 76 wall-edge samples face a cell with no stored\nheight, and the wall top has nothing to meet.\n\nExample: @HXD-007"
+            },
+            {
+              "sig": "pub fn draw_roof(p: Plan, cells: HexSet, hz: Heights, eave: float, pitch: float, hip_steps: integer)",
+              "doc": "A gable: the ridge runs along local u THROUGH the anchor and PAST both gable ends.\nStopping it at the wall makes the distance go radial past the tip, so the gable end\nrolls over like a cone quadrant — 0.43 units, 0.37 m of bulge.  A hip is the same\ncall with the ridge shortened; then the conical ends are the feature, not a defect.\n\nExample: @HXD-007"
+            }
+          ],
+          "published": "2026-11-17T17:26:30Z"
         }
       }
     },
