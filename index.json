@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-18T12:14:48Z",
+  "updated": "2026-11-18T15:47:16Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -69843,6 +69843,29 @@
             }
           ],
           "published": "2026-11-18T12:14:15Z"
+        },
+        "0.2.3": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_gl-v0.2.3/gpu_gl-0.2.3.tar.gz",
+          "sha256": "ed64a261723ff3cfabd2ae95f52c9f2755b3bdf993199bc898d99fe116bf682f",
+          "size": 49583,
+          "loft": ">=2026.11.20261116",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "gpu_gl",
+          "deps": {
+            "gpu": ">=0.2.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn table() -> i64",
+              "doc": "This backend's table, for `gpu::open`; 0 on a machine it has no window host for.  `open`\nanswers null where the machine has no OpenGL."
+            },
+            {
+              "sig": "pub fn renderer() -> text",
+              "doc": "The OpenGL renderer of the window opened last through this backend, as its driver names it:\n\"Apple M3 Max\", \"llvmpipe (LLVM 19.1.7, 256 bits)\", \"Apple Software Renderer\".  Empty before\na window opened, and in a browser page.  A test that measures another backend against this\none reads it to know what it measures against."
+            }
+          ],
+          "published": "2026-11-18T15:47:16Z"
         }
       }
     },
