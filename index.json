@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-18T00:41:44Z",
+  "updated": "2026-11-18T08:39:26Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -69406,6 +69406,126 @@
             }
           ],
           "published": "2026-11-18T00:41:06Z"
+        }
+      }
+    },
+    "hex_ground": {
+      "description": "The ground of one place: a height and a surface kind per cell, shaped into terraces, a hill, a seat, a cut and cliffs",
+      "homepage": "https://github.com/loft-lang/loft-libs-world/tree/main/hex_ground",
+      "categories": [
+        "geometry",
+        "world"
+      ],
+      "yanked": [],
+      "versions": {
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/hex_ground-v0.1.1/hex_ground-0.1.1.tar.gz",
+          "sha256": "d61c1b494350b4ce7c03a40ce134f69bbcab434cdb19cf139f58e8d0945daf16",
+          "size": 29476,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "hex_ground",
+          "deps": {
+            "hex_field": ">=0.1",
+            "hex_draw": ">=0.1",
+            "hex_place": ">=0.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct Ground { gr_heights: Heights, gr_kinds: Labels, gr_q0: integer, gr_r0: integer, gr_w: integer, gr_h: integer, gr_step: float }",
+              "doc": "The ground over a window of cells: a height and a surface kind per cell, and its `step`."
+            },
+            {
+              "sig": "pub fn ground_new(q0: integer, r0: integer, w: integer, h: integer, step: float, kind: integer) -> Ground",
+              "doc": "@FR-HG-Surface: a height and a surface kind per cell\nFlat ground at height 0 over the window, every cell of surface `kind`, centres `step` apart."
+            },
+            {
+              "sig": "pub fn ground_unit(step: float) -> float",
+              "doc": "The ground's unit per lattice world unit (a hex's circumradius): what a point of\n`hex_draw`'s outlines is multiplied by to lie on the ground."
+            },
+            {
+              "sig": "pub fn ground_centre(step: float, q: integer, r: integer) -> (float, float)",
+              "doc": "A cell's centre, in a ground's unit."
+            },
+            {
+              "sig": "pub fn ground_cell_near(step: float, x: float, y: float) -> (integer, integer)",
+              "doc": "The cell whose centre is nearest (x, y), in a ground's unit."
+            },
+            {
+              "sig": "pub struct GroundMeasures { gm_storey: float, gm_hillside: float, gm_bank: float, gm_blend: float }",
+              "doc": "The ground's measurements, in its unit: a storey (the height between two levels), how wide a\nhillside is between two terraces, how wide a bank, and how far round a seated structure the\nground blends back to its own height."
+            },
+            {
+              "sig": "pub fn ground_measures(storey: float, hillside: float, bank: float, blend: float) -> GroundMeasures",
+              "doc": "The four measurements."
+            },
+            {
+              "sig": "pub struct GroundSteps { gs_x0: float, gs_y0: float, gs_size: float, gs_nx: integer, gs_ny: integer, gs_level: vector<integer> }",
+              "doc": "A stepped height map on a square grid: a level per square (`level[j * nx + i]`), squares\n`size` units a side, square (0, 0) with its south-west corner at (x0, y0), j growing north."
+            },
+            {
+              "sig": "pub fn steps_level(s: const GroundSteps, i: integer, j: integer) -> integer",
+              "doc": "The level of square (i, j), the nearest square's beyond the map."
+            },
+            {
+              "sig": "pub fn terrace_height(s: const GroundSteps, x: float, y: float, m: const GroundMeasures, lo: integer, hi: integer) -> float",
+              "doc": "@FR-HG-Terrace: each step up a smooth slope across its edge; the flat tops stay flat\nThe smooth height at (x, y) units of the stepped map `s`: its lowest level's height, and for\nevery step up a smooth rise of a storey across the step's edge, `hillside` wide and centred on\nit (a step up from below level 0, a stream's bank, `bank` wide).  Away from the edges the\nterraces stay flat at their storeys; across one, the ground climbs a storey without a cliff."
+            },
+            {
+              "sig": "pub fn ground_terraces(g: Ground, s: const GroundSteps, m: const GroundMeasures, lo: integer, hi: integer)",
+              "doc": "Every cell of the ground at the smooth height of the stepped map."
+            },
+            {
+              "sig": "pub fn ground_hill(g: Ground, x: float, y: float, radius: float, height: float)",
+              "doc": "@FR-HG-Hill: a smooth round hill\nA round hill `height` units high, `radius` units across from its top at (x, y) to its foot:\nadded to the ground, its sides a cosine, level at the top and at the foot."
+            },
+            {
+              "sig": "pub fn ground_seat(g: Ground, cells: HexSet, z: float, m: const GroundMeasures) -> float",
+              "doc": "@FR-HG-Seat: a structure's footprint level, the ground round it blended back\nSeat a structure on the ground: its cells at height `z`, and the ground round it blended from\nthat height back to its own over `m.gm_blend` from the footprint's edge (`hex_place::seat_blend`).\nAnswers the lowest the ground was under the footprint, where its walls go down to."
+            },
+            {
+              "sig": "pub fn ground_dig(g: Ground, cells: HexSet, depth: float, m: const GroundMeasures)",
+              "doc": "@FR-HG-Dig: a structure dug in, its bank centred on its straight sides\nDig a structure into the ground (a stream's bed): the ground inside its sides `depth` units\nlower, across a bank `m.gm_bank` wide centred on its sides (`hex_draw::cells_outlines`, the same straight\nsides the view draws its edge along), shaped by a smoothstep.  So the bank runs along the sides,\nnot along the cells' zigzag or the square map's staircase."
+            },
+            {
+              "sig": "pub fn sides_distance(sides: const vector<(float, float, float, float)>, x: float, y: float) -> float",
+              "doc": "How far (x, y) lies from the nearest of the sides, positive inside them (counted over all their\nloops), negative outside."
+            },
+            {
+              "sig": "pub struct GroundCliff { gc_level: integer, gc_ax: float, gc_ay: float, gc_bx: float, gc_by: float }",
+              "doc": "A stretch of cliff (the ground's unit): a straight side of the ground of `level` and up, walked with that\nground on its left from (ax, ay) to (bx, by); the ground drops a storey across it."
+            },
+            {
+              "sig": "pub struct GroundBox { gb_x0: float, gb_y0: float, gb_x1: float, gb_y1: float }",
+              "doc": "An area where fronts are cliffs, in units: x0 .. x1 east, y0 .. y1 north."
+            },
+            {
+              "sig": "pub fn ground_cliffs(levels: Labels, q0: integer, r0: integer, w: integer, h: integer, lo: integer, hi: integer, areas: const vector<GroundBox>, step: float) -> vector<GroundCliff>",
+              "doc": "@FR-HG-Cliff: a cliff where the ground steps a level within a cliff area, along its straight sides\nThe cliffs of ground whose cells stand at `levels` (lo .. hi): for each level, the straight\nsides of the cells at it and above (`hex_draw::cells_outlines`), the stretches of them inside the\ncliff areas.  Elsewhere the fronts slope."
+            },
+            {
+              "sig": "pub fn ground_box_distance(b: const GroundBox, x: float, y: float) -> float",
+              "doc": "How far (x, y) lies outside the box (0 inside)."
+            },
+            {
+              "sig": "pub fn ground_sharpen(g: Ground, sharp: Heights, areas: const vector<GroundBox>, m: const GroundMeasures)",
+              "doc": "Make the ground's fronts sharp in the cliff areas: each cell at its level's height, `sharp`\n(its level's storey), within them, the smooth ground it has beyond `m.gm_blend` from them, blended\nbetween."
+            },
+            {
+              "sig": "pub fn ground_corner_height(g: const Ground, k: integer, m: integer) -> float",
+              "doc": "@FR-HG-Surface: a corner's height is the mean of the cells round it\nThe height of the corner at doubled coordinates (k, m): the mean of the cells round it that\nthe ground's window holds, 0 when it holds none.  (k, m) must be a corner of the lattice."
+            },
+            {
+              "sig": "pub fn ground_height_at(g: const Ground, x: float, y: float) -> float",
+              "doc": "The ground's height at (x, y), in its unit, as it is drawn: within the triangle of its cell's\nfan that holds the point, between the cell's centre and two of its corners."
+            },
+            {
+              "sig": "pub fn ground_height_on(g: const Ground, levels: const Labels, x: float, y: float, level: integer, high: boolean, storey: float) -> float",
+              "doc": "@FR-HG-Cliff: either side of a cliff its own surface, from the cells on that side only\nThe ground's height at (x, y) on one side of a cliff of `level`: on its high side (`high`, the\ncells of `level` and up, by `levels`) or its low one.  Each corner is the mean of the cells\nround it on that side only, so the ground does not slope down the cliff.  A corner with no\ncell on that side, or the centre of a cell on the other, takes that side's own height: its\nlevel times `storey`."
+            }
+          ],
+          "published": "2026-11-18T08:39:26Z"
         }
       }
     }
