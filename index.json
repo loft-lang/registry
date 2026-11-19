@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-19T01:52:53Z",
+  "updated": "2026-11-19T11:43:47Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -29575,6 +29575,58 @@
             }
           ],
           "published": "2026-10-06T21:38:28Z"
+        },
+        "0.1.8": {
+          "url": "https://github.com/loft-lang/loft-libs-net/releases/download/game_protocol-v0.1.8/game_protocol-0.1.8.tar.gz",
+          "sha256": "22eecffb42c76bb535d3e13d4b83ab57b3b7f0d6907d898fe0eb949b3a3d67fe",
+          "size": 26184,
+          "loft": ">=2026.6.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "game_protocol",
+          "deps": {
+            "server": ">=0.7.6",
+            "web": ">=0.5.0"
+          },
+          "api": [
+            {
+              "sig": "pub enum MsgType { StateFullSync, StateDelta, PlayerInput, Ping, Pong, ChatMessage, LobbyJoin, LobbyLeave, LobbyList, MatchStart, MatchEnd, Error }",
+              "doc": "Message types for the game protocol envelope."
+            },
+            {
+              "sig": "pub struct WsMessage { msg_type: MsgType, payload: text }",
+              "doc": "A WebSocket message wrapper for game communication."
+            },
+            {
+              "sig": "pub struct GameEnvelope { sender: text, recipient: text, sequence: integer, timestamp: integer, message: WsMessage }",
+              "doc": "The outer envelope for all game messages.\nContains routing info + the actual message."
+            },
+            {
+              "sig": "pub fn msg_ping(seq: integer) -> GameEnvelope",
+              "doc": "Create a ping message."
+            },
+            {
+              "sig": "pub fn msg_pong(seq: integer) -> GameEnvelope",
+              "doc": "Create a pong response."
+            },
+            {
+              "sig": "pub fn msg_chat(sender: text, content: text) -> GameEnvelope",
+              "doc": "Create a chat message."
+            },
+            {
+              "sig": "pub fn msg_input(sender: text, input_data: text) -> GameEnvelope",
+              "doc": "Create a player input message."
+            },
+            {
+              "sig": "pub fn msg_state(state_data: text) -> GameEnvelope",
+              "doc": "Create a state sync message."
+            },
+            {
+              "sig": "pub fn msg_error(error_text: text) -> GameEnvelope",
+              "doc": "Create an error message."
+            }
+          ],
+          "published": "2026-11-19T11:43:47Z"
         }
       }
     },
