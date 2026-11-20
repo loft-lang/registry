@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T15:46:51Z",
+  "updated": "2026-11-20T15:54:59Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -75812,6 +75812,41 @@
             }
           ],
           "published": "2026-11-20T12:02:42Z"
+        },
+        "0.3.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_record-v0.3.1/gpu_record-0.3.1.tar.gz",
+          "sha256": "669653b8c8c1f2906a4ef98a1dfa3fefc0c70eebbf845c6972eb9b633a16a90d",
+          "size": 8917,
+          "loft": ">=2026.11.20261116",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "gpu_record",
+          "deps": {
+            "gpu": ">=0.4.1"
+          },
+          "api": [
+            {
+              "sig": "pub fn table() -> i64",
+              "doc": "This backend's table, for `gpu::open`.  It is there on every machine."
+            },
+            {
+              "sig": "pub fn log() -> text",
+              "doc": "Every call received since the last `reset`, one line each."
+            },
+            {
+              "sig": "pub fn reset()",
+              "doc": "Forget the log and every object, number handles from 1 again, and take sources again."
+            },
+            {
+              "sig": "pub fn live() -> integer",
+              "doc": "How many buffers, textures, targets and pipelines are held now: 0 once their owners died."
+            },
+            {
+              "sig": "pub fn refuse_source(on: boolean)",
+              "doc": "Refuse (or take again) a pipeline whose shader arrives as text — what a machine that compiles\nno shader while a program runs does.  A source with empty text passes: it stands for a shader\ncompiled ahead."
+            }
+          ],
+          "published": "2026-11-20T15:54:59Z"
         }
       }
     },
