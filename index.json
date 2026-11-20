@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T18:16:05Z",
+  "updated": "2026-11-20T18:16:33Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -77013,6 +77013,41 @@
             }
           ],
           "published": "2026-11-20T15:55:43Z"
+        },
+        "0.2.2": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_metal-v0.2.2/gpu_metal-0.2.2.tar.gz",
+          "sha256": "5e10b5dd3ad3e0a17fc50c58cd3f42cce6b58867af2f2c004cd6aa45e2b3ac9f",
+          "size": 46758,
+          "loft": ">=2026.11.20261116",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "gpu_metal",
+          "deps": {
+            "gpu": ">=0.4.2"
+          },
+          "api": [
+            {
+              "sig": "pub fn table() -> i64",
+              "doc": "This backend's table, for `gpu::open`; 0 on a machine that is not a Mac.  `open` answers null\non a Mac with no Metal."
+            },
+            {
+              "sig": "pub fn checked() -> boolean",
+              "doc": "Whether this library was built checked (`c/checked.sh`) and its checks are on.  The library\nas it is published is not, and pays nothing for the checks: `faults` is then always 0.\n\nMetal's own validation (`MTL_DEBUG_LAYER=1`) sees a wrong call of Metal.  A checked build\nsees what it cannot: a buffer, texture, target or\npipeline of this backend used after its release, released twice, or used after its device\nclosed.  The call is refused, counted, and written to stderr with the call it came from.\n`GPU_METAL_DEBUG=abort` stops the program at the first fault, `GPU_METAL_DEBUG=0` turns\nthe checks off."
+            },
+            {
+              "sig": "pub fn check(on: boolean)",
+              "doc": "Turn a checked build's checks off, or on again.  Ask before `table()`: a device opened\nthrough a table taken earlier keeps what that table did."
+            },
+            {
+              "sig": "pub fn faults() -> integer",
+              "doc": "How many faults a checked build has seen in this program."
+            },
+            {
+              "sig": "pub fn check_catches() -> integer",
+              "doc": "For this library's own tests: release one buffer of the window opened last twice, then give\nit to a draw, as no program can through `gpu`, and answer how many faults that added — 2 in a\nchecked build with its checks on (and not set to abort), 0 otherwise."
+            }
+          ],
+          "published": "2026-11-20T18:16:33Z"
         }
       }
     },
