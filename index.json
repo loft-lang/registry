@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T17:56:40Z",
+  "updated": "2026-11-20T18:15:07Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -75657,6 +75657,311 @@
             }
           ],
           "published": "2026-11-20T15:45:25Z"
+        },
+        "0.4.2": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu-v0.4.2/gpu-0.4.2.tar.gz",
+          "sha256": "675fcdeb53abc303b480951af2eb16cc1d07aa429f4e74467a6985bdb2640b7e",
+          "size": 17369,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.4.1",
+          "data_compatible_with": "0.4.1",
+          "subpath": "gpu",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub fn f4s(count: integer) -> integer",
+              "doc": "A block field that is an array of `count` `F4`s."
+            },
+            {
+              "sig": "pub fn blend(source: integer, destination: integer) -> integer",
+              "doc": "A draw is combined with what the target holds: its colour times `source`, plus the target's\ntimes `destination`.  `blend(SRC_ALPHA, ONE_MINUS_SRC_ALPHA)` is plain transparency."
+            },
+            {
+              "sig": "pub struct Source { tag: text, vertex: text, fragment: text }",
+              "doc": "A shader's text in one shading language.  `tag` names the language as a backend spells it\n(its README says which it takes); this library compares the tag and never reads it."
+            },
+            {
+              "sig": "pub fn source(tag: text, vertex: text, fragment: text) -> Source",
+              "doc": "A source for the backend whose shading language is `tag`."
+            },
+            {
+              "sig": "pub struct Program { vertex: vector<integer>, instance: vector<integer>, block: vector<integer>, textures: integer, sources: vector<Source> }",
+              "doc": "A shader set: what the shader reads, and its text for each backend it may meet."
+            },
+            {
+              "sig": "pub struct State { shape: integer = 0, depth: integer = 0, blend: integer = 0, cull: integer = 0, into: integer = 0 }",
+              "doc": "Render state: fixed for a pipeline's life, so two states are two pipelines."
+            },
+            {
+              "sig": "pub fn layout(block: const vector<integer>) -> vector<integer>",
+              "doc": "Where each field of a block starts, in floats, with the block's whole size as the last\nentry.  Each field starts on the next multiple of its own size (a matrix and an array on 4\nfloats) and the size is rounded up to 4 — the layout every backend's shading language gives\nthese field kinds, so a program reads the same bytes on each."
+            },
+            {
+              "sig": "pub struct Device { handle: integer, table: integer, pass: integer, pipe: integer, need_block: integer, need_textures: integer, sampled: integer, has_block: boolean, has_vertices: boolean, has_indices: boolean, has_instances: boolean, pipe_instances: boolean, refused: vector<text> }",
+              "doc": "One window (a page's canvas) and its GPU.  Everything made from it is freed when it closes."
+            },
+            {
+              "sig": "pub fn open(table: i64, width: integer, height: integer, title: text) -> Device?",
+              "doc": "Open a window of `width` x `height` pixels through the backend whose table is `table` (a\nbackend library's `table()`).  Null when the table is none — its stack is absent on this\nmachine — or the window does not open.  A game does not call this: its host package asks each\nbackend in turn."
+            },
+            {
+              "sig": "pub fn open_fullscreen(table: i64, title: text) -> Device?",
+              "doc": "Open a window over the whole screen through the backend whose table is `table`: no border,\nthe machine's own bars hidden where it has them.  Its size is the screen's (`width`,\n`height`).  Null as `open`, and where the backend has no whole-screen window."
+            },
+            {
+              "sig": "pub fn backend(self: const Device) -> text",
+              "doc": "The name of the backend this device is on, for a message.  Never branch on it: ask what the\nmachine has."
+            },
+            {
+              "sig": "pub fn backend_name() -> text",
+              "doc": "The name of the backend a device was opened on last, for a message in a program that holds\none device; `dev.backend()` says it of a device."
+            },
+            {
+              "sig": "pub fn poll(self: const Device) -> boolean",
+              "doc": "Hand the machine's events to the window; false once it was closed."
+            },
+            {
+              "sig": "pub fn width(self: const Device) -> integer",
+              "doc": "The window's width in pixels, as it is now."
+            },
+            {
+              "sig": "pub fn height(self: const Device) -> integer",
+              "doc": "And its height."
+            },
+            {
+              "sig": "pub fn close(self: Device)",
+              "doc": "Close the window and free everything made from it."
+            },
+            {
+              "sig": "pub fn key_down(self: const Device, key: integer) -> boolean",
+              "doc": "Whether key `key` (a code from 0 to 255) is down now."
+            },
+            {
+              "sig": "pub fn keys(self: const Device) -> vector<boolean>",
+              "doc": "Which keys are down now: 256 flags by key code, the form `screen::keys()` answers and\n`input::input_tick_from_state` takes, in the same codes (a letter its lower-case character,\nthe arrows 128 to 131, F1 to F12 135 to 146) — so a view in a device's window reads its keys\nas one in `screen`'s does."
+            },
+            {
+              "sig": "pub fn pointer_x(self: const Device) -> integer",
+              "doc": "The pointer's place in the window, in pixels from the top left."
+            },
+            {
+              "sig": "pub fn pointer_y(self: const Device) -> integer",
+              "doc": ""
+            },
+            {
+              "sig": "pub fn buttons(self: const Device) -> integer",
+              "doc": "The pointer's buttons held now: 1 the left, 2 the right, 4 the middle, added."
+            },
+            {
+              "sig": "pub fn typed(self: const Device) -> vector<u8>",
+              "doc": "The bytes typed since the last `events` (UTF-8, the queued text events end to end).  Read\nthem before `events`, which empties the queue."
+            },
+            {
+              "sig": "pub fn events(self: const Device) -> vector<integer>",
+              "doc": "The events queued since the last call, oldest first, `EVENT_WORDS` numbers each; the queue\nis empty after."
+            },
+            {
+              "sig": "pub fn refusals(self: const Device) -> vector<text>",
+              "doc": "What was refused so far, oldest first: one line a call, saying which call and why.  Empty for a\nprogram that keeps the rule."
+            },
+            {
+              "sig": "pub struct Buffer { handle: integer, table: integer, size: integer }",
+              "doc": "Floats on the GPU: vertices, or the values of drawn copies."
+            },
+            {
+              "sig": "pub fn buffer(self: const Device, data: const vector<single>) -> Buffer",
+              "doc": "Upload `data` for a pipeline to read as vertices (`vertices`) or per copy (`instances`)."
+            },
+            {
+              "sig": "pub fn update(self: Buffer, data: const vector<single>)",
+              "doc": "Replace the floats; the length may change.  For data that changes every frame."
+            },
+            {
+              "sig": "pub fn floats(self: const Buffer) -> integer",
+              "doc": "How many floats it holds."
+            },
+            {
+              "sig": "pub struct IndexBuffer { handle: integer, table: integer, size: integer }",
+              "doc": "Vertex numbers on the GPU, for `draw_indexed`."
+            },
+            {
+              "sig": "pub fn index_buffer(self: const Device, list: const vector<integer>) -> IndexBuffer",
+              "doc": "Upload a list of vertex numbers."
+            },
+            {
+              "sig": "pub fn count(self: const IndexBuffer) -> integer",
+              "doc": "How many vertex numbers it holds."
+            },
+            {
+              "sig": "pub struct Texture { handle: integer, table: integer, w: integer, h: integer, depth: boolean }",
+              "doc": "An image on the GPU: colour (red, green, blue, alpha at 8 bits each) or depth."
+            },
+            {
+              "sig": "pub fn texture(self: const Device, width: integer, height: integer) -> Texture",
+              "doc": "An empty colour texture, sampled between its pixels and clamped at its edges."
+            },
+            {
+              "sig": "pub fn depth_texture(self: const Device, width: integer, height: integer) -> Texture",
+              "doc": "An empty depth texture: the depth of a target, or a shadow map."
+            },
+            {
+              "sig": "pub fn texture_from(self: const Device, pixels: const vector<u32>, width: integer, height: integer) -> Texture",
+              "doc": "A colour texture holding `pixels` (0xAARRGGBB each, `width` to a row).  Its first pixel is\ntexture coordinate (0, 0)."
+            },
+            {
+              "sig": "pub fn put(self: const Texture, x: integer, y: integer, pixels: const vector<u32>, width: integer, height: integer)",
+              "doc": "Replace the `width` x `height` pixels at (`x`, `y`), counted from the texture's first pixel.\nInside a pass, what was drawn before this call shows the pixels as they were."
+            },
+            {
+              "sig": "pub fn put_rgb565(self: const Texture, x: integer, y: integer, pixels: const vector<i32>, width: integer, height: integer)",
+              "doc": "The same from RGB565 values (5 bits red, 6 green, 5 blue, as a small machine's frame holds\nthem), every pixel opaque: a frame drawn on the CPU shown through the device."
+            },
+            {
+              "sig": "pub fn nearest(self: const Texture, on: boolean)",
+              "doc": "Sample the nearest pixel (pixel art), or between pixels (how a texture starts).  It holds\nfor every draw after this call, also of a pass that named the texture before it."
+            },
+            {
+              "sig": "pub fn mipmaps(self: const Texture)",
+              "doc": "Build smaller copies from the pixels it holds now and sample through them when it is drawn\nsmall; call again after `put`, or after drawing into it."
+            },
+            {
+              "sig": "pub fn width(self: const Texture) -> integer",
+              "doc": "Its width in pixels."
+            },
+            {
+              "sig": "pub fn height(self: const Texture) -> integer",
+              "doc": "And its height."
+            },
+            {
+              "sig": "pub struct Target { handle: integer, table: integer, into: integer, w: integer, h: integer }",
+              "doc": "What a pass draws into other than the window.  Its textures stay usable after it is gone."
+            },
+            {
+              "sig": "pub fn colour_target(self: const Device, colour: const Texture) -> Target",
+              "doc": "A target of one colour texture."
+            },
+            {
+              "sig": "pub fn target(self: const Device, colour: const Texture, depth: const Texture) -> Target",
+              "doc": "A target of a colour and a depth texture of one size."
+            },
+            {
+              "sig": "pub fn depth_target(self: const Device, depth: const Texture) -> Target",
+              "doc": "A target of a depth texture alone: no colour is drawn."
+            },
+            {
+              "sig": "pub struct Pipeline { handle: integer, table: integer, into: integer, textures: integer, instances: boolean, fields: vector<integer>, starts: vector<integer> }",
+              "doc": "A program, its inputs and its render state, built for one kind of target."
+            },
+            {
+              "sig": "pub fn pipeline(self: const Device, program: const Program, state: const State) -> Pipeline?",
+              "doc": "Build a pipeline: `program` drawn with `state`.  Null when the program has no source for this\nbackend, declares what a block cannot hold, or does not compile — the backend says why on\nstderr."
+            },
+            {
+              "sig": "pub struct Block { data: vector<single>, fields: vector<integer>, starts: vector<integer>, wrong: integer }",
+              "doc": "The values of a pipeline's uniform block.  A field is named by its position in the program's\n`block` list.  Setting a field as another kind than it was declared, or one that is not\nthere, marks the block, and `uniforms` then refuses it."
+            },
+            {
+              "sig": "pub fn block(self: const Pipeline) -> Block",
+              "doc": "A block for this pipeline, every field zero."
+            },
+            {
+              "sig": "pub fn f1(self: Block, field: integer, x: float)",
+              "doc": "Set an `F1` field."
+            },
+            {
+              "sig": "pub fn f2(self: Block, field: integer, x: float, y: float)",
+              "doc": "Set an `F2` field."
+            },
+            {
+              "sig": "pub fn f4(self: Block, field: integer, x: float, y: float, z: float, w: float)",
+              "doc": "Set an `F4` field."
+            },
+            {
+              "sig": "pub fn f4_at(self: Block, field: integer, index: integer, x: float, y: float, z: float, w: float)",
+              "doc": "Set element `index` of an `f4s` field; an index past its length marks the block."
+            },
+            {
+              "sig": "pub fn mat4(self: Block, field: integer, m: const vector<float>)",
+              "doc": "Set a `MAT4` field from 16 floats, column-major; fewer marks the block."
+            },
+            {
+              "sig": "pub fn floats(self: const Block) -> vector<single>",
+              "doc": "The block's floats as the backend receives them, for a test of a layout."
+            },
+            {
+              "sig": "pub fn begin_window(self: Device, load: integer, colour: i64)",
+              "doc": "Start a pass that draws into the window, cleared to `colour` (0xAARRGGBB) or kept."
+            },
+            {
+              "sig": "pub fn begin(self: Device, target: const Target, load: integer, colour: i64)",
+              "doc": "Start a pass that draws into `target`."
+            },
+            {
+              "sig": "pub fn bind(self: Device, pipeline: const Pipeline)",
+              "doc": "Draw with `pipeline` from here on.  It forgets the block, textures and buffers the pipeline\nbefore it was given: name them again."
+            },
+            {
+              "sig": "pub fn uniforms(self: Device, block: const Block)",
+              "doc": "Give the bound pipeline its uniform block."
+            },
+            {
+              "sig": "pub fn sample(self: Device, slot: integer, texture: const Texture)",
+              "doc": "Give the bound pipeline the texture its slot `slot` samples."
+            },
+            {
+              "sig": "pub fn vertices(self: Device, buffer: const Buffer)",
+              "doc": "The vertices the next draws read."
+            },
+            {
+              "sig": "pub fn instances(self: Device, buffer: const Buffer, first: integer)",
+              "doc": "The values the next `draw_copies` reads once per copy, starting at float `first` of `buffer`."
+            },
+            {
+              "sig": "pub fn indices(self: Device, buffer: const IndexBuffer)",
+              "doc": "The vertex numbers the next `draw_indexed` reads."
+            },
+            {
+              "sig": "pub fn viewport(self: Device, x: integer, y: integer, width: integer, height: integer)",
+              "doc": "The rectangle draws map onto, origin bottom-left; a pass starts with the whole target."
+            },
+            {
+              "sig": "pub fn scissor(self: Device, x: integer, y: integer, width: integer, height: integer)",
+              "doc": "Draw only inside this rectangle, origin bottom-left, until `no_scissor` or the pass ends."
+            },
+            {
+              "sig": "pub fn no_scissor(self: Device)",
+              "doc": "Draw on the whole target again."
+            },
+            {
+              "sig": "pub fn draw(self: Device, first: integer, count: integer)",
+              "doc": "Draw `count` vertices from vertex `first`."
+            },
+            {
+              "sig": "pub fn draw_indexed(self: Device, count: integer)",
+              "doc": "Draw the first `count` vertices the index buffer names, in its order."
+            },
+            {
+              "sig": "pub fn draw_copies(self: Device, count: integer, copies: integer)",
+              "doc": "Draw the first `count` vertices `copies` times; the inputs per copy advance once a copy."
+            },
+            {
+              "sig": "pub fn end(self: Device)",
+              "doc": "End the pass."
+            },
+            {
+              "sig": "pub fn present(self: Device)",
+              "doc": "Show the frame, waiting for the display's next one where the machine has a frame clock."
+            },
+            {
+              "sig": "pub fn capture(self: const Device) -> vector<u32>",
+              "doc": "The window's pixels as they are now, 0xAARRGGBB, top row first, `width()` to a row.  A window\nhas no alpha: every pixel reads opaque."
+            },
+            {
+              "sig": "pub fn capture_of(self: const Device, target: const Target) -> vector<u32>",
+              "doc": "The colour a target holds now, 0xAARRGGBB, the top row first, its width to a row: what a\npass into it drew, read back without showing it.  Empty for a target with no colour."
+            }
+          ],
+          "published": "2026-11-20T18:15:07Z"
         }
       }
     },
