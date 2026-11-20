@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T01:58:12Z",
+  "updated": "2026-11-20T08:48:11Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -71967,6 +71967,259 @@
             }
           ],
           "published": "2026-11-17T18:24:42Z"
+        },
+        "0.14.1": {
+          "url": "https://github.com/loft-lang/loft-libs-world/releases/download/tile_world-v0.14.1/tile_world-0.14.1.tar.gz",
+          "sha256": "506d3b16f29f99e5c827075dd85c8964e74c586cbd7ed88afef25f82c4fed392",
+          "size": 31178,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.14.0",
+          "data_compatible_with": "0.14.0",
+          "subpath": "tile_world",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub struct World { chunks: hash<Chunk[cx, cy, z]>, stacks: hash<Stack[x, y, z]>, terrains: hash<TerrainKind[kd]>, objects: hash<ThingKind[kd]>, edges: hash<EdgeKind[kd]>, grounds: hash<Ground[gz]>, changes: integer, marks: hash<Mark[bx, by, bz]>, layer_marks: hash<LayerMark[lz]>, kinds_at: integer }",
+              "doc": "The world: its chunks, its stacks, the kinds the game declared, and what changed when."
+            },
+            {
+              "sig": "pub fn world() -> World",
+              "doc": "An empty world: every cell void, no kinds declared, no changes counted."
+            },
+            {
+              "sig": "pub fn changes(w: const World) -> integer",
+              "doc": "How many changes the world has had (the header's § Changes): remembered, it tells whether\nanything changed since."
+            },
+            {
+              "sig": "pub fn changed_since(w: const World, x0: integer, y0: integer, x1: integer, y1: integer, z0: integer, z1: integer, since: integer) -> boolean",
+              "doc": "Has anything in cells x0 ..= x1, y0 ..= y1 on layers z0 ..= z1 changed after the world counted\n`since` (a `changes` remembered)?  Told by blocks of 8 x 8 cells: a change in a block the box\noverlaps counts, though it was outside the box.  A layer's ground set, or a kind declared,\nafter `since` changes every cell it reaches: yes."
+            },
+            {
+              "sig": "pub fn terrain_kind(w: World, kind: integer, walk: boolean, opaque: boolean, light: boolean = false, glyph: text = \"?\")",
+              "doc": "Declare terrain kind `kind` (1..15): whether it can be walked on, whether it stops sight\nand light, whether it gives light (a lava floor, a window), and its glyph in `view`."
+            },
+            {
+              "sig": "pub fn thing_kind(w: World, thing: integer, height: integer, blocks: boolean, opaque: boolean = false, light: boolean = false, glyph: text = \"?\")",
+              "doc": "Declare thing `thing`: how many height steps it adds to its stack, whether it blocks a cell\nfor walking (`passable`, `shortest_path`), whether it stops sight and light, whether it\ngives light (a torch), and its glyph in `view`."
+            },
+            {
+              "sig": "pub fn edge_kind(w: World, kind: integer, walk: boolean, opaque: boolean, glyph: text = \"|\")",
+              "doc": "Declare edge kind `kind` (1..255): whether it can be walked across (an open doorway) and\nwhether it stops sight and light (a wall, a closed door; not a fence or a window), and its\nglyph."
+            },
+            {
+              "sig": "pub fn walkable_kind(w: const World, kind: integer) -> boolean",
+              "doc": "Can terrain kind `kind` be walked on: as declared; void and an undeclared kind cannot."
+            },
+            {
+              "sig": "pub fn thing_height(w: const World, thing: integer) -> integer",
+              "doc": "How many height steps thing `thing` adds: as declared, 1 for an undeclared thing."
+            },
+            {
+              "sig": "pub fn chunk_of(v: integer) -> integer",
+              "doc": "floor(v / 32): the chunk a coordinate is in, west and north of the origin included."
+            },
+            {
+              "sig": "pub fn inside(v: integer) -> integer",
+              "doc": "v mod 32 in [0, 31]: the coordinate inside its chunk."
+            },
+            {
+              "sig": "pub fn chunk_count(w: const World) -> integer",
+              "doc": "How many chunks the world holds — the measure of its memory, 2 KB each."
+            },
+            {
+              "sig": "pub fn layers(w: const World) -> vector<integer>",
+              "doc": "The layers that hold any terrain, lowest first — what saving the world walks."
+            },
+            {
+              "sig": "pub fn chunks(w: const World, z: integer) -> vector<(integer, integer)>",
+              "doc": "The chunks layer z holds, as (cx, cy), in reading order (row by row, west to east) — each\none 32x32 cells from (cx * 32, cy * 32)."
+            },
+            {
+              "sig": "pub fn stacks(w: const World) -> vector<(integer, integer, integer)>",
+              "doc": "Every cell that holds things, as (x, y, z): layer by layer, lowest first, each in reading\norder."
+            },
+            {
+              "sig": "pub fn set_terrain(w: World, x: integer, y: integer, z: integer, kind: integer, tile: integer = 0)",
+              "doc": "Set a cell's terrain: a kind (0..15) and, for the picture, a tile number (0..4095).  VOID\nmakes the cell void even on a layer with a ground — a pit, a hole; `clear` unsets it."
+            },
+            {
+              "sig": "pub fn clear(w: World, x: integer, y: integer, z: integer)",
+              "doc": "Make a cell unset again: it reads as its layer's ground, or as void."
+            },
+            {
+              "sig": "pub fn is_set(w: const World, x: integer, y: integer, z: integer) -> boolean",
+              "doc": "Was this cell set (to anything, void included), rather than read from the ground?"
+            },
+            {
+              "sig": "pub fn set_ground(w: World, z: integer, kind: integer, tile: integer = 0)",
+              "doc": "Give layer z a ground: every cell of it nobody set reads as terrain `kind` with picture\n`tile` — open land that costs no memory.  Kind VOID takes the ground away."
+            },
+            {
+              "sig": "pub fn ground_layers(w: const World) -> vector<integer>",
+              "doc": "The layers that have a ground, lowest first — with `layers`, what saving a world walks."
+            },
+            {
+              "sig": "pub fn ground(w: const World, z: integer) -> integer",
+              "doc": "Layer z's ground kind, VOID when it has none."
+            },
+            {
+              "sig": "pub fn ground_tile(w: const World, z: integer) -> integer",
+              "doc": "Layer z's ground tile, 0 when it has none."
+            },
+            {
+              "sig": "pub fn fill(w: World, x0: integer, y0: integer, x1: integer, y1: integer, z: integer, kind: integer, tile: integer = 0)",
+              "doc": "Set a rectangle of terrain, corners included."
+            },
+            {
+              "sig": "pub fn terrain(w: const World, x: integer, y: integer, z: integer) -> integer",
+              "doc": "A cell's terrain kind: what it was set to, or its layer's ground when it was not."
+            },
+            {
+              "sig": "pub fn tile(w: const World, x: integer, y: integer, z: integer) -> integer",
+              "doc": "A cell's tile number, its picture: what it was set to, or its layer's ground tile."
+            },
+            {
+              "sig": "pub fn set_edge(w: World, x: integer, y: integer, z: integer, side: integer, kind: integer)",
+              "doc": "Put edge kind `kind` (1..255) on `side` (NORTH, EAST, SOUTH, WEST) of cell (x, y, z); 0\ntakes the edge away.  The east edge of a cell is its east neighbour's west edge, and the\nsame edge: setting one sets both."
+            },
+            {
+              "sig": "pub fn edge(w: const World, x: integer, y: integer, z: integer, side: integer) -> integer",
+              "doc": "The edge kind on `side` of cell (x, y, z), 0 for none."
+            },
+            {
+              "sig": "pub fn crossable(w: const World, x: integer, y: integer, z: integer, dx: integer, dy: integer) -> boolean",
+              "doc": "Can a walker step from (x, y, z) by (dx, dy) — one of the four directions — across the edge\nbetween: no edge, or one declared walkable.  Whether the cell it lands on can be stood on is\n`passable`'s question."
+            },
+            {
+              "sig": "pub fn see_through(w: const World, x: integer, y: integer, z: integer, dx: integer, dy: integer) -> boolean",
+              "doc": "Do sight and light pass from (x, y, z) by (dx, dy) across the edge between."
+            },
+            {
+              "sig": "pub fn set_rise(w: World, x: integer, y: integer, z: integer, steps: integer)",
+              "doc": "Give cell (x, y, z) a rise of `steps` (0..15): its own height, under whatever stands on it.\nA hillside is cells rising one step at a time, so a walker that steps up one at a time walks\nup it."
+            },
+            {
+              "sig": "pub fn rise(w: const World, x: integer, y: integer, z: integer) -> integer",
+              "doc": "A cell's rise in steps, 0 for a flat one."
+            },
+            {
+              "sig": "pub fn set_slant(w: World, x: integer, y: integer, z: integer, toward: integer)",
+              "doc": "Give cell (x, y, z) a slant: a 45-degree face looking `toward` (`NORTH_EAST`, `SOUTH_EAST`,\n`SOUTH_WEST`, `NORTH_WEST`; 0 takes it away), so the game draws its kind filling only the half\naway from that corner — a rock face or a wall running at 45 degrees.  A picture only: walking,\nsight, light and standing on it read the cell as its kind, whole.  Kept when the terrain\nchanges, like the edges and the rise."
+            },
+            {
+              "sig": "pub fn slant(w: const World, x: integer, y: integer, z: integer) -> integer",
+              "doc": "Which way cell (x, y, z)'s slant looks, 0 for a whole cell."
+            },
+            {
+              "sig": "pub fn set_ceiling(w: World, x: integer, y: integer, z: integer, steps: integer)",
+              "doc": "Lower the ceiling over cell (x, y, z) to `steps` (0..15) below the floor of the layer above: 0,\nthe default, is that floor's underside.  A ceiling's slope is its neighbours' differences, as a\nfloor's is its rise's.  Kept for a renderer that draws ceilings; no routine here reads it — a\ncell under the open sky has no ceiling, whatever this holds.  Kept when the terrain changes, like\nthe edges, the rise and the slant."
+            },
+            {
+              "sig": "pub fn ceiling(w: const World, x: integer, y: integer, z: integer) -> integer",
+              "doc": "How many steps the ceiling over cell (x, y, z) hangs below the floor of the layer above, 0 for\nnone."
+            },
+            {
+              "sig": "pub fn block(w: const World, x0: integer, y0: integer, x1: integer, y1: integer, z: integer) -> vector<integer>",
+              "doc": "What each cell of x0 ..= x1, y0 ..= y1 on layer z holds, row by row, two numbers a cell: first\nits terrain kind (bits 0..3, as `terrain` reads it), rise (4..7), slant (8..10), ceiling\n(11..14), and bit 15 when things lie on it; then its north edge (bits 0..7) and west edge\n(8..15).  Two numbers, not one: under `#width 32` an integer holds 31 bits.  Read once for the\nbox — the cell's chunk and its stack looked up once each — where asking `terrain`, `rise`,\n`edge` and the rest of each cell asks for its chunk again every time: what a renderer reading a\nbox of cells (a mesh's halo, a tile of faces) wants."
+            },
+            {
+              "sig": "pub fn open_sky(w: const World, x: integer, y: integer, z: integer) -> boolean",
+              "doc": "Is (x, y, z) under the open sky: nothing set on the layer above it."
+            },
+            {
+              "sig": "pub fn place(w: World, x: integer, y: integer, z: integer, thing: integer)",
+              "doc": "Put a thing on top of a cell's stack."
+            },
+            {
+              "sig": "pub fn take(w: World, x: integer, y: integer, z: integer) -> integer",
+              "doc": "Take the top thing off a cell's stack and answer it; 0 when the cell has none.  The stack\ngoes when it empties."
+            },
+            {
+              "sig": "pub fn things(w: const World, x: integer, y: integer, z: integer) -> vector<integer>",
+              "doc": "The things on a cell, bottom first."
+            },
+            {
+              "sig": "pub fn top(w: const World, x: integer, y: integer, z: integer) -> integer",
+              "doc": "The top thing on a cell, 0 when there is none."
+            },
+            {
+              "sig": "pub fn height(w: const World, x: integer, y: integer, z: integer) -> integer",
+              "doc": "The height of a cell in steps: its rise and the declared heights of the things on it."
+            },
+            {
+              "sig": "pub fn passable(w: const World, x: integer, y: integer, z: integer) -> boolean",
+              "doc": "Can a cell be walked into: walkable terrain and nothing on it that blocks."
+            },
+            {
+              "sig": "pub fn opaque(w: const World, x: integer, y: integer, z: integer) -> boolean",
+              "doc": "Does a cell stop sight and light: opaque terrain, or an opaque thing on it.  An\nundeclared terrain kind (not void) is opaque."
+            },
+            {
+              "sig": "pub fn lit(w: const World, x: integer, y: integer, z: integer, daylight: boolean = true) -> boolean",
+              "doc": "Does a cell give light: under the open sky (by day: `daylight`, the default), lit terrain, or a\nlit thing on it.  A void cell gives none."
+            },
+            {
+              "sig": "pub fn shortest_path(w: const World, x0: integer, y0: integer, x1: integer, y1: integer, z: integer, limit: integer = 64) -> vector<(integer, integer)>",
+              "doc": "The shortest walk from (x0, y0) to (x1, y1) on layer z, in steps to the four neighbours over\n`passable` cells and `crossable` edges: the cells passed through, the goal last, the start left out.  Empty when\nthe goal cannot be reached within `limit` steps (or is the start).  The goal itself need\nnot be passable, so a path can lead up to a thing to act on."
+            },
+            {
+              "sig": "pub fn line_of_sight(w: const World, x0: integer, y0: integer, x1: integer, y1: integer, z: integer) -> boolean",
+              "doc": "Can (x1, y1) be seen from (x0, y0) on layer z: no opaque cell on the straight line between\nthem (Bresenham's), and no opaque edge it crosses.  The two ends themselves do not count, so a wall is seen, and an eye\nin a doorway sees out."
+            },
+            {
+              "sig": "pub fn shades(w: const World, x0: integer, y0: integer, x1: integer, y1: integer, z: integer, lights: const vector<(integer, integer)> = [], start: const vector<integer> = [], daylight: boolean = true) -> vector<integer>",
+              "doc": "How dark each cell of (x0, y0) .. (x1, y1) on layer z is, row by row: 0 at a light, one\nshade darker for each step from the nearest one, up to `DARKEST`, never black.  A light is\na `lit` cell or one of `lights` (cells the game says give light now: what a figure carries,\na torch).  A light of `lights` starts at its shade in `start` (0, the default, is full; a\ndimmer light — a torch burning down — reaches less far), the k-th entry for the k-th light.\nLight spreads over every cell but an opaque one, which is lit but passes no light on unless\nit is itself a light, and never across an opaque edge.  A light up to `DARKEST` cells outside the rectangle counts.\n`daylight` false: the open sky is no light — night, when only what gives light of itself (a\nlamp, a lit terrain) and `lights` light the world."
+            },
+            {
+              "sig": "pub fn reach(w: const World, x: integer, y: integer, z: integer, start: integer = 0) -> vector<integer>",
+              "doc": "The shades one light gives alone, as `shades` spreads it, over the square of DARKEST cells\nround it on layer z, row by row (2 * DARKEST + 1 a side, its corner at (x - DARKEST,\ny - DARKEST)): `start` at the light, one darker a step, DARKEST where it does not reach.  What\na GPU lights a torch by, apart from the others (the scene contract's torches): `shades` with\nthese lights is, cell by cell, the brightest of `shades` without them and each light's reach,\nbut where a light stands on an opaque cell another light reaches more brightly than it starts\n— there `shades` passes that light on, a light's reach does not."
+            },
+            {
+              "sig": "pub fn view(w: const World, x0: integer, y0: integer, x1: integer, y1: integer, z: integer, marks: const vector<(integer, integer, text)> = []) -> text",
+              "doc": "A layer as text, one line per row: each cell's top thing's glyph, or its terrain's, or a\nspace for void.  `marks` puts a glyph of the game's at a cell (a figure): (x, y, glyph)."
+            },
+            {
+              "sig": "pub fn region(w: const World, x: integer, y: integer, z: integer, limit: integer) -> vector<(integer, integer)>",
+              "doc": "The cells of layer z connected to (x, y) that hold the same terrain as it — the same kind\nand tile, set or read from the ground — four ways, never across an edge between two cells:\nwhat a fill paints.  Nearest first (breadth first), (x, y) itself first, and at most `limit`\nof them, because a layer's ground has no end: a region exactly `limit` long may go on."
+            },
+            {
+              "sig": "pub fn copy(w: const World, x0: integer, y0: integer, x1: integer, y1: integer, z0: integer, z1: integer) -> World",
+              "doc": "A stamp: the cells of the box x0..x1, y0..y1 on layers z0..z1, corners included — terrain\nas set (an unset cell stays unset), rise, slant, ceiling, the north and west edges each cell holds, and\nthe stacks — moved so the corner (x0, y0, z0) is (0, 0, 0).  The kinds come along: the stamp is\na world of its own, to `paste` back or keep."
+            },
+            {
+              "sig": "pub fn paste(w: World, from: const World, x: integer, y: integer, z: integer)",
+              "doc": "Write stamp `from` (a `copy`) into `w` with its (0, 0, 0) at (x, y, z).  Each cell the stamp\nholds anything at replaces the cell there: its terrain when the stamp set it, its rise, slant,\nceiling and north and west edges, and its stack (none when the stamp's cell has none).  A cell the\nstamp holds nothing at leaves `w` as it was."
+            },
+            {
+              "sig": "pub fn stamp_box(s: const World) -> (integer, integer, integer, integer)",
+              "doc": "The box of a stamp: the cells it set or put things on, over every layer, as (x0, y0, x1, y1),\ncorners included.  A cell that only holds an edge, a rise, a slant or a ceiling is not counted:\na part's size is its cells'.  An empty stamp's box is the single cell (0, 0)."
+            },
+            {
+              "sig": "pub fn stamp_size(s: const World, turn: integer) -> (integer, integer)",
+              "doc": "The size of a stamp's box, (width, height), once turned `turn` quarters."
+            },
+            {
+              "sig": "pub fn stamp_spot(x0: integer, y0: integer, x1: integer, y1: integer, turn: integer, flip: boolean, x: integer, y: integer) -> (integer, integer)",
+              "doc": "Where cell (x, y) of a stamp whose box is (x0, y0, x1, y1) lands, counted from the turned box's\nnorth-west corner: mirrored east to west first (`flip`), then turned clockwise `turn` quarters.\nFor what a game keeps beside its world — a figure on a cell, a lock on a door — to go where its\ncell goes.  A cell outside the box lands outside the turned box, as far."
+            },
+            {
+              "sig": "pub fn turned_side(side: integer, turn: integer, flip: boolean) -> integer",
+              "doc": "The side (NORTH, EAST, SOUTH, WEST) `side` becomes: mirrored east to west, then turned clockwise."
+            },
+            {
+              "sig": "pub fn turned_slant(way: integer, turn: integer, flip: boolean) -> integer",
+              "doc": "The way a slant looks (NORTH_EAST .. NORTH_WEST, 0 for none) once mirrored and turned."
+            },
+            {
+              "sig": "pub fn turned(s: const World, turn: integer, flip: boolean = false) -> World",
+              "doc": "Stamp `s` mirrored east to west (`flip`) and then turned clockwise `turn` quarters, as a stamp:\nits box's north-west corner at (0, 0), its layers as they were.  Every cell goes where\n`stamp_spot` says, with its terrain, rise, ceiling and stack; its slant looks the turned way;\nits edges are on their turned sides.  Turned four times, or mirrored twice, it is the stamp\nagain (moved so its box begins at (0, 0))."
+            },
+            {
+              "sig": "pub fn lay(w: World, from: const World, x: integer, y: integer, z: integer)",
+              "doc": "Lay stamp `from` on `w` with its (0, 0, 0) at (x, y, z): only what the stamp holds is written.\n- a cell it SET (to anything, void included) replaces the cell there: its terrain, rise,\nslant and ceiling, and its stack (none when the stamp's cell has none);\n- a cell it left UNSET leaves `w`'s cell as it is, so the stamp takes the shape of what it is\nlaid on;\n- an edge it holds is written; an edge it does not hold is left alone, so a stamp adds and\nchanges edges and never removes one;\n- things on a cell it left unset still replace the stack there.\n`paste` is the other rule: there every cell the stamp holds anything at is replaced whole, its\nedges with it."
+            }
+          ],
+          "published": "2026-11-20T08:48:11Z"
         }
       }
     },
