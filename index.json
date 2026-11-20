@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T15:56:03Z",
+  "updated": "2026-11-20T15:56:24Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -75568,6 +75568,57 @@
             }
           ],
           "published": "2026-11-17T17:31:17Z"
+        },
+        "0.2.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_paint-v0.2.1/gpu_paint-0.2.1.tar.gz",
+          "sha256": "50e52fc0703ba83812012f1d43fbe216877820335afaec33f555dcf825c7ccad",
+          "size": 13417,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.2.1",
+          "data_compatible_with": "0.2.1",
+          "subpath": "gpu_paint",
+          "deps": {
+            "gpu": ">=0.4.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct Sprites { texture: gpu::Texture, const cols: integer, const rows: integer, scene: gpu::Pipeline, values: gpu::Block, quad: gpu::Buffer }",
+              "doc": "A picture on the GPU cut into a grid of `cols` x `rows` sprites; sprite 0 is the top left,\ncounting along the rows."
+            },
+            {
+              "sig": "pub fn sprites( dev: const gpu::Device, pixels: const vector<u32>, width: integer, height: integer, cols: integer, rows: integer, into: integer ) -> Sprites?",
+              "doc": "Upload `pixels` (0xAARRGGBB, `width` to a row, the top row first) as a sheet of `cols` x\n`rows` cells, sampled between its pixels (`sheet.texture.nearest(true)` for pixel art).\n`into` is what `draw` will draw into (`gpu::INTO_WINDOW`, …).  Null on a device whose backend\nthis library has no shader source for."
+            },
+            {
+              "sig": "pub fn draw(self: Sprites, dev: gpu::Device, mvp: const vector<float>, index: integer)",
+              "doc": "Draw sprite `index` through `mvp`, which maps the unit quad onto the target (16 floats,\ncolumn-major), in the pass in progress: tested against the depth drawn so far."
+            },
+            {
+              "sig": "pub struct Painter { blend: boolean, flat: gpu::Pipeline, flat_over: gpu::Pipeline, whole: gpu::Pipeline, whole_over: gpu::Pipeline, cell: gpu::Pipeline, cell_over: gpu::Pipeline, flat_values: gpu::Block, image_values: gpu::Block, cell_values: gpu::Block, quad: gpu::Buffer, proj: vector<float> }",
+              "doc": "Pipelines and a unit quad for drawing at pixel positions."
+            },
+            {
+              "sig": "pub fn painter(dev: const gpu::Device, into: integer) -> Painter?",
+              "doc": "A painter for passes that draw into `into` (`gpu::INTO_WINDOW`, `gpu::INTO_COLOUR`, …),\nsized to the device's window.  Null on a device whose backend this library has no shader\nsource for."
+            },
+            {
+              "sig": "pub fn resize(self: Painter, width: integer, height: integer)",
+              "doc": "Draw for a target of `width` x `height` pixels from now on: after the window was resized, or\nfor a pass into a texture of another size."
+            },
+            {
+              "sig": "pub fn rect( self: Painter, dev: gpu::Device, x: float, y: float, w: float, h: float, r: float, g: float, b: float, a: float )",
+              "doc": "A filled rectangle at (x, y) of `w` x `h` pixels, channels 0.0-1.0."
+            },
+            {
+              "sig": "pub fn image(self: Painter, dev: gpu::Device, t: const gpu::Texture, x: float, y: float, w: float, h: float)",
+              "doc": "A texture stretched over (x, y) of `w` x `h` pixels; fully transparent pixels are not drawn."
+            },
+            {
+              "sig": "pub fn sprite( self: Painter, dev: gpu::Device, sheet: const Sprites, x: float, y: float, w: float, h: float, index: integer )",
+              "doc": "Sprite `index` of `sheet` over (x, y) of `w` x `h` pixels."
+            }
+          ],
+          "published": "2026-11-20T15:56:24Z"
         }
       }
     },
