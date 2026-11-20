@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T15:45:25Z",
+  "updated": "2026-11-20T15:45:42Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -74930,6 +74930,45 @@
             }
           ],
           "published": "2026-11-20T13:39:55Z"
+        },
+        "0.3.2": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_gl-v0.3.2/gpu_gl-0.3.2.tar.gz",
+          "sha256": "a89f2dfc2487b1ffc227fc3842eb1c7990a2a7ce7803b7ffb5b4344ccee17383",
+          "size": 55044,
+          "loft": ">=2026.11.20261116",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "gpu_gl",
+          "deps": {
+            "gpu": ">=0.4.1"
+          },
+          "api": [
+            {
+              "sig": "pub fn table() -> i64",
+              "doc": "This backend's table, for `gpu::open`; 0 on a machine it has no window host for.  `open`\nanswers null where the machine has no OpenGL."
+            },
+            {
+              "sig": "pub fn renderer() -> text",
+              "doc": "The OpenGL renderer of the window opened last through this backend, as its driver names it:\n\"Apple M3 Max\", \"llvmpipe (LLVM 19.1.7, 256 bits)\", \"Apple Software Renderer\".  Empty before\na window opened, and in a browser page.  A test that measures another backend against this\none reads it to know what it measures against."
+            },
+            {
+              "sig": "pub fn checked() -> boolean",
+              "doc": "Whether this library was built checked (`c/checked.sh`) and its checks are on.  The library\nas it is published is not, and pays nothing for the checks: `faults` is then always 0.\n\nA checked build looks at the error OpenGL kept after every call this backend makes of it,\nturns the driver's own messages on where it has them, and refuses the use of a handle that\nwas released or whose device closed.  Each fault is counted and written to stderr with the\ncall it came from.  OpenGL takes a wrong call in silence, so this is how a mistake in this\nbackend, or in a shader, is seen.  `GPU_GL_DEBUG=abort` stops the program at the first fault,\n`GPU_GL_DEBUG=0` turns the checks off."
+            },
+            {
+              "sig": "pub fn check(on: boolean)",
+              "doc": "Turn a checked build's checks off, or on again.  Ask before `table()`: a device opened\nthrough a table taken earlier keeps what that table did."
+            },
+            {
+              "sig": "pub fn faults() -> integer",
+              "doc": "How many faults a checked build has seen in this program."
+            },
+            {
+              "sig": "pub fn check_catches() -> integer",
+              "doc": "For this library's own tests: release one buffer of the window opened last twice, then give\nit to a draw, as no program can through `gpu`, and answer how many faults that added — 2 in a\nchecked build with its checks on (and not set to abort), 0 otherwise."
+            }
+          ],
+          "published": "2026-11-20T15:45:42Z"
         }
       }
     },
