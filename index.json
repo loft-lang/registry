@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T22:28:58Z",
+  "updated": "2026-11-20T22:29:23Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -69348,6 +69348,111 @@
             }
           ],
           "published": "2026-10-02T02:37:57Z"
+        },
+        "0.1.3": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/tween-v0.1.3/tween-0.1.3.tar.gz",
+          "sha256": "cd08294caad984d95a9a484f7665006a0e1386802b364c024ed7dc5b6093dc38",
+          "size": 24546,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "tween",
+          "deps": {},
+          "api": [
+            {
+              "sig": "pub enum Curve { Linear, Quad, Cubic, Quart, Quint, Sine, Expo, Circ, Back, Elastic, Bounce }",
+              "doc": "Which shape the curve has.\n\n⚠ `Back` and `Elastic` leave `[0, 1]` on purpose — they overshoot and come\nback — so a consumer clamping the RESULT of an ease is undoing the effect it\nasked for.  Every other curve stays inside."
+            },
+            {
+              "sig": "pub enum Shape { In, Out, InOut }",
+              "doc": "Which direction the curve runs: slow at the start, slow at the end, or both."
+            },
+            {
+              "sig": "pub fn ease(c: Curve, s: Shape, t: float) -> float",
+              "doc": "Ease `t` — the entry point, and the three reflections of the header's rule 2.\n\n⚠ There is no clamp HERE on purpose; every arm reads the curve through\n`curve_at`, which is where the endpoints are decided.  See the header for\nwhy in front of the reflections is the wrong side of them.\nExample: @TWN-003"
+            },
+            {
+              "sig": "pub fn curve_at(c: Curve, t: float) -> float",
+              "doc": "The curve, clamped — **the one place all thirty-three combinations get their\nendpoints from.**\n\n⚠ **Clamped, not trusted.**  `t <= 0` answers exactly 0.0 and `t >= 1`\nexactly 1.0 without consulting the curve, which is what makes the endpoints\nexact — including for the two curves whose textbook definitions miss them.\n\n⚠ A `null` progress (a NaN) is neither `<= 0.0` nor `>= 1.0`, so it reaches\nthe curve and comes back null.  That is deliberate: an unanswerable progress\nmust not silently read as \"finished\"."
+            },
+            {
+              "sig": "pub fn curve_in(c: Curve, t: float) -> float",
+              "doc": "The **In** direction of each curve, raw — the eleven definitions everything\nelse is reflected from.\n\n⚠ **Public so it can be gated, not because it is the door.**  It is NOT\nclamped: `curve_in(Sine, 1.0)` is `0.9999999999999999`, which is exactly the\nhole `ease` exists to close.  Reach for `ease`."
+            },
+            {
+              "sig": "pub fn lerp(a: float, b: float, t: float) -> float",
+              "doc": "A linear interpolation that lands EXACTLY on both endpoints.\n\n⚠ **`a·(1−t) + b·t`, and the other spelling is not equivalent** — see the\nheader: `a + (b−a)·t` answers 0.0 for `lerp(1e17, 1.0, 1.0)`.  Reach for\nthis one whenever an endpoint has to be hit rather than approached.\n\n`t` outside `[0, 1]` extrapolates, which is what makes the overshooting\ncurves (`Back`, `Elastic`) work.\nExample: @TWN-002"
+            },
+            {
+              "sig": "pub struct Tween { from: float, to: float, duration: integer, elapsed: integer, lead: integer, curve: Curve = Curve.Linear, shape: Shape = Shape.In }",
+              "doc": "One value moving from `from` to `to` over `duration` base units.\n\n⚠ **`duration <= 0` means INSTANT, not unarmed** — it reads `to` and is\n`done` immediately.  That is the opposite of `fixstep`'s `Timer`, where a\nzero total means nothing is running, and it is deliberate: \"move there over\nno time\" is a step, and a chain built from one must pass straight through\nit rather than stall."
+            },
+            {
+              "sig": "pub fn tween_new(from: float, to: float, duration: integer, c: Curve = Curve.Linear, s: Shape = Shape.In) -> Tween",
+              "doc": "A tween ready to run."
+            },
+            {
+              "sig": "pub fn delay(self: Tween, units: integer)",
+              "doc": "Wait `units` before starting.\n\n⚠ A door rather than a sixth parameter, for `fixstep`'s reason: a delay is a\ncase some callers have and most do not.  During the wait the tween reads\n`from` and is not `done`."
+            },
+            {
+              "sig": "pub fn advance(self: Tween, units: integer) -> integer",
+              "doc": "Spend `units` of time on it, and answer how many were LEFT OVER — the time\npast its end, which is what the next link of a chain must already have run\nfor.  Zero while it is still running.\n\n⚠ Non-positive time is dropped rather than owed (`fixstep`'s rule 2), so a\npaused consumer may call this every frame.\nExample: @TWN-001"
+            },
+            {
+              "sig": "pub fn progress(self: const Tween) -> float",
+              "doc": "How far through it is, before easing — the exact ratio `elapsed / duration`,\nin `[0, 1]`.\n\n⚠ **It reaches 1.0 and STAYS there**, which is the difference from\n`fixstep`'s `timer_fraction` (documented `[0, 1)`, and 0.0 again once the\ntimer fires — a tween built on one would snap back to its start the instant\nit finished)."
+            },
+            {
+              "sig": "pub fn value(self: const Tween) -> float",
+              "doc": "What it reads right now.\n\n⚠ Exactly `from` before it starts and exactly `to` once it has finished —\nsee the header for why that needs the interpolation to be written one way\nand not the other."
+            },
+            {
+              "sig": "pub fn done(self: const Tween) -> boolean",
+              "doc": "Has it finished?  A tween still waiting out its `delay` has not."
+            },
+            {
+              "sig": "pub fn rewind(self: Tween, lead: integer = 0)",
+              "doc": "Put it back at the start, delay and all — the same tween, run again."
+            },
+            {
+              "sig": "pub enum Play { Chain, Parallel }",
+              "doc": "How several tweens share one stream of time."
+            },
+            {
+              "sig": "pub struct Track { steps: vector<Tween>, mode: Play = Play.Chain, at: integer }",
+              "doc": "Several tweens driven together.\n\n⚠ **It is a rule about time, not a scheduler** — there is no queue, no\npriority and no callback.  `Chain` hands each link's leftover to the next,\nwhich is the entire reason `advance` answers one."
+            },
+            {
+              "sig": "pub fn track_new(mode: Play = Play.Chain) -> Track",
+              "doc": "An empty track."
+            },
+            {
+              "sig": "pub fn add(self: Track, tw: Tween)",
+              "doc": "Add a link.  For `Chain` the order of the calls is the order they run in."
+            },
+            {
+              "sig": "pub fn advance(self: Track, units: integer) -> integer",
+              "doc": "Spend `units` on the track, and answer the leftover — the same contract one\ntween has, so a track composes into a chain exactly like a tween does."
+            },
+            {
+              "sig": "pub fn done(self: const Track) -> boolean",
+              "doc": "Have all its links finished?"
+            },
+            {
+              "sig": "pub fn active(self: const Track) -> integer",
+              "doc": "Which link is running, for `Chain` — `len(steps)` once it has finished."
+            },
+            {
+              "sig": "pub fn value_at(self: const Track, i: integer) -> float",
+              "doc": "What the link at `i` reads right now.\n\n⚠ A door rather than making a consumer index `steps` itself, because an\nout-of-range index there reads `null` and this answers `0.0`."
+            },
+            {
+              "sig": "pub fn rewind(self: Track)",
+              "doc": "Put every link back at its start."
+            }
+          ],
+          "published": "2026-11-20T22:29:23Z"
         }
       }
     },
