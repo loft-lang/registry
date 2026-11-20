@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T12:03:31Z",
+  "updated": "2026-11-20T12:03:50Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -74722,6 +74722,25 @@
             }
           ],
           "published": "2026-11-18T00:41:06Z"
+        },
+        "0.2.0": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_metal-v0.2.0/gpu_metal-0.2.0.tar.gz",
+          "sha256": "8d6902499803b6f9f68f0586cba1105d4df08005a8f61fa30d9de942499db822",
+          "size": 40269,
+          "loft": ">=2026.11.20261116",
+          "api_compatible_with": "0.1.0",
+          "data_compatible_with": "0.1.0",
+          "subpath": "gpu_metal",
+          "deps": {
+            "gpu": ">=0.4.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn table() -> i64",
+              "doc": "This backend's table, for `gpu::open`; 0 on a machine that is not a Mac.  `open` answers null\non a Mac with no Metal."
+            }
+          ],
+          "published": "2026-11-20T12:03:50Z"
         }
       }
     },
