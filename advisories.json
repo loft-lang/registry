@@ -7,7 +7,7 @@
       "id": "LOFT-2026-0004",
       "packages": [{"name": "audio", "affected": "<0.2.5", "fixed_in": "0.2.5"}],
       "severity": "security_high",
-      "summary": "on a 32-bit target, an OGG file's stated length is not checked before it sizes a buffer; use audio 0.2.5 or later",
+      "summary": "on a 32-bit target, an OGG file's stated length is not checked before it sizes a buffer",
       "published": "2026-11-20T18:45:00Z",
       "references": ["https://github.com/loft-lang/loft-libs-game/pull/37"]
     },
@@ -15,7 +15,7 @@
       "id": "LOFT-2026-0003",
       "packages": [{"name": "audio", "affected": "<0.2.1", "fixed_in": "0.2.1"}],
       "severity": "security_critical",
-      "summary": "audio 0.2.0 ships stb_vorbis 1.22 without the fixes for CVE-2023-45675 to CVE-2023-45682 and CVE-2026-5316/5317; use audio 0.2.1 or later",
+      "summary": "audio 0.2.0 ships stb_vorbis 1.22 without the fixes for CVE-2023-45675 to CVE-2023-45682 and CVE-2026-5316/5317",
       "published": "2026-11-20T18:45:00Z",
       "references": [
         "https://github.com/loft-lang/loft-libs-game/pull/28",
@@ -36,7 +36,7 @@
       "id": "LOFT-2026-0002",
       "packages": [{"name": "regex", "affected": ">=0.6.0, <0.6.2", "fixed_in": "0.6.2"}],
       "severity": "security_high",
-      "summary": "a long input can exhaust the matcher's stack; use regex 0.6.2 or later",
+      "summary": "a long input can exhaust the matcher's stack",
       "published": "2026-11-20T18:45:00Z",
       "references": ["https://github.com/loft-lang/loft-libs-core/pull/63"]
     },
@@ -44,7 +44,7 @@
       "id": "LOFT-2026-0001",
       "packages": [{"name": "cbor", "affected": "<0.1.14", "fixed_in": "0.1.14"}],
       "severity": "security_high",
-      "summary": "decode does not hold an item count against the bytes left; use cbor 0.1.14 or later",
+      "summary": "decode does not hold an item count against the bytes left",
       "published": "2026-11-20T18:45:00Z",
       "references": ["https://github.com/loft-lang/loft-libs-core/pull/63"]
     }
