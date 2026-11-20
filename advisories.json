@@ -7,7 +7,7 @@
       "id": "LOFT-2026-0004",
       "packages": [{"name": "audio", "affected": "<0.2.5", "fixed_in": "0.2.5"}],
       "severity": "security_high",
-      "summary": "On a 32-bit target, an OGG file whose stated length is 2^30 frames or more makes load_clip allocate a buffer too small for the samples the decoder then writes into it (a heap overflow). 64-bit builds are not affected.",
+      "summary": "On a 32-bit target, an OGG file whose stated length is 2^30 frames or more makes load_clip allocate a buffer too small for the samples the decoder then writes into it (a heap overflow). 64-bit builds are not affected",
       "published": "2026-11-20T18:45:00Z",
       "references": ["https://github.com/loft-lang/loft-libs-game/pull/37"]
     },
@@ -15,7 +15,7 @@
       "id": "LOFT-2026-0003",
       "packages": [{"name": "audio", "affected": "<0.2.1", "fixed_in": "0.2.1"}],
       "severity": "security_critical",
-      "summary": "audio 0.2.0 ships stb_vorbis 1.22 without the fixes for CVE-2023-45675 to CVE-2023-45682 and CVE-2026-5316/5317: a crafted OGG file reads or writes outside the decoder's buffers.",
+      "summary": "audio 0.2.0 ships stb_vorbis 1.22 without the fixes for CVE-2023-45675 to CVE-2023-45682 and CVE-2026-5316/5317: a crafted OGG file reads or writes outside the decoder's buffers",
       "published": "2026-11-20T18:45:00Z",
       "references": [
         "https://github.com/loft-lang/loft-libs-game/pull/28",
@@ -36,7 +36,7 @@
       "id": "LOFT-2026-0002",
       "packages": [{"name": "regex", "affected": ">=0.6.0, <0.6.2", "fixed_in": "0.6.2"}],
       "severity": "security_high",
-      "summary": "The matcher recurses once per repetition, so a long input (about 80,000 characters under `\\w+`) overflows the stack and ends the process. Matching untrusted text is a denial of service.",
+      "summary": "The matcher recurses once per repetition, so a long input (about 80,000 characters under `\\w+`) overflows the stack and ends the process. Matching untrusted text is a denial of service",
       "published": "2026-11-20T18:45:00Z",
       "references": ["https://github.com/loft-lang/loft-libs-core/pull/63"]
     },
@@ -44,7 +44,7 @@
       "id": "LOFT-2026-0001",
       "packages": [{"name": "cbor", "affected": "<0.1.14", "fixed_in": "0.1.14"}],
       "severity": "security_high",
-      "summary": "decode trusts an array or map head's item count: nine bytes claiming 2^62 items keep the decoder looping. Decoding untrusted frames is a denial of service.",
+      "summary": "decode trusts an array or map head's item count: nine bytes claiming 2^62 items keep the decoder looping. Decoding untrusted frames is a denial of service",
       "published": "2026-11-20T18:45:00Z",
       "references": ["https://github.com/loft-lang/loft-libs-core/pull/63"]
     }
