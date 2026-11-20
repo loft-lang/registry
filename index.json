@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T15:55:43Z",
+  "updated": "2026-11-20T15:56:03Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -75613,6 +75613,40 @@
             }
           ],
           "published": "2026-11-17T17:30:58Z"
+        },
+        "0.1.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/gpu_host-v0.1.1/gpu_host-0.1.1.tar.gz",
+          "sha256": "68aa22aa488961f02b70f06d29c7f95736b863604e098f409177400ab4ad368f",
+          "size": 8239,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.1.1",
+          "data_compatible_with": "0.1.1",
+          "subpath": "gpu_host",
+          "deps": {
+            "gpu": ">=0.4.1",
+            "gpu_gl": ">=0.2.0",
+            "gpu_metal": ">=0.1.0",
+            "gpu_vulkan": ">=0.1.0"
+          },
+          "api": [
+            {
+              "sig": "pub fn backends() -> vector<text>",
+              "doc": "The names of the backends this machine has a table for, in the order they are asked.  One\nthat is listed may still open no window: its stack is looked for when a device opens."
+            },
+            {
+              "sig": "pub fn open(width: integer, height: integer, title: text) -> gpu::Device?",
+              "doc": "Open a window of `width` x `height` pixels on the first backend that has one to give.  Null\nwhen none does: the machine has no GPU this library knows, or no display."
+            },
+            {
+              "sig": "pub fn open_fullscreen(title: text) -> gpu::Device?",
+              "doc": "Open a window over the whole screen, as `gpu::open_fullscreen` does, on the first backend\nthat has one to give."
+            },
+            {
+              "sig": "pub fn open_on(backend: text, width: integer, height: integer, title: text) -> gpu::Device?",
+              "doc": "Open a window on the backend named `backend` alone (a name `backends()` lists).  For a test\nor a measurement that compares two backends; a game calls `open`."
+            }
+          ],
+          "published": "2026-11-20T15:56:03Z"
         }
       }
     },
