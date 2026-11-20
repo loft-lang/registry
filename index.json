@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-11-20T15:56:24Z",
+  "updated": "2026-11-20T15:56:43Z",
   "packages": {
     "cbor": {
       "description": "Signable canonical CBOR (RFC 8949), pure loft — canonical map-key ordering, full decode, byte-identical encode->decode->encode, native == wasm.",
@@ -75816,6 +75816,113 @@
             }
           ],
           "published": "2026-11-17T17:31:35Z"
+        },
+        "0.6.1": {
+          "url": "https://github.com/loft-lang/loft-libs-graphics/releases/download/scene3d-v0.6.1/scene3d-0.6.1.tar.gz",
+          "sha256": "aef0060aadb190906acfe3827323fd53eb2a30b64813b774ec8530ac45308a22",
+          "size": 40342,
+          "loft": ">=2026.10.0",
+          "api_compatible_with": "0.6.1",
+          "data_compatible_with": "0.6.1",
+          "subpath": "scene3d",
+          "deps": {
+            "gpu": ">=0.4.1"
+          },
+          "api": [
+            {
+              "sig": "pub struct Scene { into: integer, sky: integer, land: gpu::Pipeline, values: gpu::Block, atlas: gpu::Texture, lights: gpu::Texture, torch_map: gpu::Texture, reach_atlas: gpu::Texture, torch_ids: vector<integer>, reaches: vector<vector<single>>, glows: vector<float>, colours: vector<float>, pictures: integer, slots: hash<Slot[key]>, faces: vector<vector<single>>, buffers: vector<gpu::Buffer>, counts: vector<integer>, walls: vector<vector<integer>>, solids: vector<vector<float>>, bounds: vector<vector<float>>, hidden: vector<integer>, actors: vector<single>, keep: integer, cards: gpu::Buffer, card_count: integer, over: gpu::Pipeline, over_quad: gpu::Buffer, over_picture: gpu::Texture, over_on: boolean, backdrop: gpu::Texture?, back_quad: gpu::Buffer?, free: boolean, view: vector<float>, eye: vector<float>, right_x: float, right_z: float, cam_x: integer, cam_y: integer, width: integer, height: integer }",
+              "doc": "A scene on a device: its pictures, its tiles, the cells' light, this frame's actors and the\ncamera."
+            },
+            {
+              "sig": "pub fn new_scene(dev: const gpu::Device, into: integer, sky: i64) -> Scene?",
+              "doc": "A scene for passes into `into` (`gpu::INTO_WINDOW`, `gpu::INTO_COLOUR_DEPTH` for a target\nwith depth), `sky` (0xAARRGGBB) where nothing is, on a screen the size of the device's\nwindow.  Null on a device whose backend this library has no shader source for."
+            },
+            {
+              "sig": "pub fn resize(self: Scene, width: integer, height: integer)",
+              "doc": "The screen's size: what the fixed camera shows (a cell `WIDE` of these across) and the\noverlay is laid out on.  In a window of another size the screen is drawn as large as fits,\nin its own shape, in the middle, with black beside it: a view made for 800 x 480 fills a\nwhole-screen window so, showing what it showed.  A pass into a target (`draw_into`) covers\nthe whole target."
+            },
+            {
+              "sig": "pub fn placed(self: const Scene, wide: integer, high: integer) -> (integer, integer, integer, integer)",
+              "doc": "Where the screen lies in a window `wide` x `high`: its left, its bottom, its width and its\nheight in the window's pixels."
+            },
+            {
+              "sig": "pub fn screen_point(self: const Scene, wide: integer, high: integer, x: integer, y: integer) -> (integer, integer)",
+              "doc": "The screen's pixel under the window's pixel (x, y), both from the top-left: where a pointer\nis on the screen.  It lies outside 0 .. width, 0 .. height when the pointer is beside it."
+            },
+            {
+              "sig": "pub fn add_picture(self: Scene, texels: const vector<i32>) -> integer",
+              "doc": "A picture, 16 x 16 RGB565 texels row by row (NONE where it is clear): its number, for a\nface or an actor; -1 when the texels are too few or the scene holds no more."
+            },
+            {
+              "sig": "pub fn set_tile(self: Scene, dev: const gpu::Device, key: integer, d: const vector<single>)",
+              "doc": "Tile `key`'s faces, in place of the ones it had (none: it is empty).  Faces follow one\nanother in `d`: the picture, the group it is hidden with (-1: none), its corners n, where\nits light comes from (the cell x, y, its layer, and a factor; layer NO_LIGHT: its corners'\nown), then n times x, y, z, u, v, light — u and v 0 .. 1 over the picture, light 0 .. 1."
+            },
+            {
+              "sig": "pub fn drop_tile(self: Scene, key: integer)",
+              "doc": "Tile `key` gone."
+            },
+            {
+              "sig": "pub fn tiles(self: const Scene) -> integer",
+              "doc": "How many tiles hold faces now."
+            },
+            {
+              "sig": "pub fn set_light(self: Scene, d: const vector<single>)",
+              "doc": "The light of cells as data: `d` is the layer, the box's corner (x0, y0), its width and\nheight, then each cell's light (0 .. 1) row by row.  The faces lit from those cells are lit\nby it from the next frame; no face is given again."
+            },
+            {
+              "sig": "pub fn offers_torches(self: const Scene) -> boolean",
+              "doc": "Whether this implementation lights torches of their own: it does.  One that does not is\ngiven the cells' light with the torches in it."
+            },
+            {
+              "sig": "pub fn set_torch_reach(self: Scene, d: const vector<single>) -> boolean",
+              "doc": "A torch's reach: `d` is its id, the layer, the box's corner (x0, y0), its width and height\n(15 cells at most each way), then the light it gives each cell of the box (0 .. 1) row by\nrow, 0 where it does not reach.  Given when the torch is new, has moved, or burns\notherwise; walls stop it where the reach says so.  False, and nothing kept, when the box is\ntoo large or the scene holds its 64 torches already."
+            },
+            {
+              "sig": "pub fn drop_torch(self: Scene, id: integer)",
+              "doc": "Torch `id` gone: its light with it."
+            },
+            {
+              "sig": "pub fn set_torches(self: Scene, d: const vector<single>)",
+              "doc": "This frame's torches, nine numbers each in `d`: its id, its place (x, y, z as a face's\ncorners), the shade\nit starts at, its glow (0 .. 1: how brightly it burns now, a flicker eased), and its colour\n(red, green, blue, 0 .. 1).  A torch whose reach was given and that is not named burns\ndark this frame; one named with no reach given is not drawn.  A flicker is these numbers\nalone: nothing else is given again."
+            },
+            {
+              "sig": "pub fn torches(self: const Scene) -> integer",
+              "doc": "How many torches' reaches the scene holds."
+            },
+            {
+              "sig": "pub fn set_actors(self: Scene, d: const vector<single>, keep_seen: integer)",
+              "doc": "This frame's actors, eleven numbers each in `d`: an id, the picture, the bottom middle\n(x, y, z) of the picture as it stands unturned, its size in cells, its light, how far it is\nturned (degrees clockwise as the camera sees it), the point of the picture it turns about\n(u, v: 0 .. 1 across and down) and whether it is mirrored (1) or not (0).  A card stands\nupright and faces the camera: for the fixed camera in the plane it looks at, for the free\none turned about its foot so its width lies across the view.  The actor `keep_seen` is never\nhidden: the wall groups between the camera and its card are cut away, and shown again when\nthey no longer are (-1: none)."
+            },
+            {
+              "sig": "pub fn hidden_groups(self: const Scene) -> vector<integer>",
+              "doc": "The groups hidden now: the walls cut away between the camera and the actor never hidden."
+            },
+            {
+              "sig": "pub fn set_overlay(self: Scene, dev: const gpu::Device, px: const vector<i32>, w: integer, h: integer, scale: integer)",
+              "doc": "A picture over everything — the status line, talk bubbles — `w` x `h` RGB565 values row by\nrow, NONE where it is clear, each drawn `scale` x `scale` from the screen's top-left.  One\nwith too few values takes it away."
+            },
+            {
+              "sig": "pub fn offers_free_camera(self: const Scene) -> boolean",
+              "doc": "Whether this implementation offers a free camera: it does.  One on a CPU offers the fixed\ncamera only, so a view asks before it chooses."
+            },
+            {
+              "sig": "pub fn free_camera(self: Scene, eye: (float, float, float), at: (float, float, float), field: float)",
+              "doc": "The free camera: an eye, a point looked at, and a field of view in degrees, in perspective.\nThe cards turn to face it, and the walls between the eye and the actor never hidden are cut\naway, whichever of the camera and the actors is given first."
+            },
+            {
+              "sig": "pub fn fixed_camera(self: Scene, px: integer, py: integer)",
+              "doc": "The fixed camera, from the south: the screen's top-left at world pixel (px, py), where cell\n(x, z) on layer y lies at (x * WIDE, z * DEEP - y * TALL)."
+            },
+            {
+              "sig": "pub fn draw(self: Scene, dev: gpu::Device)",
+              "doc": "Draw the scene into the window: a pass of its own, cleared to the sky.  Where the window\nis not the screen's size (`resize`), the screen is drawn as large as fits in the middle of\nit and the rest is black."
+            },
+            {
+              "sig": "pub fn draw_into(self: Scene, dev: gpu::Device, target: const gpu::Target)",
+              "doc": "Draw the scene into `target` (made for the kind the scene was made for)."
+            }
+          ],
+          "published": "2026-11-20T15:56:43Z"
         }
       }
     },
