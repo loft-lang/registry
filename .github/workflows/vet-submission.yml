@@ -41,7 +41,7 @@ permissions:
 
 env:
   # The loft whose gate is run.
-  LOFT_REF: main
+  LOFT_REF: tuxedo-pln225   # TEMPORARY: the gate with --isolated, until it reaches loft main
 
 jobs:
   vet:
