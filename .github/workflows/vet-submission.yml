@@ -1,0 +1,147 @@
+# Copyright (c) 2026 Jurjen Stellingwerff
+# SPDX-License-Identifier: LGPL-3.0-or-later
+#
+# Vet a submitted library on its pull request.
+#
+# A submission (`submissions/<name>-<version>.json`, loft's REGISTRY_SUBMIT.md) names a
+# repository and a tag; loft's `scripts/vet-lib.sh` clones it and runs the admission gate,
+# which compiles and RUNS the library's tests.  Those tests are its author's code, so they
+# run here — a fresh runner, on `pull_request` (a fork's PR gets no secrets), with a
+# read-only token that no checkout keeps on disk — and never on a maintainer's machine,
+# which holds the registry signing key (`vet-lib.sh` refuses to run there).
+#
+# The verdict is this check:
+#   PASS          green — `loft maintain-registry` merges it with the other green PRs;
+#   NEEDS REVIEW  red   — the library carries native code: a person reads it, then merges;
+#   FAIL          red   — not admitted.
+#
+# A change to this workflow vets two of the project's own releases with known verdicts, so
+# the workflow is tested by the PR that changes it.
+name: Vet submission
+on:
+  pull_request:
+    paths:
+      - "submissions/*.json"
+      - ".github/workflows/vet-submission.yml"
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "owner/repository of the library"
+        required: true
+      tag:
+        description: "release tag to vet"
+        required: true
+      subpath:
+        description: "package directory inside the repository (default: the only one)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+env:
+  # The loft whose gate is run.
+  LOFT_REF: main
+
+jobs:
+  vet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout the registry
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install mold (loft's pinned linker)
+        run: sudo apt-get update -y && sudo apt-get install -y mold
+
+      - name: Clone loft source
+        uses: actions/checkout@v4
+        with:
+          repository: loft-lang/loft
+          ref: ${{ env.LOFT_REF }}
+          path: loft-src
+          persist-credentials: false
+
+      - name: Cache cargo registry + loft build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            loft-src/target
+          key: vet-loft-${{ hashFiles('loft-src/Cargo.lock') }}
+          restore-keys: |
+            vet-loft-
+
+      - name: What to vet
+        id: what
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
+          IN_REPO: ${{ inputs.repo }}
+          IN_TAG: ${{ inputs.tag }}
+          IN_SUB: ${{ inputs.subpath }}
+        run: |
+          # One line per library: repo, tag, subpath, expected verdict ("-" = the gate's own).
+          : > vet.tsv
+          if [ "$EVENT" = workflow_dispatch ]; then
+            printf '%s\t%s\t%s\t-\n' "$IN_REPO" "$IN_TAG" "$IN_SUB" >> vet.tsv
+          else
+            git diff --name-only --diff-filter=AM "origin/$BASE...HEAD" -- 'submissions/*.json' > changed.txt
+            while read -r f; do
+              python3 - "$f" >> vet.tsv <<'PY'
+          import json, sys
+          d = json.load(open(sys.argv[1]))
+          print("\t".join([d.get("repo", ""), d.get("tag", ""), d.get("subpath", d.get("name", "")), "-"]))
+          PY
+            done < changed.txt
+            if [ ! -s vet.tsv ]; then
+              # The workflow itself changed: two own releases whose verdicts are known.
+              printf 'loft-lang/loft-libs-core\targuments-v0.2.8\targuments\tPASS\n' >> vet.tsv
+              if grep -q -- '--isolated' loft-src/scripts/vet-lib.sh; then
+                printf 'loft-lang/loft-libs-core\tcrypto-v0.5.0\tcrypto\tNEEDS REVIEW\n' >> vet.tsv
+              fi
+            fi
+          fi
+          cat vet.tsv
+
+      - name: Vet
+        run: |
+          flags="--native"
+          grep -q -- '--isolated' loft-src/scripts/vet-lib.sh && flags="$flags --isolated"
+          bad=0
+          {
+            echo "## Vetting"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          while IFS=$'\t' read -r repo tag sub expect; do
+            if [ -z "$repo" ] || [ -z "$tag" ]; then
+              echo "::error::a submission without repo or tag"; bad=1; continue
+            fi
+            set +e
+            bash loft-src/scripts/vet-lib.sh "$repo" "$tag" $sub $flags > "vet-$tag.log" 2>&1
+            rc=$?
+            set -e
+            cat "vet-$tag.log"
+            case "$rc" in
+              0) verdict="PASS" ;;
+              3) verdict="NEEDS REVIEW" ;;
+              *) verdict="FAIL" ;;
+            esac
+            echo "- \`$repo\` @ \`$tag\`: **$verdict**" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$expect" = "-" ]; then
+              [ "$verdict" = PASS ] || bad=1
+              [ "$verdict" = "NEEDS REVIEW" ] && echo "::warning::$repo@$tag carries native code: read it, then merge by hand"
+            elif [ "$verdict" != "$expect" ]; then
+              echo "::error::$repo@$tag answered $verdict, expected $expect"; bad=1
+            fi
+          done < vet.tsv
+          exit $bad
